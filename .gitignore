@@ -1,1 +1,87 @@
+# ==========================================
+# WHITYRAY DIGITAL TWIN — PRIVATE ASSETS
+# ==========================================
 
+# Voice recordings
+audio/
+voice/
+voices/
+recordings/
+samples/
+
+# Face / video / motion data
+video/
+videos/
+footage/
+motion/
+face/
+likeness/
+
+# Private datasets
+data/private/
+datasets/
+training_data/
+training/
+
+# Generated media
+generated/
+outputs/
+renders/
+exports/
+
+# Local provider configuration
+.env
+.env.*
+!.env.example
+
+# API keys / credentials
+secrets/
+credentials/
+keys/
+tokens/
+
+# Certificates / private keys
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local configuration
+config/local*
+config/private*
+
+# Temporary files
+tmp/
+temp/
+cache/
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Node
+node_modules/
+
+# Go
+bin/
+*.exe
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# AI-generated temporary files
+.ai/
+.local-ai/
