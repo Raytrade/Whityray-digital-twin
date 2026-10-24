@@ -3,11 +3,20 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const requestId = globalThis.crypto?.randomUUID?.() || `wr-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  res.setHeader("X-WhityRay-Request-Id", requestId);
+
   try {
     const { message, mode = "Digital Twin" } = req.body || {};
 
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message is required" });
+    if (typeof message !== "string" || !message.trim()) {
+      return res.status(400).json({ error: "Message is required", request_id: requestId });
+    }
+    if (message.length > 12000) {
+      return res.status(413).json({ error: "Message is too long (12,000 characters maximum)", request_id: requestId });
+    }
+    if (typeof mode !== "string" || mode.length > 80) {
+      return res.status(400).json({ error: "Mode must be a short text value", request_id: requestId });
     }
 
     const apiKey = process.env.AI_GATEWAY_API_KEY;
@@ -19,7 +28,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const gatewayUrl = "https://ai-gateway.vercel.sh/v1/chat/completions";
+    const gatewayUrl = process.env.AI_GATEWAY_URL || "https://ai-gateway.vercel.sh/v1/chat/completions";
 
     const model =
       process.env.WHITYRAY_GATEWAY_MODEL ||
@@ -186,7 +195,6 @@ ${mode}
             content: message.trim()
           }
         ],
-        temperature: 0.85,
         max_tokens: 1800
       })
     });
@@ -203,18 +211,19 @@ ${mode}
 
     if (!response.ok) {
       console.error("AI Gateway error:", {
+        requestId,
         status: response.status,
         statusText: response.statusText,
-        body: data || raw.slice(0, 1000)
+        providerError: data?.error?.message || data?.message || "Non-JSON or empty provider error"
       });
 
       return res.status(502).json({
         error: "AI Gateway request failed",
         provider_status: response.status,
-        provider_message:
-          data?.error?.message ||
-          data?.message ||
-          raw.slice(0, 1000)
+        request_id: requestId,
+        hint: response.status === 401 || response.status === 403
+          ? "Check AI_GATEWAY_API_KEY and provider/model access in Vercel Environment Variables."
+          : "Check the configured provider and model, then retry."
       });
     }
 
@@ -230,17 +239,22 @@ ${mode}
     return res.status(200).json({
       answer,
       identity: {
+        artist: "WhityRay",
         persona: "Immortal Beast",
-        world: "The Ijaw Wave"
-      }
+        world: "The Ijaw Wave",
+        mode
+      },
+      model,
+      request_id: requestId
     });
 
   } catch (error) {
-    console.error("WhityRay Gateway runtime error:", error);
+    console.error("WhityRay Gateway runtime error:", { requestId, message: error?.message || "Unknown server error" });
 
     return res.status(500).json({
       error: "Digital brain connection failed",
-      message: error?.message || "Unknown server error"
+      request_id: requestId,
+      hint: "Check Vercel function logs for this request ID."
     });
   }
 }
