@@ -20,6 +20,8 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.AI_GATEWAY_API_KEY;
+    const gatewayUrl = process.env.AI_GATEWAY_URL || "https://ai-gateway.vercel.sh/v1/chat/completions";
+    const model = process.env.WHITYRAY_GATEWAY_MODEL || "google/gemini-3.5-flash";
 
     if (!apiKey) {
       return res.status(500).json({
@@ -28,11 +30,21 @@ export default async function handler(req, res) {
       });
     }
 
-    const gatewayUrl = process.env.AI_GATEWAY_URL || "https://ai-gateway.vercel.sh/v1/chat/completions";
-
-    const model =
-      process.env.WHITYRAY_GATEWAY_MODEL ||
-      "google/gemini-3.5-flash";
+    const provider = typeof req.body?.provider === "string" ? req.body.provider : "default";
+    const providerConfigs = {
+      default: { url: gatewayUrl, model },
+      dialogbrain: { url: process.env.DIALOGBRAIN_CHAT_URL, model: process.env.DIALOGBRAIN_MODEL || "default" },
+      openai: { url: process.env.OPENAI_COMPATIBLE_CHAT_URL, model: process.env.OPENAI_COMPATIBLE_MODEL || "default" }
+    };
+    const selectedProvider = providerConfigs[provider];
+    if (!selectedProvider) return res.status(400).json({ error: "Unknown provider", request_id: requestId });
+    if (!selectedProvider.url || (provider !== "default" && !process.env[provider === "dialogbrain" ? "DIALOGBRAIN_API_KEY" : "OPENAI_COMPATIBLE_API_KEY"])) {
+      return res.status(503).json({ error: "Provider is not configured for chat routing", request_id: requestId,
+        hint: provider === "dialogbrain" ? "Configure DIALOGBRAIN_CHAT_URL and DIALOGBRAIN_API_KEY only if your account supports this chat API contract." : "Configure OPENAI_COMPATIBLE_CHAT_URL and OPENAI_COMPATIBLE_API_KEY for an OpenAI-compatible endpoint." });
+    }
+    const activeUrl = selectedProvider.url;
+    const activeModel = selectedProvider.model;
+    const activeKey = provider === "default" ? apiKey : process.env[provider === "dialogbrain" ? "DIALOGBRAIN_API_KEY" : "OPENAI_COMPATIBLE_API_KEY"];
 
     const systemPrompt = `
 You are the private creative intelligence behind an artist.
@@ -177,14 +189,14 @@ Current creative mode:
 ${mode}
 `;
 
-    const response = await fetch(gatewayUrl, {
+    const response = await fetch(activeUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        "Authorization": `Bearer ${activeKey}`
       },
       body: JSON.stringify({
-        model,
+        model: activeModel,
         messages: [
           {
             role: "system",
@@ -244,7 +256,8 @@ ${mode}
         world: "The Ijaw Wave",
         mode
       },
-      model,
+      model: activeModel,
+      provider,
       request_id: requestId
     });
 
