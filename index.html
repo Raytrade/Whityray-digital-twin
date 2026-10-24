@@ -1177,6 +1177,7 @@
         },
         body: JSON.stringify({
           mode: "Songwriter",
+          provider: document.getElementById("brainProvider")?.value || "default",
           message:
             `Write an original WhityRay singer-first song.\n\n` +
             `Direction: ${direction}\n` +
@@ -1234,6 +1235,7 @@
         },
         body: JSON.stringify({
           mode: "Music",
+          provider: document.getElementById("brainProvider")?.value || "default",
           message:
             `Create a concise production direction for this WhityRay idea:\n\n${idea}\n\n` +
             `Include BPM range, rhythm, drums, bass, melodic instruments, ` +
@@ -1283,6 +1285,7 @@
         },
         body: JSON.stringify({
           mode: "Video",
+          provider: document.getElementById("brainProvider")?.value || "default",
           message:
             `Build an original cinematic music-video concept from this idea:\n\n${idea}\n\n` +
             `Include opening shot, environment, movement, performance, ` +
