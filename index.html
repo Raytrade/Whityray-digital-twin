@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhityRay Digital Twin</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080808" />
+  <title>IMMORTAL — Creative Intelligence</title>
 
   <style>
     * {
@@ -12,18 +13,33 @@
       padding: 0;
     }
 
+    :root {
+      --bg: #070707;
+      --panel: #101010;
+      --panel2: #151515;
+      --line: #292929;
+      --text: #f5f5f5;
+      --muted: #929292;
+      --gold: #d7aa4a;
+      --gold2: #f0c969;
+      --danger: #d95b5b;
+      --green: #68c58a;
+    }
+
     body {
       min-height: 100vh;
-      font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(255,190,70,.12), transparent 30%),
-        radial-gradient(circle at bottom left, rgba(70,100,255,.08), transparent 30%),
-        #080808;
-      color: #f5f5f5;
+        radial-gradient(circle at 80% 10%, rgba(215,170,74,.08), transparent 30%),
+        radial-gradient(circle at 20% 90%, rgba(255,255,255,.035), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
     }
 
     button,
-    textarea {
+    textarea,
+    input,
+    select {
       font: inherit;
     }
 
@@ -33,340 +49,444 @@
 
     .app {
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 245px 1fr;
     }
 
-    .topbar {
-      height: 72px;
+    /* SIDEBAR */
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      background: rgba(8,8,8,.94);
+      padding: 22px 14px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      border-bottom: 1px solid #242424;
-      background: rgba(10,10,10,.94);
-      backdrop-filter: blur(15px);
+      flex-direction: column;
       position: sticky;
       top: 0;
-      z-index: 10;
+      height: 100vh;
     }
 
     .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      padding: 8px 12px 24px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 16px;
     }
 
-    .logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg,#fff,#777);
-      color: #000;
+    .brand-name {
+      font-size: 25px;
       font-weight: 900;
+      letter-spacing: 4px;
     }
 
-    .brand h1 {
-      font-size: 17px;
-    }
-
-    .brand span {
-      display: block;
-      color: #888;
+    .brand-sub {
+      color: var(--muted);
       font-size: 11px;
-      margin-top: 3px;
-    }
-
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #aaa;
-      font-size: 12px;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #58d68d;
-      box-shadow: 0 0 12px rgba(88,214,141,.7);
-    }
-
-    .status-dot.error {
-      background: #e74c3c;
-      box-shadow: 0 0 12px rgba(231,76,60,.7);
-    }
-
-    .layout {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 230px 1fr;
-    }
-
-    .sidebar {
-      border-right: 1px solid #222;
-      padding: 22px 14px;
-      background: rgba(8,8,8,.75);
-    }
-
-    .section-label {
-      color: #666;
+      margin-top: 6px;
+      letter-spacing: 1px;
       text-transform: uppercase;
-      font-size: 10px;
-      letter-spacing: 1.5px;
-      padding: 0 12px;
-      margin: 12px 0 8px;
     }
 
-    .nav-btn {
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .nav button {
       width: 100%;
-      border: 0;
+      border: 1px solid transparent;
       background: transparent;
       color: #aaa;
       text-align: left;
-      padding: 12px;
+      padding: 13px 12px;
       border-radius: 10px;
-      margin-bottom: 4px;
+      transition: .2s;
     }
 
-    .nav-btn:hover,
-    .nav-btn.active {
-      background: #191919;
-      color: #fff;
+    .nav button:hover {
+      background: #151515;
+      color: white;
     }
 
-    .nav-btn.active {
-      border-left: 2px solid #fff;
+    .nav button.active {
+      background: rgba(215,170,74,.1);
+      border-color: rgba(215,170,74,.3);
+      color: var(--gold2);
     }
 
-    main {
+    .side-status {
+      margin-top: auto;
+      border-top: 1px solid var(--line);
+      padding: 15px 12px 5px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    /* MAIN */
+
+    .main {
       min-width: 0;
-      padding: 30px;
+      padding: 28px;
     }
 
-    .hero,
-    .panel,
-    .modules {
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .top-title {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .top-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .badge {
+      border: 1px solid var(--line);
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    /* PANELS */
+
+    .panel {
+      display: none;
+      animation: appear .2s ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .hero {
-      margin-bottom: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, #111, #0b0b0b);
+      border-radius: 18px;
+      padding: 28px;
+      margin-bottom: 18px;
     }
 
-    .hero h2 {
-      font-size: clamp(30px,5vw,52px);
+    .hero h1 {
+      font-size: clamp(28px, 5vw, 48px);
       line-height: 1;
       margin-bottom: 12px;
     }
 
-    .hero h2 span {
-      color: #999;
-    }
-
     .hero p {
-      color: #888;
-      max-width: 680px;
+      color: var(--muted);
+      max-width: 700px;
       line-height: 1.6;
     }
 
-    .panel {
-      border: 1px solid #272727;
-      background: rgba(15,15,15,.88);
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 19px;
+    }
+
+    .card-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .card-text {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .ready {
+      color: var(--green);
+      font-size: 11px;
+      margin-top: 14px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    .pending {
+      color: var(--gold);
+      font-size: 11px;
+      margin-top: 14px;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+    }
+
+    /* CHAT */
+
+    .chat-box {
+      border: 1px solid var(--line);
       border-radius: 18px;
       overflow: hidden;
-      box-shadow: 0 20px 80px rgba(0,0,0,.35);
+      background: #0c0c0c;
     }
 
-    .panel-header {
-      padding: 18px 20px;
-      border-bottom: 1px solid #252525;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .chat-header {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .panel-title {
-      font-weight: 700;
+    .chat-header strong {
+      display: block;
+      margin-bottom: 5px;
     }
 
-    .panel-subtitle {
-      color: #666;
-      font-size: 11px;
-      margin-top: 4px;
+    .chat-header span {
+      color: var(--muted);
+      font-size: 12px;
     }
 
-    .chat {
+    .messages {
       min-height: 330px;
-      max-height: 48vh;
+      max-height: 55vh;
       overflow-y: auto;
       padding: 20px;
     }
 
     .message {
       margin-bottom: 18px;
-      max-width: 85%;
+      white-space: pre-wrap;
+      line-height: 1.65;
     }
 
-    .message.user {
-      margin-left: auto;
+    .message.you {
+      color: var(--gold2);
     }
 
-    .message .label {
-      color: #777;
+    .message.twin {
+      color: #e8e8e8;
+    }
+
+    .message-label {
       font-size: 10px;
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-
-    .bubble {
-      padding: 13px 15px;
-      border-radius: 13px;
-      line-height: 1.55;
-      white-space: pre-wrap;
-    }
-
-    .message.twin .bubble {
-      background: #171717;
-      border: 1px solid #262626;
-    }
-
-    .message.user .bubble {
-      background: #eee;
-      color: #111;
+      margin-bottom: 5px;
     }
 
     .composer {
-      border-top: 1px solid #252525;
-      padding: 15px;
+      border-top: 1px solid var(--line);
+      padding: 14px;
+      display: flex;
+      gap: 10px;
     }
 
     textarea {
       width: 100%;
-      min-height: 105px;
+      min-height: 58px;
       resize: vertical;
-      border: 1px solid #303030;
-      border-radius: 12px;
-      background: #0b0b0b;
-      color: #fff;
-      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #090909;
+      color: white;
+      padding: 13px;
       outline: none;
     }
 
-    textarea:focus {
-      border-color: #555;
+    textarea:focus,
+    input:focus,
+    select:focus {
+      border-color: rgba(215,170,74,.6);
     }
 
-    .composer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 10px;
-      gap: 12px;
-    }
-
-    .hint {
-      color: #666;
-      font-size: 11px;
-    }
-
-    .send-btn {
+    .primary {
       border: 0;
       border-radius: 10px;
-      background: #fff;
-      color: #000;
-      font-weight: 700;
-      padding: 11px 20px;
+      background: var(--gold);
+      color: #080808;
+      font-weight: 900;
+      padding: 0 18px;
+      min-width: 105px;
     }
 
-    .send-btn:disabled {
-      opacity: .5;
-      cursor: wait;
+    .primary:hover {
+      background: var(--gold2);
     }
 
-    .modules {
-      margin-top: 22px;
-      display: grid;
-      grid-template-columns: repeat(3,1fr);
-      gap: 12px;
+    .secondary {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #111;
+      color: white;
+      padding: 11px 14px;
     }
 
-    .module {
-      padding: 17px;
-      border: 1px solid #242424;
-      background: #101010;
-      border-radius: 14px;
+    /* MODULES */
+
+    .module-head {
+      margin-bottom: 18px;
     }
 
-    .module-icon {
-      font-size: 22px;
-      margin-bottom: 10px;
+    .module-head h2 {
+      font-size: 28px;
+      margin-bottom: 7px;
     }
 
-    .module h3 {
-      font-size: 14px;
-      margin-bottom: 6px;
+    .module-head p {
+      color: var(--muted);
     }
 
-    .module p {
-      color: #777;
+    .workspace {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field label {
+      display: block;
+      color: #aaa;
       font-size: 11px;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      background: #090909;
+      color: white;
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 9px;
+      outline: none;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .result {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background: #090909;
+      border-radius: 10px;
+      padding: 15px;
+      color: #bbb;
+      min-height: 80px;
+      white-space: pre-wrap;
+      line-height: 1.55;
+    }
+
+    .notice {
+      border-left: 3px solid var(--gold);
+      background: rgba(215,170,74,.06);
+      padding: 14px;
+      color: #bbb;
       line-height: 1.5;
+      margin-top: 15px;
+      font-size: 13px;
     }
 
-    .module-status {
-      margin-top: 12px;
-      color: #666;
-      font-size: 10px;
+    /* CAMERA */
+
+    .camera-wrap {
+      position: relative;
+      background: #050505;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      min-height: 300px;
     }
 
-    footer {
-      text-align: center;
-      padding: 22px;
+    video {
+      width: 100%;
+      max-height: 55vh;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* FOOTER */
+
+    .footer {
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
       color: #555;
       font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
-    @media (max-width:800px) {
-      .layout {
+    @media (max-width: 850px) {
+      .app {
         grid-template-columns: 1fr;
       }
 
       .sidebar {
-        display: flex;
-        overflow-x: auto;
+        position: relative;
+        height: auto;
         border-right: 0;
-        border-bottom: 1px solid #222;
-        padding: 8px;
-        gap: 5px;
+        border-bottom: 1px solid var(--line);
       }
 
-      .section-label {
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .side-status {
         display: none;
       }
 
-      .nav-btn {
-        width: auto;
-        white-space: nowrap;
-        margin: 0;
-      }
-
-      main {
+      .main {
         padding: 18px;
       }
 
-      .modules {
+      .cards {
         grid-template-columns: 1fr;
       }
 
-      .status {
-        display: none;
+      .composer {
+        flex-direction: column;
+      }
+
+      .primary {
+        min-height: 48px;
       }
     }
   </style>
@@ -376,480 +496,924 @@
 
 <div class="app">
 
-  <header class="topbar">
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
 
     <div class="brand">
-      <div class="logo">WR</div>
-
-      <div>
-        <h1>WhityRay Digital Twin</h1>
-        <span>Immortal Beast · The Ijaw Wave</span>
-      </div>
+      <div class="brand-name">IMMORTAL</div>
+      <div class="brand-sub">Creative Intelligence</div>
     </div>
 
-    <div class="status">
-      <div id="statusDot" class="status-dot"></div>
-      <span id="statusText">Checking Digital Twin...</span>
-    </div>
+    <nav class="nav">
 
-  </header>
-
-
-  <div class="layout">
-
-    <aside class="sidebar">
-
-      <div class="section-label">Digital Twin</div>
-
-      <button class="nav-btn active" onclick="selectMode('twin',this)">
-        🧠 Digital Twin
+      <button class="nav-btn active" data-panel="brain">
+        🧠 Brain
       </button>
 
-      <button class="nav-btn" onclick="selectMode('song',this)">
+      <button class="nav-btn" data-panel="songwriter">
         🎵 Songwriter
       </button>
 
-      <button class="nav-btn" onclick="selectMode('music',this)">
+      <button class="nav-btn" data-panel="music">
         🎧 Music
       </button>
 
-      <button class="nav-btn" onclick="selectMode('voice',this)">
+      <button class="nav-btn" data-panel="voice">
         🎙️ Voice
       </button>
 
-      <button class="nav-btn" onclick="selectMode('face',this)">
+      <button class="nav-btn" data-panel="face">
         🧑 Face
       </button>
 
-      <button class="nav-btn" onclick="selectMode('video',this)">
+      <button class="nav-btn" data-panel="video">
         🎬 Video
       </button>
 
-      <div class="section-label">System</div>
-
-      <button class="nav-btn" onclick="selectMode('api',this)">
-        🔑 API Connections
+      <button class="nav-btn" data-panel="connections">
+        🔑 Connections
       </button>
 
-      <button class="nav-btn" onclick="selectMode('settings',this)">
+      <button class="nav-btn" data-panel="settings">
         ⚙️ Settings
       </button>
 
-    </aside>
+    </nav>
+
+    <div class="side-status">
+      <span class="dot"></span>
+      Creative workspace online
+    </div>
+
+  </aside>
 
 
-    <main>
+  <!-- MAIN -->
 
-      <section class="hero">
+  <main class="main">
 
-        <h2>
-          Welcome back,
-          <span>WhityRay.</span>
-        </h2>
+    <div class="topbar">
+      <div>
+        <div class="top-title" id="topTitle">Brain</div>
+        <div class="top-sub" id="topSub">
+          Creative conversation and identity engine.
+        </div>
+      </div>
 
+      <div class="badge" id="connectionBadge">
+        API READY
+      </div>
+    </div>
+
+
+    <!-- BRAIN -->
+
+    <section class="panel active" id="panel-brain">
+
+      <div class="hero">
+        <h1>IMMORTAL</h1>
         <p>
-          Your creative reflection space.
-          Identity, personality, songwriting, voice,
-          visual identity and The Ijaw Wave — connected in one system.
+          A private creative intelligence workspace for identity,
+          songwriting, conversation, music direction and visual development.
         </p>
+      </div>
 
-      </section>
+      <div class="chat-box">
 
-
-      <section class="panel">
-
-        <div class="panel-header">
-
-          <div>
-            <div id="modeTitle" class="panel-title">
-              Digital Twin
-            </div>
-
-            <div id="modeSubtitle" class="panel-subtitle">
-              Talk to the WhityRay creative brain.
-            </div>
-          </div>
-
-          <div id="modeBadge" class="panel-subtitle">
-            IMMORTAL BEAST
-          </div>
-
+        <div class="chat-header">
+          <strong>Creative Brain</strong>
+          <span>Talk naturally. Give it something to work on.</span>
         </div>
 
-
-        <div id="chat" class="chat">
+        <div class="messages" id="messages">
 
           <div class="message twin">
-
-            <div class="label">
-              WhityRay Digital Twin
-            </div>
-
-            <div class="bubble">
-              Oya, we don open am.
-
-              Your browser interface is connected to the Digital Twin API layer.
-
-              Give me something to work on.
-            </div>
-
+            <div class="message-label">Immortal</div>
+            Oya, we don open am.<br><br>
+            Give me something to work on.
           </div>
 
         </div>
-
 
         <div class="composer">
 
           <textarea
-            id="prompt"
-            placeholder="Type something...
-
-Example:
-Give me a new WhityRay song about no borrowed light.
-
-Or:
-Build a cinematic music video concept from this idea."
+            id="chatInput"
+            placeholder="Talk to me..."
           ></textarea>
 
-
-          <div class="composer-bottom">
-
-            <div class="hint">
-              Singer-first · coded · melodic · Ijaw Wave · original
-            </div>
-
-            <button
-              id="sendButton"
-              class="send-btn"
-              onclick="sendPrompt()"
-            >
-              Run Twin →
-            </button>
-
-          </div>
+          <button class="primary" id="sendBtn">
+            Run
+          </button>
 
         </div>
 
-      </section>
+      </div>
+
+    </section>
 
 
-      <section class="modules">
+    <!-- SONGWRITER -->
 
-        <div class="module">
-          <div class="module-icon">🧠</div>
-          <h3>Brain</h3>
-          <p>
-            Identity, personality, songwriting rules,
-            creative rules and approved knowledge.
-          </p>
-          <div class="module-status">
-            FOUNDATION READY
+    <section class="panel" id="panel-songwriter">
+
+      <div class="module-head">
+        <h2>Songwriter</h2>
+        <p>Build singer-first songs, hooks and coded concepts.</p>
+      </div>
+
+      <div class="workspace">
+
+        <div class="field">
+          <label>Song idea</label>
+          <textarea
+            id="songIdea"
+            placeholder="Example: Girl wey like me but I no dey rush love..."
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label>Direction</label>
+          <select id="songDirection">
+            <option>Immortal Beast</option>
+            <option>The Ijaw Wave</option>
+            <option>Street Romance</option>
+            <option>Prayer / Faith</option>
+            <option>Money / Ambition</option>
+            <option>Storytelling</option>
+          </select>
+        </div>
+
+        <div class="button-row">
+          <button class="primary" id="buildSong">
+            Build Song
+          </button>
+
+          <button class="secondary" id="clearSong">
+            Clear
+          </button>
+        </div>
+
+        <div class="result" id="songResult">
+          Your song will appear here.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- MUSIC -->
+
+    <section class="panel" id="panel-music">
+
+      <div class="module-head">
+        <h2>Music</h2>
+        <p>Music direction, production ideas and arrangement planning.</p>
+      </div>
+
+      <div class="cards">
+
+        <div class="card">
+          <div class="card-title">🎹 Sound</div>
+          <div class="card-text">
+            Dark piano, log drums, water textures, cinematic atmosphere
+            and melodic Afro-fusion direction.
           </div>
         </div>
 
-        <div class="module">
-          <div class="module-icon">🎙️</div>
-          <h3>Voice</h3>
-          <p>
-            Reserved for the authorized WhityRay voice provider.
-          </p>
-          <div class="module-status">
-            PROVIDER CONNECTION PENDING
+        <div class="card">
+          <div class="card-title">🥁 Rhythm</div>
+          <div class="card-text">
+            Choose tempo, groove, bounce and percussion direction for the song.
           </div>
         </div>
 
-        <div class="module">
-          <div class="module-icon">🎬</div>
-          <h3>Visual Twin</h3>
-          <p>
-            Face, performance, movement and cinematic
-            video connections will live here.
-          </p>
-          <div class="module-status">
-            PROVIDER CONNECTION PENDING
+        <div class="card">
+          <div class="card-title">🌊 Ijaw Wave</div>
+          <div class="card-text">
+            River, water, home, journey and ancestral atmosphere without
+            inventing cultural language.
           </div>
         </div>
 
-      </section>
+      </div>
 
-    </main>
+      <div class="workspace" style="margin-top:15px">
 
-  </div>
+        <div class="field">
+          <label>Music direction</label>
+          <textarea
+            id="musicIdea"
+            placeholder="Describe the sound you want..."
+          ></textarea>
+        </div>
+
+        <button class="primary" id="buildMusic">
+          Build Direction
+        </button>
+
+        <div class="result" id="musicResult">
+          Production direction will appear here.
+        </div>
+
+      </div>
+
+    </section>
 
 
-  <footer>
-    WHITYRAY · IMMORTAL BEAST · THE IJAW WAVE
-  </footer>
+    <!-- VOICE -->
+
+    <section class="panel" id="panel-voice">
+
+      <div class="module-head">
+        <h2>Voice</h2>
+        <p>Authorized voice workspace and recording capture.</p>
+      </div>
+
+      <div class="workspace">
+
+        <div class="notice">
+          Voice recording can be captured here. An authorized voice provider
+          must still be connected before generated speech can use the artist's
+          actual voice.
+        </div>
+
+        <div class="button-row">
+          <button class="primary" id="startRecording">
+            Start Recording
+          </button>
+
+          <button class="secondary" id="stopRecording">
+            Stop
+          </button>
+        </div>
+
+        <div class="result" id="voiceStatus">
+          Microphone not started.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- FACE -->
+
+    <section class="panel" id="panel-face">
+
+      <div class="module-head">
+        <h2>Face</h2>
+        <p>Authorized visual identity and camera capture.</p>
+      </div>
+
+      <div class="workspace">
+
+        <div class="camera-wrap">
+          <video id="camera" autoplay muted playsinline></video>
+        </div>
+
+        <div class="button-row">
+
+          <button class="primary" id="startCamera">
+            Open Camera
+          </button>
+
+          <button class="secondary" id="stopCamera">
+            Stop Camera
+          </button>
+
+        </div>
+
+        <div class="result" id="faceStatus">
+          Camera is off.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- VIDEO -->
+
+    <section class="panel" id="panel-video">
+
+      <div class="module-head">
+        <h2>Video</h2>
+        <p>Build cinematic concepts and visual direction.</p>
+      </div>
+
+      <div class="workspace">
+
+        <div class="field">
+          <label>Video concept</label>
+          <textarea
+            id="videoIdea"
+            placeholder="Example: River-side night scene, Immortal Beast walking through Bomadi..."
+          ></textarea>
+        </div>
+
+        <button class="primary" id="buildVideo">
+          Build Concept
+        </button>
+
+        <div class="result" id="videoResult">
+          Cinematic concept will appear here.
+        </div>
+
+        <div class="notice">
+          Actual face/likeness video generation requires an authorized
+          visual provider. This workspace does not pretend that provider
+          is connected when it isn't.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CONNECTIONS -->
+
+    <section class="panel" id="panel-connections">
+
+      <div class="module-head">
+        <h2>Connections</h2>
+        <p>Provider connection status.</p>
+      </div>
+
+      <div class="cards">
+
+        <div class="card">
+          <div class="card-title">🧠 AI Brain</div>
+          <div class="card-text">
+            The browser communicates with the secure server endpoint.
+          </div>
+          <div class="ready">SERVER ROUTE READY</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🎙️ Voice</div>
+          <div class="card-text">
+            Authorized voice provider connection.
+          </div>
+          <div class="pending">PROVIDER PENDING</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">🧑 Visual</div>
+          <div class="card-text">
+            Authorized face and likeness provider.
+          </div>
+          <div class="pending">PROVIDER PENDING</div>
+        </div>
+
+      </div>
+
+      <div class="workspace" style="margin-top:15px">
+
+        <div class="result">
+          API keys are intentionally not displayed in this interface.
+          Provider secrets belong in Vercel Environment Variables or the
+          provider's secure connection system.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SETTINGS -->
+
+    <section class="panel" id="panel-settings">
+
+      <div class="module-head">
+        <h2>Settings</h2>
+        <p>Workspace preferences.</p>
+      </div>
+
+      <div class="workspace">
+
+        <div class="field">
+          <label>Response style</label>
+
+          <select id="styleSetting">
+            <option value="natural">Natural</option>
+            <option value="coded">Coded Street</option>
+            <option value="melodic">Singer-first</option>
+            <option value="cinematic">Cinematic</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Creative intensity</label>
+
+          <select id="intensitySetting">
+            <option>Balanced</option>
+            <option>Sharp</option>
+            <option>Immortal Beast</option>
+            <option>Maximum</option>
+          </select>
+        </div>
+
+        <button class="primary" id="saveSettings">
+          Save Settings
+        </button>
+
+        <div class="result" id="settingsResult">
+          Settings are stored locally in this browser.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <div class="footer">
+      IMMORTAL · Creative Intelligence
+    </div>
+
+  </main>
 
 </div>
 
 
 <script>
+  const navButtons = document.querySelectorAll(".nav-btn");
+  const panels = document.querySelectorAll(".panel");
 
-  let currentMode = "twin";
+  const topTitle = document.getElementById("topTitle");
+  const topSub = document.getElementById("topSub");
 
-
-  const modes = {
-
-    twin: {
-      title: "Digital Twin",
-      subtitle: "Talk to the WhityRay creative brain.",
-      badge: "IMMORTAL BEAST"
-    },
-
-    song: {
-      title: "Songwriter",
-      subtitle: "Build original WhityRay songs, hooks and concepts.",
-      badge: "SINGER-FIRST"
-    },
-
-    music: {
-      title: "Music",
-      subtitle: "Prepare music-generation instructions and production direction.",
-      badge: "IJAW WAVE"
-    },
-
-    voice: {
-      title: "Voice",
-      subtitle: "Authorized WhityRay voice connection.",
-      badge: "VOICE"
-    },
-
-    face: {
-      title: "Face",
-      subtitle: "Authorized WhityRay likeness and visual identity.",
-      badge: "LIKENESS"
-    },
-
-    video: {
-      title: "Video",
-      subtitle: "Create cinematic WhityRay visual concepts.",
-      badge: "CINEMATIC"
-    },
-
-    api: {
-      title: "API Connections",
-      subtitle: "Secure provider connections.",
-      badge: "SECURITY"
-    },
-
-    settings: {
-      title: "Settings",
-      subtitle: "Digital Twin configuration.",
-      badge: "SYSTEM"
-    }
-
+  const panelInfo = {
+    brain: [
+      "Brain",
+      "Creative conversation and identity engine."
+    ],
+    songwriter: [
+      "Songwriter",
+      "Singer-first songs, hooks and concepts."
+    ],
+    music: [
+      "Music",
+      "Production and sound direction."
+    ],
+    voice: [
+      "Voice",
+      "Authorized voice recording workspace."
+    ],
+    face: [
+      "Face",
+      "Authorized visual identity workspace."
+    ],
+    video: [
+      "Video",
+      "Cinematic visual development."
+    ],
+    connections: [
+      "Connections",
+      "Provider and API connection status."
+    ],
+    settings: [
+      "Settings",
+      "Workspace preferences."
+    ]
   };
 
+  function openPanel(name) {
+    panels.forEach(panel => {
+      panel.classList.remove("active");
+    });
 
-  function selectMode(mode, button) {
+    const target = document.getElementById("panel-" + name);
 
-    currentMode = mode;
-
-    document
-      .querySelectorAll(".nav-btn")
-      .forEach(btn => btn.classList.remove("active"));
-
-    button.classList.add("active");
-
-    const data = modes[mode];
-
-    document.getElementById("modeTitle").textContent =
-      data.title;
-
-    document.getElementById("modeSubtitle").textContent =
-      data.subtitle;
-
-    document.getElementById("modeBadge").textContent =
-      data.badge;
-
-    document.getElementById("prompt").focus();
-  }
-
-
-  function addMessage(type, text) {
-
-    const chat =
-      document.getElementById("chat");
-
-    const wrapper =
-      document.createElement("div");
-
-    wrapper.className =
-      "message " +
-      (type === "user" ? "user" : "twin");
-
-    const label =
-      document.createElement("div");
-
-    label.className = "label";
-
-    label.textContent =
-      type === "user"
-        ? "You"
-        : "WhityRay Digital Twin";
-
-    const bubble =
-      document.createElement("div");
-
-    bubble.className = "bubble";
-
-    bubble.textContent = text;
-
-    wrapper.appendChild(label);
-    wrapper.appendChild(bubble);
-
-    chat.appendChild(wrapper);
-
-    chat.scrollTop =
-      chat.scrollHeight;
-  }
-
-
-  async function sendPrompt() {
-
-    const input =
-      document.getElementById("prompt");
-
-    const button =
-      document.getElementById("sendButton");
-
-    const text =
-      input.value.trim();
-
-    if (!text) {
-      input.focus();
-      return;
+    if (target) {
+      target.classList.add("active");
     }
 
-    addMessage("user", text);
+    navButtons.forEach(button => {
+      button.classList.toggle(
+        "active",
+        button.dataset.panel === name
+      );
+    });
 
-    input.value = "";
+    if (panelInfo[name]) {
+      topTitle.textContent = panelInfo[name][0];
+      topSub.textContent = panelInfo[name][1];
+    }
 
-    button.disabled = true;
-    button.textContent = "Running...";
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
 
-    setStatus(
-      "Connecting to Digital Twin...",
-      false
-    );
+  navButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      openPanel(button.dataset.panel);
+    });
+  });
+
+
+  /* CHAT */
+
+  const messages = document.getElementById("messages");
+  const chatInput = document.getElementById("chatInput");
+  const sendBtn = document.getElementById("sendBtn");
+
+  function addMessage(type, text) {
+    const item = document.createElement("div");
+    item.className = "message " + type;
+
+    const label = document.createElement("div");
+    label.className = "message-label";
+    label.textContent = type === "you" ? "You" : "Immortal";
+
+    const body = document.createElement("div");
+    body.textContent = text;
+
+    item.appendChild(label);
+    item.appendChild(body);
+
+    messages.appendChild(item);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  async function runBrain(message, mode = "Digital Twin") {
+    if (!message.trim()) return;
+
+    addMessage("you", message);
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Running...";
 
     try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message,
+          mode
+        })
+      });
 
-      const response =
-        await fetch("/api/chat", {
+      const data = await response.json();
 
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify({
-            message: text,
-            mode: currentMode
-          })
-
-        });
-
-
-      let data;
-
-      try {
-        data = await response.json();
-      } catch {
-        throw new Error(
-          "The server returned an invalid response."
-        );
-      }
-
-
-      if (!response.ok || !data.ok) {
+      if (!response.ok) {
+        const provider =
+          data.provider_message
+            ? "\n\nProvider: " + data.provider_message
+            : "";
 
         throw new Error(
-          data.error ||
-          "Digital Twin request failed."
+          (data.error || "Request failed") + provider
         );
-
       }
-
 
       addMessage(
         "twin",
-        data.answer
-      );
-
-
-      setStatus(
-        "Digital Twin Connected",
-        true
+        data.answer || "No answer returned."
       );
 
     } catch (error) {
-
-      console.error(error);
-
       addMessage(
         "twin",
-        "Omo, the interface reached the Digital Twin server, but the AI connection is not ready yet.\n\n" +
-        "Server message:\n" +
-        error.message
+        "Connection issue:\n\n" + error.message
       );
-
-      setStatus(
-        "Connection Needs Setup",
-        false
-      );
-
     } finally {
-
-      button.disabled = false;
-      button.textContent = "Run Twin →";
-
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Run";
     }
-
   }
 
+  sendBtn.addEventListener("click", () => {
+    const text = chatInput.value.trim();
 
-  function setStatus(text, ready) {
+    if (!text) return;
 
-    const statusText =
-      document.getElementById("statusText");
+    chatInput.value = "";
 
-    const statusDot =
-      document.getElementById("statusDot");
+    runBrain(text, "Digital Twin");
+  });
 
-    statusText.textContent = text;
+  chatInput.addEventListener("keydown", event => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      sendBtn.click();
+    }
+  });
 
-    if (ready) {
-      statusDot.classList.remove("error");
-    } else {
-      statusDot.classList.add("error");
+
+  /* SONGWRITER */
+
+  document.getElementById("buildSong").addEventListener("click", async () => {
+
+    const idea = document.getElementById("songIdea").value.trim();
+    const direction = document.getElementById("songDirection").value;
+    const result = document.getElementById("songResult");
+
+    if (!idea) {
+      result.textContent = "Drop the song idea first.";
+      return;
     }
 
-  }
+    result.textContent = "Building...";
 
+    try {
 
-  document
-    .getElementById("prompt")
-    .addEventListener(
-      "keydown",
-      function(event) {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          mode: "Songwriter",
+          message:
+            `Write an original WhityRay singer-first song.\n\n` +
+            `Direction: ${direction}\n` +
+            `Idea: ${idea}\n\n` +
+            `Keep it coded, tight, melodic and memorable. ` +
+            `Do not add a Creative Angle or explanation after the song.`
+        })
+      });
 
-        if (
-          event.key === "Enter" &&
-          !event.shiftKey
-        ) {
+      const data = await response.json();
 
-          event.preventDefault();
-
-          sendPrompt();
-
-        }
-
+      if (!response.ok) {
+        throw new Error(
+          data.provider_message ||
+          data.error ||
+          "Songwriter request failed."
+        );
       }
+
+      result.textContent = data.answer || "No song returned.";
+
+    } catch (error) {
+      result.textContent =
+        "Songwriter error:\n\n" + error.message;
+    }
+  });
+
+  document.getElementById("clearSong").addEventListener("click", () => {
+    document.getElementById("songIdea").value = "";
+    document.getElementById("songResult").textContent =
+      "Your song will appear here.";
+  });
+
+
+  /* MUSIC */
+
+  document.getElementById("buildMusic").addEventListener("click", async () => {
+
+    const idea = document.getElementById("musicIdea").value.trim();
+    const result = document.getElementById("musicResult");
+
+    if (!idea) {
+      result.textContent = "Describe the sound first.";
+      return;
+    }
+
+    result.textContent = "Building music direction...";
+
+    try {
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          mode: "Music",
+          message:
+            `Create a concise production direction for this WhityRay idea:\n\n${idea}\n\n` +
+            `Include BPM range, rhythm, drums, bass, melodic instruments, ` +
+            `atmosphere and vocal direction.`
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.provider_message ||
+          data.error ||
+          "Music request failed."
+        );
+      }
+
+      result.textContent = data.answer || "No direction returned.";
+
+    } catch (error) {
+      result.textContent =
+        "Music error:\n\n" + error.message;
+    }
+  });
+
+
+  /* VIDEO */
+
+  document.getElementById("buildVideo").addEventListener("click", async () => {
+
+    const idea = document.getElementById("videoIdea").value.trim();
+    const result = document.getElementById("videoResult");
+
+    if (!idea) {
+      result.textContent = "Describe the visual idea first.";
+      return;
+    }
+
+    result.textContent = "Building cinematic concept...";
+
+    try {
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          mode: "Video",
+          message:
+            `Build an original cinematic music-video concept from this idea:\n\n${idea}\n\n` +
+            `Include opening shot, environment, movement, performance, ` +
+            `camera language, lighting, transitions and ending. Keep it concise.`
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.provider_message ||
+          data.error ||
+          "Video request failed."
+        );
+      }
+
+      result.textContent = data.answer || "No concept returned.";
+
+    } catch (error) {
+      result.textContent =
+        "Video error:\n\n" + error.message;
+    }
+  });
+
+
+  /* VOICE RECORDING */
+
+  let mediaRecorder = null;
+  let recordedChunks = [];
+
+  const voiceStatus = document.getElementById("voiceStatus");
+
+  document.getElementById("startRecording").addEventListener("click", async () => {
+
+    try {
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+
+      recordedChunks = [];
+
+      mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstart = () => {
+        voiceStatus.textContent =
+          "Recording... speak naturally.";
+      };
+
+      mediaRecorder.onstop = () => {
+
+        stream.getTracks().forEach(track => track.stop());
+
+        const blob = new Blob(
+          recordedChunks,
+          { type: "audio/webm" }
+        );
+
+        voiceStatus.textContent =
+          "Recording captured locally (" +
+          Math.round(blob.size / 1024) +
+          " KB). Provider upload is not connected yet.";
+      };
+
+      mediaRecorder.start();
+
+    } catch (error) {
+
+      voiceStatus.textContent =
+        "Microphone error: " + error.message;
+    }
+  });
+
+  document.getElementById("stopRecording").addEventListener("click", () => {
+
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    } else {
+      voiceStatus.textContent = "No active recording.";
+    }
+  });
+
+
+  /* CAMERA */
+
+  let cameraStream = null;
+
+  const camera = document.getElementById("camera");
+  const faceStatus = document.getElementById("faceStatus");
+
+  document.getElementById("startCamera").addEventListener("click", async () => {
+
+    try {
+
+      cameraStream =
+        await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+
+      camera.srcObject = cameraStream;
+
+      faceStatus.textContent =
+        "Camera active. Nothing is uploaded automatically.";
+
+    } catch (error) {
+
+      faceStatus.textContent =
+        "Camera error: " + error.message;
+    }
+  });
+
+  document.getElementById("stopCamera").addEventListener("click", () => {
+
+    if (cameraStream) {
+
+      cameraStream.getTracks().forEach(track => track.stop());
+
+      camera.srcObject = null;
+      cameraStream = null;
+
+      faceStatus.textContent = "Camera is off.";
+
+    } else {
+
+      faceStatus.textContent = "Camera is already off.";
+    }
+  });
+
+
+  /* SETTINGS */
+
+  const styleSetting =
+    document.getElementById("styleSetting");
+
+  const intensitySetting =
+    document.getElementById("intensitySetting");
+
+  const settingsResult =
+    document.getElementById("settingsResult");
+
+  const savedSettings =
+    JSON.parse(
+      localStorage.getItem("immortalSettings") || "{}"
     );
 
+  if (savedSettings.style) {
+    styleSetting.value = savedSettings.style;
+  }
+
+  if (savedSettings.intensity) {
+    intensitySetting.value = savedSettings.intensity;
+  }
+
+  document.getElementById("saveSettings").addEventListener("click", () => {
+
+    const settings = {
+      style: styleSetting.value,
+      intensity: intensitySetting.value
+    };
+
+    localStorage.setItem(
+      "immortalSettings",
+      JSON.stringify(settings)
+    );
+
+    settingsResult.textContent =
+      "Settings saved on this device.";
+  });
 
 </script>
 
