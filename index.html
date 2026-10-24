@@ -744,19 +744,35 @@
       <div class="workspace">
 
         <div class="notice">
-          Voice recording can be captured here. An authorized voice provider
-          must still be connected before generated speech can use the artist's
-          actual voice.
+          Generate speech through ElevenLabs using only a voice you are authorized
+          to use. Your API key stays on the server; it is never sent to this page.
+          Your ElevenLabs account must have available quota and access to the selected voice.
+        </div>
+
+        <div class="field">
+          <label for="voiceId">Authorized WhityRay voice ID</label>
+          <input id="voiceId" type="text" maxlength="128" autocomplete="off"
+            placeholder="Paste your voice ID (not your API key)" />
+        </div>
+
+        <div class="field">
+          <label for="voiceText">Text to speak</label>
+          <textarea id="voiceText" maxlength="5000"
+            placeholder="Enter a short line for your authorized voice to speak..."></textarea>
         </div>
 
         <div class="button-row">
-          <button class="primary" id="startRecording">
-            Start Recording
-          </button>
+          <button class="primary" id="generateVoice">Generate Speech</button>
+        </div>
 
-          <button class="secondary" id="stopRecording">
-            Stop
-          </button>
+        <div class="result" id="voiceGenerateStatus">
+          Ready when your voice ID and text are entered.
+        </div>
+        <audio id="generatedVoiceAudio" controls style="display:none;width:100%;margin-top:12px"></audio>
+
+        <div class="button-row">
+          <button class="secondary" id="startRecording">Start Recording</button>
+          <button class="secondary" id="stopRecording">Stop Recording</button>
         </div>
 
         <div class="result" id="voiceStatus">
@@ -1354,6 +1370,61 @@
       mediaRecorder.stop();
     } else {
       voiceStatus.textContent = "No active recording.";
+    }
+  });
+
+  /* ELEVENLABS TEXT-TO-SPEECH */
+  const generateVoiceButton = document.getElementById("generateVoice");
+  const voiceGenerateStatus = document.getElementById("voiceGenerateStatus");
+  const generatedVoiceAudio = document.getElementById("generatedVoiceAudio");
+  let generatedAudioUrl = null;
+
+  generateVoiceButton.addEventListener("click", async () => {
+    const text = document.getElementById("voiceText").value.trim();
+    const voice_id = document.getElementById("voiceId").value.trim();
+
+    if (!text) {
+      voiceGenerateStatus.textContent = "Enter the text you want spoken.";
+      return;
+    }
+    if (!voice_id) {
+      voiceGenerateStatus.textContent = "Enter your authorized WhityRay voice ID from ElevenLabs.";
+      return;
+    }
+
+    generateVoiceButton.disabled = true;
+    generateVoiceButton.textContent = "Generating...";
+    voiceGenerateStatus.textContent = "Requesting speech from ElevenLabs…";
+    generatedVoiceAudio.style.display = "none";
+
+    try {
+      const response = await fetch("/api/voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "audio/mpeg, application/json" },
+        body: JSON.stringify({ text, voice_id })
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(
+          (data.error || "Speech generation failed.") +
+          (data.hint ? "\\n\\n" + data.hint : "")
+        );
+      }
+
+      const audioBlob = await response.blob();
+      if (!audioBlob.size) throw new Error("ElevenLabs returned an empty audio file.");
+      if (generatedAudioUrl) URL.revokeObjectURL(generatedAudioUrl);
+      generatedAudioUrl = URL.createObjectURL(audioBlob);
+      generatedVoiceAudio.src = generatedAudioUrl;
+      generatedVoiceAudio.style.display = "block";
+      voiceGenerateStatus.textContent = "Speech generated. Press play to listen.";
+      generatedVoiceAudio.play().catch(() => {});
+    } catch (error) {
+      voiceGenerateStatus.textContent = "Voice error: " + error.message;
+    } finally {
+      generateVoiceButton.disabled = false;
+      generateVoiceButton.textContent = "Generate Speech";
     }
   });
 
