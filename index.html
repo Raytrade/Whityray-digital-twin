@@ -1084,13 +1084,12 @@
       const data = await response.json();
 
       if (!response.ok) {
-        const provider =
-          data.provider_message
-            ? "\n\nProvider: " + data.provider_message
-            : "";
-
+        const detail = data.hint || data.setup || data.provider_message || "";
+        const request = data.request_id ? "\nRequest ID: " + data.request_id : "";
         throw new Error(
-          (data.error || "Request failed") + provider
+          (data.error || "Request failed") +
+          (detail ? "\n\n" + detail : "") +
+          request
         );
       }
 
