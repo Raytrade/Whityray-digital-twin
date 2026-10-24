@@ -16,16 +16,19 @@
       min-height: 100vh;
       font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(255, 190, 70, 0.12), transparent 30%),
-        radial-gradient(circle at bottom left, rgba(80, 120, 255, 0.08), transparent 30%),
+        radial-gradient(circle at top right, rgba(255,190,70,.12), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(70,100,255,.08), transparent 30%),
         #080808;
       color: #f5f5f5;
     }
 
     button,
-    textarea,
-    input {
+    textarea {
       font: inherit;
+    }
+
+    button {
+      cursor: pointer;
     }
 
     .app {
@@ -34,8 +37,6 @@
       flex-direction: column;
     }
 
-    /* TOP BAR */
-
     .topbar {
       height: 72px;
       display: flex;
@@ -43,7 +44,7 @@
       justify-content: space-between;
       padding: 0 24px;
       border-bottom: 1px solid #242424;
-      background: rgba(10, 10, 10, 0.92);
+      background: rgba(10,10,10,.94);
       backdrop-filter: blur(15px);
       position: sticky;
       top: 0;
@@ -62,15 +63,13 @@
       border-radius: 50%;
       display: grid;
       place-items: center;
-      background: linear-gradient(135deg, #fff, #8b8b8b);
+      background: linear-gradient(135deg,#fff,#777);
       color: #000;
       font-weight: 900;
-      font-size: 15px;
     }
 
     .brand h1 {
       font-size: 17px;
-      letter-spacing: 0.5px;
     }
 
     .brand span {
@@ -92,16 +91,14 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #777;
-      box-shadow: 0 0 10px rgba(255,255,255,.2);
-    }
-
-    .status-dot.ready {
       background: #58d68d;
       box-shadow: 0 0 12px rgba(88,214,141,.7);
     }
 
-    /* LAYOUT */
+    .status-dot.error {
+      background: #e74c3c;
+      box-shadow: 0 0 12px rgba(231,76,60,.7);
+    }
 
     .layout {
       flex: 1;
@@ -112,7 +109,7 @@
     .sidebar {
       border-right: 1px solid #222;
       padding: 22px 14px;
-      background: rgba(8, 8, 8, .75);
+      background: rgba(8,8,8,.75);
     }
 
     .section-label {
@@ -132,9 +129,7 @@
       text-align: left;
       padding: 12px;
       border-radius: 10px;
-      cursor: pointer;
       margin-bottom: 4px;
-      transition: .2s;
     }
 
     .nav-btn:hover,
@@ -147,20 +142,25 @@
       border-left: 2px solid #fff;
     }
 
-    /* MAIN */
-
     main {
       min-width: 0;
       padding: 30px;
     }
 
-    .hero {
+    .hero,
+    .panel,
+    .modules {
       max-width: 900px;
-      margin: 0 auto 24px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero {
+      margin-bottom: 24px;
     }
 
     .hero h2 {
-      font-size: clamp(30px, 5vw, 52px);
+      font-size: clamp(30px,5vw,52px);
       line-height: 1;
       margin-bottom: 12px;
     }
@@ -176,10 +176,8 @@
     }
 
     .panel {
-      max-width: 900px;
-      margin: auto;
       border: 1px solid #272727;
-      background: rgba(15, 15, 15, .88);
+      background: rgba(15,15,15,.88);
       border-radius: 18px;
       overflow: hidden;
       box-shadow: 0 20px 80px rgba(0,0,0,.35);
@@ -215,6 +213,10 @@
       max-width: 85%;
     }
 
+    .message.user {
+      margin-left: auto;
+    }
+
     .message .label {
       color: #777;
       font-size: 10px;
@@ -223,7 +225,7 @@
       margin-bottom: 6px;
     }
 
-    .message .bubble {
+    .bubble {
       padding: 13px 15px;
       border-radius: 13px;
       line-height: 1.55;
@@ -233,10 +235,6 @@
     .message.twin .bubble {
       background: #171717;
       border: 1px solid #262626;
-    }
-
-    .message.user {
-      margin-left: auto;
     }
 
     .message.user .bubble {
@@ -285,20 +283,17 @@
       color: #000;
       font-weight: 700;
       padding: 11px 20px;
-      cursor: pointer;
     }
 
-    .send-btn:hover {
-      background: #ddd;
+    .send-btn:disabled {
+      opacity: .5;
+      cursor: wait;
     }
-
-    /* MODULES */
 
     .modules {
-      max-width: 900px;
-      margin: 22px auto 0;
+      margin-top: 22px;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(3,1fr);
       gap: 12px;
     }
 
@@ -331,8 +326,6 @@
       font-size: 10px;
     }
 
-    /* FOOTER */
-
     footer {
       text-align: center;
       padding: 22px;
@@ -340,9 +333,7 @@
       font-size: 10px;
     }
 
-    /* MOBILE */
-
-    @media (max-width: 800px) {
+    @media (max-width:800px) {
       .layout {
         grid-template-columns: 1fr;
       }
@@ -386,6 +377,7 @@
 <div class="app">
 
   <header class="topbar">
+
     <div class="brand">
       <div class="logo">WR</div>
 
@@ -396,9 +388,10 @@
     </div>
 
     <div class="status">
-      <div id="statusDot" class="status-dot ready"></div>
-      <span id="statusText">Brain Interface Ready</span>
+      <div id="statusDot" class="status-dot"></div>
+      <span id="statusText">Checking Digital Twin...</span>
     </div>
+
   </header>
 
 
@@ -408,37 +401,37 @@
 
       <div class="section-label">Digital Twin</div>
 
-      <button class="nav-btn active" onclick="selectMode('twin', this)">
+      <button class="nav-btn active" onclick="selectMode('twin',this)">
         🧠 Digital Twin
       </button>
 
-      <button class="nav-btn" onclick="selectMode('song', this)">
+      <button class="nav-btn" onclick="selectMode('song',this)">
         🎵 Songwriter
       </button>
 
-      <button class="nav-btn" onclick="selectMode('music', this)">
+      <button class="nav-btn" onclick="selectMode('music',this)">
         🎧 Music
       </button>
 
-      <button class="nav-btn" onclick="selectMode('voice', this)">
+      <button class="nav-btn" onclick="selectMode('voice',this)">
         🎙️ Voice
       </button>
 
-      <button class="nav-btn" onclick="selectMode('face', this)">
+      <button class="nav-btn" onclick="selectMode('face',this)">
         🧑 Face
       </button>
 
-      <button class="nav-btn" onclick="selectMode('video', this)">
+      <button class="nav-btn" onclick="selectMode('video',this)">
         🎬 Video
       </button>
 
       <div class="section-label">System</div>
 
-      <button class="nav-btn" onclick="selectMode('api', this)">
+      <button class="nav-btn" onclick="selectMode('api',this)">
         🔑 API Connections
       </button>
 
-      <button class="nav-btn" onclick="selectMode('settings', this)">
+      <button class="nav-btn" onclick="selectMode('settings',this)">
         ⚙️ Settings
       </button>
 
@@ -456,8 +449,8 @@
 
         <p>
           Your creative reflection space.
-          Identity, personality, songwriting, voice, visual identity
-          and The Ijaw Wave — connected in one system.
+          Identity, personality, songwriting, voice,
+          visual identity and The Ijaw Wave — connected in one system.
         </p>
 
       </section>
@@ -495,11 +488,9 @@
             <div class="bubble">
               Oya, we don open am.
 
-              This na the first browser interface for the WhityRay Digital Twin.
+              Your browser interface is connected to the Digital Twin API layer.
 
-              The brain files you built in GitHub are the foundation.
-
-              Tell me wetin you want build.
+              Give me something to work on.
             </div>
 
           </div>
@@ -511,13 +502,13 @@
 
           <textarea
             id="prompt"
-            placeholder="Type something for the Digital Twin...
+            placeholder="Type something...
 
 Example:
 Give me a new WhityRay song about no borrowed light.
 
 Or:
-Build a cinematic music video concept from this idea..."
+Build a cinematic music video concept from this idea."
           ></textarea>
 
 
@@ -527,7 +518,11 @@ Build a cinematic music video concept from this idea..."
               Singer-first · coded · melodic · Ijaw Wave · original
             </div>
 
-            <button class="send-btn" onclick="sendPrompt()">
+            <button
+              id="sendButton"
+              class="send-btn"
+              onclick="sendPrompt()"
+            >
               Run Twin →
             </button>
 
@@ -541,55 +536,38 @@ Build a cinematic music video concept from this idea..."
       <section class="modules">
 
         <div class="module">
-
           <div class="module-icon">🧠</div>
-
           <h3>Brain</h3>
-
           <p>
             Identity, personality, songwriting rules,
             creative rules and approved knowledge.
           </p>
-
           <div class="module-status">
             FOUNDATION READY
           </div>
-
         </div>
 
-
         <div class="module">
-
           <div class="module-icon">🎙️</div>
-
           <h3>Voice</h3>
-
           <p>
             Reserved for the authorized WhityRay voice provider.
           </p>
-
           <div class="module-status">
             PROVIDER CONNECTION PENDING
           </div>
-
         </div>
 
-
         <div class="module">
-
           <div class="module-icon">🎬</div>
-
           <h3>Visual Twin</h3>
-
           <p>
-            Face, performance, movement and cinematic video
-            connections will live here.
+            Face, performance, movement and cinematic
+            video connections will live here.
           </p>
-
           <div class="module-status">
             PROVIDER CONNECTION PENDING
           </div>
-
         </div>
 
       </section>
@@ -651,13 +629,13 @@ Build a cinematic music video concept from this idea..."
 
     api: {
       title: "API Connections",
-      subtitle: "Provider connections will be configured securely here.",
+      subtitle: "Secure provider connections.",
       badge: "SECURITY"
     },
 
     settings: {
       title: "Settings",
-      subtitle: "Digital Twin configuration and preferences.",
+      subtitle: "Digital Twin configuration.",
       badge: "SYSTEM"
     }
 
@@ -668,7 +646,8 @@ Build a cinematic music video concept from this idea..."
 
     currentMode = mode;
 
-    document.querySelectorAll(".nav-btn")
+    document
+      .querySelectorAll(".nav-btn")
       .forEach(btn => btn.classList.remove("active"));
 
     button.classList.add("active");
@@ -690,14 +669,18 @@ Build a cinematic music video concept from this idea..."
 
   function addMessage(type, text) {
 
-    const chat = document.getElementById("chat");
+    const chat =
+      document.getElementById("chat");
 
-    const wrapper = document.createElement("div");
+    const wrapper =
+      document.createElement("div");
 
     wrapper.className =
-      "message " + (type === "user" ? "user" : "twin");
+      "message " +
+      (type === "user" ? "user" : "twin");
 
-    const label = document.createElement("div");
+    const label =
+      document.createElement("div");
 
     label.className = "label";
 
@@ -706,7 +689,8 @@ Build a cinematic music video concept from this idea..."
         ? "You"
         : "WhityRay Digital Twin";
 
-    const bubble = document.createElement("div");
+    const bubble =
+      document.createElement("div");
 
     bubble.className = "bubble";
 
@@ -717,19 +701,24 @@ Build a cinematic music video concept from this idea..."
 
     chat.appendChild(wrapper);
 
-    chat.scrollTop = chat.scrollHeight;
+    chat.scrollTop =
+      chat.scrollHeight;
   }
 
 
-  function sendPrompt() {
+  async function sendPrompt() {
 
     const input =
       document.getElementById("prompt");
+
+    const button =
+      document.getElementById("sendButton");
 
     const text =
       input.value.trim();
 
     if (!text) {
+      input.focus();
       return;
     }
 
@@ -737,52 +726,130 @@ Build a cinematic music video concept from this idea..."
 
     input.value = "";
 
-    /*
-      IMPORTANT:
+    button.disabled = true;
+    button.textContent = "Running...";
 
-      This is currently the browser interface.
+    setStatus(
+      "Connecting to Digital Twin...",
+      false
+    );
 
-      The real AI provider will be connected through
-      a secure server-side API layer.
+    try {
 
-      We deliberately do NOT put an API key inside
-      this public browser file.
-    */
+      const response =
+        await fetch("/api/chat", {
 
-    let response =
-      "I receive you. The Digital Twin interface is working, but the AI provider connection has not been connected yet.\n\n" +
-      "Your next layer will connect this interface to the WhityRay brain files and an AI provider securely.\n\n" +
-      "Mode: " + modes[currentMode].title + "\n\n" +
-      "Your request:\n" + text;
+          method: "POST",
 
-    setTimeout(() => {
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-      addMessage("twin", response);
+          body: JSON.stringify({
+            message: text,
+            mode: currentMode
+          })
 
-    }, 500);
+        });
+
+
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          "The server returned an invalid response."
+        );
+      }
+
+
+      if (!response.ok || !data.ok) {
+
+        throw new Error(
+          data.error ||
+          "Digital Twin request failed."
+        );
+
+      }
+
+
+      addMessage(
+        "twin",
+        data.answer
+      );
+
+
+      setStatus(
+        "Digital Twin Connected",
+        true
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      addMessage(
+        "twin",
+        "Omo, the interface reached the Digital Twin server, but the AI connection is not ready yet.\n\n" +
+        "Server message:\n" +
+        error.message
+      );
+
+      setStatus(
+        "Connection Needs Setup",
+        false
+      );
+
+    } finally {
+
+      button.disabled = false;
+      button.textContent = "Run Twin →";
+
+    }
+
+  }
+
+
+  function setStatus(text, ready) {
+
+    const statusText =
+      document.getElementById("statusText");
+
+    const statusDot =
+      document.getElementById("statusDot");
+
+    statusText.textContent = text;
+
+    if (ready) {
+      statusDot.classList.remove("error");
+    } else {
+      statusDot.classList.add("error");
+    }
+
   }
 
 
   document
     .getElementById("prompt")
-    .addEventListener("keydown", function(event) {
+    .addEventListener(
+      "keydown",
+      function(event) {
 
-      if (
-        event.key === "Enter" &&
-        !event.shiftKey
-      ) {
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey
+        ) {
 
-        event.preventDefault();
+          event.preventDefault();
 
-        sendPrompt();
+          sendPrompt();
+
+        }
 
       }
+    );
 
-    });
-
-
-  document.getElementById("statusText")
-    .textContent = "Brain Interface Ready";
 
 </script>
 
