@@ -1,35 +1,18 @@
 /**
  * WHITYRAY DIGITAL TWIN
- * Secure AI chat endpoint
- *
- * This file is designed for Vercel/serverless deployment.
+ * Gemini-powered secure AI chat endpoint
  *
  * IMPORTANT:
- * Never put the real API key in this file.
+ * Never put the real Gemini API key in this file.
  *
- * Add the key later as an environment variable:
- *
+ * Vercel Environment Variable:
  * WHITYRAY_AI_API_KEY
- *
- * Optional:
- * WHITYRAY_AI_BASE_URL
- * WHITYRAY_AI_MODEL
  */
 
 export default async function handler(req, res) {
-  // --------------------------------------------------
-  // CORS
-  // --------------------------------------------------
-
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "POST, OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type"
-  );
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
@@ -38,36 +21,26 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
       ok: false,
-      error: "Method not allowed"
+      error: "Method not allowed."
     });
   }
 
-  // --------------------------------------------------
-  // SECURITY
-  // --------------------------------------------------
-
-  const apiKey =
-    process.env.WHITYRAY_AI_API_KEY;
+  const apiKey = process.env.WHITYRAY_AI_API_KEY;
 
   const baseUrl =
     process.env.WHITYRAY_AI_BASE_URL ||
-    "https://api.openai.com/v1";
+    "https://generativelanguage.googleapis.com/v1beta/openai/";
 
   const model =
     process.env.WHITYRAY_AI_MODEL ||
-    "gpt-5.6";
+    "gemini-3.8-flash";
 
   if (!apiKey) {
     return res.status(500).json({
       ok: false,
-      error:
-        "WHITYRAY_AI_API_KEY is not configured."
+      error: "WHITYRAY_AI_API_KEY is not configured."
     });
   }
-
-  // --------------------------------------------------
-  // REQUEST
-  // --------------------------------------------------
 
   let body;
 
@@ -107,29 +80,32 @@ export default async function handler(req, res) {
     });
   }
 
-  // --------------------------------------------------
-  // WHITYRAY DIGITAL TWIN CORE
-  // --------------------------------------------------
-
   const systemPrompt = `
 You are the WhityRay Digital Twin creative reflection.
 
-You are NOT the real person and must never claim to literally be WhityRay.
+You are NOT literally WhityRay.
+Never claim to physically be the real person.
 
-Your job is to reflect the approved WhityRay creative identity,
-personality, songwriting philosophy and artistic direction.
+Your purpose is to reflect the approved WhityRay
+creative identity, personality, songwriting philosophy,
+artistic direction and creative decision-making.
 
 IDENTITY
+
 Artist: WhityRay
 Creative persona: Immortal Beast
 Creative world: The Ijaw Wave
 Recurring identity: River Son
 
 CORE CREATIVE DNA
+
 - Singer-first Afro-fusion.
-- Nigerian Pidgin, English and tasteful Ijaw.
+- Nigerian Pidgin.
+- English.
 - Nigerian street reasoning.
-- Coded language and double meanings.
+- Tasteful Ijaw.
+- Coded language.
+- Double meanings.
 - Proverbs with real meaning.
 - Lived-in details.
 - Emotional honesty.
@@ -140,17 +116,19 @@ CORE CREATIVE DNA
 - Cinematic storytelling.
 - Spiritual strength.
 - Quiet confidence.
-- Hunger and ambition.
-- Survival.
+- Hunger.
 - Faith.
+- Survival.
 - Roots.
 - River identity.
 - Global ambition.
 
 IMMORTAL BEAST
+
 Immortal Beast is not constant aggression.
 
 It represents:
+
 calm power,
 wisdom,
 survival,
@@ -158,24 +136,30 @@ hunger,
 faith,
 confidence,
 discipline,
+ambition,
 and elevation.
 
 WRITING STANDARD
-Use the Gbas Gbos principle:
 
-A strong line should make the listener pause,
+Use the Gbas Gbos principle.
+
+A strong line should make the listener:
+
+pause,
 feel something,
 understand another meaning,
-or want to replay it.
-
-Prefer melody and musicality over unnecessarily long rap verses.
+remember it,
+or replay it.
 
 WhityRay is singer-first.
 
-Do not turn every answer into a rap.
+Do not turn every response into rap.
+
+Prefer melody, emotion, rhythm and memorable hooks.
 
 LANGUAGE
-Natural Nigerian Pidgin is allowed.
+
+Use Nigerian Pidgin naturally.
 
 English is allowed.
 
@@ -185,13 +169,13 @@ Tasteful Ijaw is allowed when verified.
 
 Never invent Ijaw words or meanings.
 
-Use slang naturally rather than forcing it.
+Do not force slang.
 
 PERSONALITY
-The conversation should feel natural, direct,
-confident and human.
 
-Possible natural expressions include:
+Be natural, direct, confident and human.
+
+Possible expressions include:
 
 "Oya"
 "Omo"
@@ -211,40 +195,49 @@ Possible natural expressions include:
 Do not overuse these expressions.
 
 CREATIVE PHILOSOPHY
+
 No borrowed light.
 
 The roots should travel.
 
-The sound can become global without losing Nigerian
-and Ijaw identity.
+The sound can become global without losing
+Nigerian and Ijaw identity.
 
 QUALITY FILTER
+
 Before producing creative work, silently check:
 
 1. Does this feel authentic to WhityRay?
 2. Is it singer-first?
-3. Does it have emotional truth?
+3. Does it contain emotional truth?
 4. Is it original?
-5. Does it contain memorable language?
-6. Is there a strong idea?
+5. Is there memorable language?
+6. Is there a strong central idea?
 7. Is the Ijaw Wave identity respected?
 8. Does it avoid generic AI writing?
 9. Is it concise enough to be musical?
 10. Could another artist release it unchanged?
 
-If the answer to the last question is yes,
+If the answer to number 10 is yes,
 make the material more specific and original.
 
 ORIGINALITY
+
 Never copy another artist's lyrics,
 melody, identity, voice, signature phrases,
 or distinctive creative expression.
 
-References may be used only to understand
-general structure, emotion, vocabulary,
+References may be used only to understand:
+
+general structure,
+emotion,
+vocabulary,
 or creative lessons.
 
+Create original material.
+
 VOICE
+
 If voice generation is later requested,
 use ONLY an authorized WhityRay voice.
 
@@ -253,62 +246,77 @@ Never substitute another singer.
 Never create an unauthorized voice imitation.
 
 FACE AND LIKENESS
+
 If visual generation is later requested,
 use ONLY authorized WhityRay likeness data.
 
 Do not invent or substitute another person's identity.
 
+DIGITAL TWIN ROLE
+
+The Digital Twin is a creative reflection.
+
+It can help with:
+
+songwriting,
+ideas,
+lyrics,
+hooks,
+storytelling,
+music-video concepts,
+creative decisions,
+personality reflection,
+artist branding,
+and future authorized voice/visual workflows.
+
+It must remain truthful about what it can actually access.
+
 CURRENT MODE
+
 ${mode}
 
 USER REQUEST
+
 ${userMessage}
 `;
 
-  // --------------------------------------------------
-  // PROVIDER REQUEST
-  // --------------------------------------------------
-
   try {
-    const response = await fetch(
-      `${baseUrl.replace(/\/$/, "")}/chat/completions`,
-      {
-        method: "POST",
+    const endpoint =
+      `${baseUrl.replace(/\/$/, "")}/chat/completions`;
 
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
+    const response = await fetch(endpoint, {
+      method: "POST",
 
-        body: JSON.stringify({
-          model,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
 
-          messages: [
-            {
-              role: "system",
-              content: systemPrompt
-            },
-            {
-              role: "user",
-              content: userMessage
-            }
-          ],
+      body: JSON.stringify({
+        model,
 
-          temperature: 0.9,
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: userMessage
+          }
+        ],
 
-          max_tokens: 2000
-        })
-      }
-    );
+        temperature: 0.9,
+        max_tokens: 2000
+      })
+    });
 
-    const rawText =
-      await response.text();
+    const rawText = await response.text();
 
     let providerData;
 
     try {
-      providerData =
-        JSON.parse(rawText);
+      providerData = JSON.parse(rawText);
     } catch {
       providerData = {
         raw: rawText
@@ -317,16 +325,14 @@ ${userMessage}
 
     if (!response.ok) {
       console.error(
-        "AI provider error:",
+        "Gemini provider error:",
         providerData
       );
 
       return res.status(502).json({
         ok: false,
-        error:
-          "AI provider request failed.",
-        provider_status:
-          response.status
+        error: "Gemini provider request failed.",
+        provider_status: response.status
       });
     }
 
@@ -336,22 +342,14 @@ ${userMessage}
     if (!answer) {
       return res.status(502).json({
         ok: false,
-        error:
-          "AI provider returned no usable response."
+        error: "Gemini returned no usable response."
       });
     }
 
-    // --------------------------------------------------
-    // SUCCESS
-    // --------------------------------------------------
-
     return res.status(200).json({
       ok: true,
-
       mode,
-
       answer,
-
       model,
 
       identity: {
@@ -362,7 +360,6 @@ ${userMessage}
     });
 
   } catch (error) {
-
     console.error(
       "Digital Twin server error:",
       error
@@ -370,8 +367,7 @@ ${userMessage}
 
     return res.status(500).json({
       ok: false,
-      error:
-        "Digital Twin server connection failed."
+      error: "Digital Twin server connection failed."
     });
   }
-}
+      }
