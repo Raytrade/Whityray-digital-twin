@@ -23,13 +23,6 @@ export default async function handler(req, res) {
     const gatewayUrl = process.env.AI_GATEWAY_URL || "https://ai-gateway.vercel.sh/v1/chat/completions";
     const model = process.env.WHITYRAY_GATEWAY_MODEL || "google/gemini-3.5-flash";
 
-    if (!apiKey) {
-      return res.status(500).json({
-        error: "AI Gateway is not configured",
-        setup: "Add AI_GATEWAY_API_KEY to Vercel Environment Variables."
-      });
-    }
-
     const provider = typeof req.body?.provider === "string" ? req.body.provider : "default";
     const providerConfigs = {
       default: { url: gatewayUrl, model },
@@ -38,6 +31,13 @@ export default async function handler(req, res) {
     };
     const selectedProvider = providerConfigs[provider];
     if (!selectedProvider) return res.status(400).json({ error: "Unknown provider", request_id: requestId });
+    if (provider === "default" && !apiKey) {
+      return res.status(503).json({
+        error: "AI Gateway is not configured",
+        request_id: requestId,
+        setup: "Add AI_GATEWAY_API_KEY to Vercel Environment Variables or select a configured alternative provider."
+      });
+    }
     if (!selectedProvider.url || (provider !== "default" && !process.env[provider === "dialogbrain" ? "DIALOGBRAIN_API_KEY" : "OPENAI_COMPATIBLE_API_KEY"])) {
       return res.status(503).json({ error: "Provider is not configured for chat routing", request_id: requestId,
         hint: provider === "dialogbrain" ? "Configure DIALOGBRAIN_CHAT_URL and DIALOGBRAIN_API_KEY only if your account supports this chat API contract." : "Configure OPENAI_COMPATIBLE_CHAT_URL and OPENAI_COMPATIBLE_API_KEY for an OpenAI-compatible endpoint." });
