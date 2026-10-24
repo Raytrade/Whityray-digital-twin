@@ -871,13 +871,19 @@
       </div>
 
       <div class="workspace" style="margin-top:15px">
-
-        <div class="result">
-          API keys are intentionally not displayed in this interface.
-          Provider secrets belong in Vercel Environment Variables or the
-          provider's secure connection system.
+        <div class="module-head">
+          <h2>Provider status</h2>
+          <p>Read-only checks from the server. Secret values are never sent to this page.</p>
         </div>
-
+        <div class="button-row">
+          <button class="primary" id="refreshProviders">Refresh status</button>
+        </div>
+        <div class="result" id="providerStatus">Checking server configuration…</div>
+        <div class="notice">
+          Add provider secrets only in Vercel → Project → Settings → Environment Variables.
+          Never paste API keys into this browser or commit them to GitHub.
+          A configured key means the secret exists; it does not mean the provider has been tested.
+        </div>
       </div>
 
     </section>
@@ -923,6 +929,21 @@
         <div class="result" id="settingsResult">
           Settings are stored locally in this browser.
         </div>
+
+        <div class="field" style="margin-top:22px">
+          <label>Studio session name</label>
+          <input id="sessionName" maxlength="80" placeholder="e.g. Bomadi to Billion — Hook 1" />
+        </div>
+        <div class="field">
+          <label>Studio draft</label>
+          <textarea id="sessionDraft" placeholder="Paste or write the current lyric, hook, production note or concept here…"></textarea>
+        </div>
+        <div class="button-row">
+          <button class="primary" id="saveSession">Save Version</button>
+          <button class="secondary" id="exportSessions">Export Sessions</button>
+        </div>
+        <div class="result" id="sessionStatus">Saved versions stay in this browser unless exported.</div>
+        <div id="sessionList"></div>
 
       </div>
 
@@ -1374,6 +1395,113 @@
     }
   });
 
+
+  /* PROVIDER STATUS */
+
+  const providerStatus = document.getElementById("providerStatus");
+
+  async function refreshProviderStatus() {
+    providerStatus.textContent = "Checking secure server configuration…";
+    try {
+      const response = await fetch("/api/providers", { headers: { "Accept": "application/json" } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Status check failed");
+      providerStatus.textContent = data.providers.map(provider =>
+        (provider.configured ? "✓ " : "○ ") + provider.label + " — " +
+        (provider.configured ? "Secret configured" : "Not configured") +
+        (provider.note ? "\\n  " + provider.note : "")
+      ).join("\\n\\n") + "\\n\\nConfigured status does not verify credentials or provider availability.";
+    } catch (error) {
+      providerStatus.textContent = "Could not load provider status: " + error.message;
+    }
+  }
+
+  document.getElementById("refreshProviders").addEventListener("click", refreshProviderStatus);
+  refreshProviderStatus();
+
+  /* LOCAL STUDIO VERSIONS */
+
+  const sessionName = document.getElementById("sessionName");
+  const sessionDraft = document.getElementById("sessionDraft");
+  const sessionStatus = document.getElementById("sessionStatus");
+  const sessionList = document.getElementById("sessionList");
+  const sessionStorageKey = "immortalStudioSessions";
+
+  function getSessions() {
+    try {
+      const value = JSON.parse(localStorage.getItem(sessionStorageKey) || "[]");
+      return Array.isArray(value) ? value : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function renderSessions() {
+    const sessions = getSessions();
+    sessionList.replaceChildren();
+    if (!sessions.length) {
+      sessionList.textContent = "No saved versions yet.";
+      return;
+    }
+    sessions.slice().reverse().forEach(session => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.style.marginTop = "10px";
+      const title = document.createElement("div");
+      title.className = "card-title";
+      title.textContent = session.name + " · " + new Date(session.savedAt).toLocaleString();
+      const preview = document.createElement("div");
+      preview.className = "card-text";
+      preview.textContent = session.draft.length > 240 ? session.draft.slice(0, 240) + "…" : session.draft;
+      const actions = document.createElement("div");
+      actions.className = "button-row";
+      const load = document.createElement("button");
+      load.className = "secondary";
+      load.textContent = "Load version";
+      load.addEventListener("click", () => {
+        sessionName.value = session.name;
+        sessionDraft.value = session.draft;
+        sessionStatus.textContent = "Loaded locally. Save again to create a new version.";
+      });
+      actions.appendChild(load);
+      card.append(title, preview, actions);
+      sessionList.appendChild(card);
+    });
+  }
+
+  document.getElementById("saveSession").addEventListener("click", () => {
+    const draft = sessionDraft.value.trim();
+    if (!draft) {
+      sessionStatus.textContent = "Add a draft before saving.";
+      return;
+    }
+    const sessions = getSessions();
+    sessions.push({
+      id: globalThis.crypto?.randomUUID?.() || String(Date.now()),
+      name: sessionName.value.trim() || "Untitled session",
+      draft,
+      savedAt: new Date().toISOString()
+    });
+    try {
+      localStorage.setItem(sessionStorageKey, JSON.stringify(sessions));
+      sessionStatus.textContent = "Version saved on this device only.";
+      renderSessions();
+    } catch {
+      sessionStatus.textContent = "Could not save. Browser storage may be full.";
+    }
+  });
+
+  document.getElementById("exportSessions").addEventListener("click", () => {
+    const blob = new Blob([JSON.stringify(getSessions(), null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "whityray-studio-sessions.json";
+    link.click();
+    URL.revokeObjectURL(url);
+  });
+
+  renderSessions();
 
   /* SETTINGS */
 
