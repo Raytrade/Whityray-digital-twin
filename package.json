@@ -1,0 +1,17 @@
+{
+  "name": "whityray-digital-twin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "example:holiday": "tsx index.ts"
+  },
+  "dependencies": {
+    "ai": "latest",
+    "dotenv": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}
