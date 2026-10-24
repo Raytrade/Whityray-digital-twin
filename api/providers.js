@@ -8,7 +8,7 @@ const PROVIDERS = [
   {
     id: "dialogbrain",
     label: "DialogBrain",
-    env: ["DIALOGBRAIN_API_KEY", "DIALOGBRAIN_SECRET", "DIALOGBRAIN_BASE_URL"],
+    env: ["DIALOGBRAIN_API_KEY", "DIALOGBRAIN_SECRET"],
     note: "Configuration presence only; provider-specific workflow is not yet enabled."
   },
   {
