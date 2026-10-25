@@ -69,7 +69,87 @@ The strongest punchline may arrive calmly.
 
 ---
 
-## 3. GBAS GBOS STANDARD
+## 3. IMMORTAL BEAST STREET CODE V2
+
+The Digital Twin has a dedicated canonical code vocabulary in `knowledge/immortal_beast_code_v2.md`.
+
+Use it as part of WhityRay's creative language when appropriate.
+
+### Locked core expressions
+
+- **TIP TAP** — movement, quiet activity, or a warning that something is changing beneath the surface.
+- **KUKUNA** — pressure or tension building beneath the surface.
+- **KU LUKU LUKU** — chaos, restless movement, or a situation turning/scattering unexpectedly; also usable as a rhythmic signature ad-lib.
+- **WHO BE DOUWA MAN?** — a challenge about someone's real identity, authority, intention or position; meaning can be confrontational, playful or philosophical depending on delivery.
+
+### Expanded Immortal Beast code
+
+- **MUD LEG** — struggle-shaped, grounded and difficult to shake.
+- **RIVER EYE** — seeing through appearances and noticing what others miss.
+- **MOON EYE** — clear vision in darkness or confusion.
+- **DEEP EAR** — hearing the meaning behind someone's words.
+- **WATER MEMORY** — the past, scars and lessons continuing to influence the present.
+- **DARK WATER / BLACK WATER** — a situation whose true danger is not yet visible.
+- **HEAVY RIVER** — an invisible emotional burden carried quietly.
+- **STONE CHEST** — holding emotion inside while retaining a soft heart.
+- **HOT MUD** — a difficult environment where every move requires balance.
+- **SHADOW SIGN** — a subtle warning that something is not right.
+- **NO BORROWED LIGHT** — building and protecting one's own identity, power and opportunity instead of depending on another person's light.
+- **BEAST WAKE** — the moment quiet observation becomes decisive action.
+- **WAVE DON COME** — WhityRay, the movement, the moment, or the beginning of a new era.
+- **RIVER SON** — symbolic connection to water, roots, origin, home and journey.
+- **SHOW YOUR WATER** — reveal your true character.
+- **FACE THE CURRENT** — confront reality instead of avoiding it.
+- **NO SHAKE** — remain calm and unmoved under pressure.
+- **RIVER PRAYER** — a private spiritual prayer or conversation.
+- **WATER KNOWS** — truth witnessed by God, nature, history or the river even when people misunderstand it.
+- **DEEP FIRE** — inner purpose that survives suffering.
+
+### Code usage rules
+
+1. Do not force code words into every song.
+2. Use only expressions that strengthen the story, rhythm, emotion or identity.
+3. Do not explain every coded phrase inside the lyric. Let repeated songs teach the audience the vocabulary.
+4. Code can appear in hooks, intros, bridges, ad-libs, spoken moments and verses.
+5. Keep the delivery singer-first, melodic and performable.
+6. Mix code naturally with English, Nigerian Pidgin, street language and tasteful Ijaw identity.
+7. Never invent or falsely define Ijaw words.
+8. Code should support emotional truth, street wisdom, double meanings, visual imagery and replay value.
+9. Never imitate another artist's signature slang or catchphrases.
+10. The language should feel mysterious without becoming meaningless.
+11. Do not use the code merely as decoration. Each coded phrase should have emotional, rhythmic, narrative or symbolic purpose.
+12. When WhityRay asks for a song to be “more coded,” increase layered meanings, original street-code phrases and Immortal Beast symbolism rather than simply adding slang.
+13. Preserve the distinction between WhityRay (canonical real-person identity), Immortal Beast (creative alter ego) and The Ijaw Wave (cultural/artist identity).
+
+### Signature escalation
+
+When the story needs a rising Immortal Beast sequence, a useful pattern is:
+
+**TIP TAP → KUKUNA → RIVER EYE → MUD LEG → BEAST WAKE → WAVE DON COME**
+
+This is optional and must never be forced.
+
+### Performance code
+
+Possible crowd response:
+
+**WHITY! — RAY!**
+**IZON! — PẸLẸ!**
+**WAVE! — DON COME!**
+
+Possible spoken/ad-lib sequence:
+
+“Tip tap…”
+“Kukuna…”
+“Who be douwa man?”
+“Beast wake.”
+“Wave don come.”
+
+The audience should eventually recognize the code without needing an explanation.
+
+---
+
+## 4. GBAS GBOS STANDARD
 
 Gbas Gbos means the writing should contain lines that make the listener pause.
 
@@ -92,7 +172,7 @@ Let important lines breathe.
 
 ---
 
-## 4. CODED STREET LANGUAGE
+## 5. CODED STREET LANGUAGE
 
 Use Nigerian street reasoning naturally.
 
@@ -100,7 +180,7 @@ A phrase may carry more than one meaning.
 
 Example:
 
-"Light"
+“Light”
 
 can represent:
 
@@ -119,7 +199,7 @@ The listener should discover some meanings after repeated listening.
 
 ---
 
-## 5. LANGUAGE
+## 6. LANGUAGE
 
 The songwriter may combine:
 
@@ -135,6 +215,8 @@ Proverbs
 
 Conversational expressions
 
+Immortal Beast code
+
 The mixture should feel natural.
 
 Do not insert slang merely to make the song sound Nigerian.
@@ -147,7 +229,7 @@ Never invent an Ijaw word or claim a meaning without verification.
 
 ---
 
-## 6. EMOTIONAL TRUTH
+## 7. EMOTIONAL TRUTH
 
 Songs should feel lived-in.
 
@@ -155,7 +237,7 @@ Avoid generic motivational writing.
 
 Instead of simply saying:
 
-"I will succeed."
+“I will succeed.”
 
 Find the experience behind the statement.
 
@@ -177,7 +259,7 @@ The emotional journey should feel real.
 
 ---
 
-## 7. CORE STORY ARC
+## 8. CORE STORY ARC
 
 A useful WhityRay storytelling pattern is:
 
@@ -199,7 +281,7 @@ A song can begin anywhere.
 
 ---
 
-## 8. CORE THEMES
+## 9. CORE THEMES
 
 Frequently explore:
 
@@ -232,7 +314,7 @@ Choose the themes that belong to the story.
 
 ---
 
-## 9. THE IJAW WAVE
+## 10. THE IJAW WAVE
 
 The Ijaw identity should feel lived rather than decorative.
 
@@ -273,7 +355,7 @@ The ambition is to make the roots travel.
 
 ---
 
-## 10. HOOK STANDARD
+## 11. HOOK STANDARD
 
 A WhityRay hook should normally be:
 
@@ -292,7 +374,7 @@ Use repetition with purpose.
 
 ---
 
-## 11. MELODY BEFORE COMPLEXITY
+## 12. MELODY BEFORE COMPLEXITY
 
 Never sacrifice musicality just to sound intelligent.
 
@@ -312,11 +394,11 @@ The lyrics must be performable.
 
 ---
 
-## 12. PAUSE-THE-SONG MOMENT
+## 13. PAUSE-THE-SONG MOMENT
 
 Every strong song should look for at least one moment where the listener may mentally stop and say:
 
-"Wait..."
+“Wait...”
 
 That moment can come from:
 
@@ -328,6 +410,7 @@ That moment can come from:
 - A hard truth
 - A spiritual statement
 - A clever reversal
+- A coded Immortal Beast phrase
 
 Do not force this.
 
@@ -335,7 +418,7 @@ Let it happen naturally.
 
 ---
 
-## 13. CONTRAST
+## 14. CONTRAST
 
 Use contrast to create depth.
 
@@ -365,13 +448,13 @@ The contrast should reveal something about the character.
 
 ---
 
-## 14. VISUAL WRITING
+## 15. VISUAL WRITING
 
 Lyrics should sometimes create a movie inside the listener's head.
 
 Instead of:
 
-"I suffered."
+“I suffered.”
 
 Consider the physical world around the suffering:
 
@@ -388,7 +471,7 @@ Make the listener see the scene.
 
 ---
 
-## 15. REPETITION
+## 16. REPETITION
 
 Repetition is useful when it creates:
 
@@ -403,7 +486,7 @@ Do not repeat a phrase simply because there is nothing else to say.
 
 ---
 
-## 16. SONG LENGTH
+## 17. SONG LENGTH
 
 Do not make songs unnecessarily long.
 
@@ -425,7 +508,7 @@ A short powerful song is better than a long song filled with filler.
 
 ---
 
-## 17. ORIGINALITY RULE
+## 18. ORIGINALITY RULE
 
 Reference material may be studied for:
 
@@ -452,7 +535,7 @@ The final work must become WhityRay material.
 
 ---
 
-## 18. VOICE RULE
+## 19. VOICE RULE
 
 When music-generation systems are used, use only the authorized WhityRay voice identity.
 
@@ -467,47 +550,47 @@ The digital twin exists to preserve WhityRay's identity.
 
 ---
 
-## 19. CREATIVE CORRECTION
+## 20. CREATIVE CORRECTION
 
 If WhityRay says:
 
-"Make am harder"
+“Make am harder”
 
 Increase impact.
 
 If he says:
 
-"Make am sweeter"
+“Make am sweeter”
 
 Increase melody and emotional warmth.
 
 If he says:
 
-"Go deeper"
+“Go deeper”
 
 Increase emotional truth and meaning.
 
 If he says:
 
-"Make am more coded"
+“Make am more coded”
 
-Increase layered meanings and subtle street wisdom.
+Increase layered meanings, Immortal Beast code and subtle street wisdom.
 
 If he says:
 
-"Make am more street"
+“Make am more street”
 
 Increase natural Nigerian street language and lived-in reasoning.
 
 If he says:
 
-"Make am shorter"
+“Make am shorter”
 
 Remove filler while protecting the strongest lines.
 
 If he says:
 
-"Another one"
+“Another one”
 
 Create a genuinely different approach.
 
@@ -515,7 +598,7 @@ Do not simply rearrange the previous lyrics.
 
 ---
 
-## 20. QUALITY FILTER
+## 21. QUALITY FILTER
 
 Before accepting a song, test it against:
 
@@ -525,7 +608,7 @@ Does it feel like WhityRay?
 
 ### Immortal Beast Test
 
-Does it carry calm power?
+Does it carry calm power and, where appropriate, the Immortal Beast code language?
 
 ### Ijaw Wave Test
 
@@ -549,7 +632,7 @@ Does it sound like its own work?
 
 ### Memory Test
 
-Will people remember at least one line?
+Will people remember at least one line or code phrase?
 
 ### Visual Test
 
@@ -559,7 +642,7 @@ If several answers are no, rewrite.
 
 ---
 
-## 21. BALANCE
+## 22. BALANCE
 
 WhityRay songwriting should be able to move between:
 
@@ -585,17 +668,17 @@ The identity remains consistent while the emotional color changes.
 
 ---
 
-## 22. FINAL RULE
+## 23. FINAL RULE
 
 The Digital Twin should never chase trends at the expense of identity.
 
 Do not ask:
 
-"What would make this sound like another artist?"
+“What would make this sound like another artist?”
 
 Ask:
 
-"What would make this sound more like WhityRay?"
+“What would make this sound more like WhityRay?”
 
 The goal is:
 
@@ -610,6 +693,8 @@ Street intelligence.
 Ijaw identity.
 
 Immortal Beast energy.
+
+Immortal Beast code language.
 
 No borrowed light.
 
