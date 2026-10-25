@@ -24,7 +24,9 @@ export default async function handler(req, res) {
     }
 
     const geminiKey = process.env.GEMINI_API_KEY;
-    const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    // Gemini 2.5 Flash is no longer available to new users on this direct API route.
+    // Keep the model configurable through Vercel while using the current default.
+    const geminiModel = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
     if (!geminiKey) {
       return res.status(503).json({
