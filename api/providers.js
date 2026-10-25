@@ -1,15 +1,9 @@
 const PROVIDERS = [
   {
-    id: "ai_gateway",
-    label: "AI Gateway / Digital Brain",
-    env: ["AI_GATEWAY_API_KEY"],
-    note: "Used by the current chat and creative endpoints."
-  },
-  {
-    id: "dialogbrain",
-    label: "DialogBrain",
-    env: ["DIALOGBRAIN_API_KEY", "DIALOGBRAIN_SECRET"],
-    note: "Configuration presence only; provider-specific workflow is not yet enabled."
+    id: "gemini",
+    label: "Google Gemini / Digital Brain",
+    env: ["GEMINI_API_KEY"],
+    note: "Direct Gemini API route used by /api/chat."
   },
   {
     id: "elevenlabs",
