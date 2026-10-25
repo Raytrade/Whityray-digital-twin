@@ -1,5 +1,7 @@
 import { WHITYRAY_RUNTIME_IDENTITY } from "../identity/runtime_identity.js";
 
+const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -21,47 +23,16 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Mode must be a short text value", request_id: requestId });
     }
 
-    const apiKey = process.env.AI_GATEWAY_API_KEY;
-    const gatewayUrl = process.env.AI_GATEWAY_URL || "https://ai-gateway.vercel.sh/v1/chat/completions";
-    const model = process.env.WHITYRAY_GATEWAY_MODEL || "google/gemini-3.5-flash";
+    const geminiKey = process.env.GEMINI_API_KEY;
+    const geminiModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
-    const provider = typeof req.body?.provider === "string" ? req.body.provider : "default";
-    const providerConfigs = {
-      default: { url: gatewayUrl, model },
-      dialogbrain: { url: process.env.DIALOGBRAIN_CHAT_URL, model: process.env.DIALOGBRAIN_MODEL || "default" },
-      openai: { url: process.env.OPENAI_COMPATIBLE_CHAT_URL, model: process.env.OPENAI_COMPATIBLE_MODEL || "default" }
-    };
-
-    const selectedProvider = providerConfigs[provider];
-    if (!selectedProvider) {
-      return res.status(400).json({ error: "Unknown provider", request_id: requestId });
-    }
-
-    if (provider === "default" && !apiKey) {
+    if (!geminiKey) {
       return res.status(503).json({
-        error: "AI Gateway is not configured",
+        error: "Gemini API is not configured",
         request_id: requestId,
-        setup: "Add AI_GATEWAY_API_KEY to Vercel Environment Variables or select a configured alternative provider."
+        setup: "Add GEMINI_API_KEY to Vercel Environment Variables, then redeploy."
       });
     }
-
-    const providerKeyName = provider === "dialogbrain"
-      ? "DIALOGBRAIN_API_KEY"
-      : "OPENAI_COMPATIBLE_API_KEY";
-
-    if (!selectedProvider.url || (provider !== "default" && !process.env[providerKeyName])) {
-      return res.status(503).json({
-        error: "Provider is not configured for chat routing",
-        request_id: requestId,
-        hint: provider === "dialogbrain"
-          ? "Configure DIALOGBRAIN_CHAT_URL and DIALOGBRAIN_API_KEY only if your account supports this chat API contract."
-          : "Configure OPENAI_COMPATIBLE_CHAT_URL and OPENAI_COMPATIBLE_API_KEY for an OpenAI-compatible endpoint."
-      });
-    }
-
-    const activeUrl = selectedProvider.url;
-    const activeModel = selectedProvider.model;
-    const activeKey = provider === "default" ? apiKey : process.env[providerKeyName];
 
     const systemPrompt = `${WHITYRAY_RUNTIME_IDENTITY}
 
@@ -95,21 +66,27 @@ CURRENT MODE
 ${mode}
 `;
 
-    const response = await fetch(activeUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${activeKey}`
-      },
-      body: JSON.stringify({
-        model: activeModel,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message.trim() }
-        ],
-        max_tokens: 1800
-      })
-    });
+    const response = await fetch(
+      `${GEMINI_API_BASE}/models/${encodeURIComponent(geminiModel)}:generateContent?key=${encodeURIComponent(geminiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: {
+            parts: [{ text: systemPrompt }]
+          },
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: message.trim() }]
+            }
+          ],
+          generationConfig: {
+            maxOutputTokens: 1800
+          }
+        })
+      }
+    );
 
     const raw = await response.text();
     let data;
@@ -121,28 +98,32 @@ ${mode}
     }
 
     if (!response.ok) {
-      console.error("AI Gateway error:", {
+      const providerMessage = data?.error?.message || "Non-JSON or empty provider error";
+      console.error("Gemini API error:", {
         requestId,
         status: response.status,
         statusText: response.statusText,
-        providerError: data?.error?.message || data?.message || "Non-JSON or empty provider error"
+        providerError: providerMessage
       });
 
       return res.status(502).json({
-        error: "AI Gateway request failed",
+        error: "Gemini API request failed",
         provider_status: response.status,
         request_id: requestId,
         hint: response.status === 401 || response.status === 403
-          ? "Check AI_GATEWAY_API_KEY and provider/model access in Vercel Environment Variables."
-          : "Check the configured provider and model, then retry."
+          ? "Check GEMINI_API_KEY and Gemini API access/quota in Google AI Studio."
+          : "Check GEMINI_MODEL and Gemini API availability, then retry."
       });
     }
 
-    const answer = data?.choices?.[0]?.message?.content?.trim();
+    const answer = data?.candidates?.[0]?.content?.parts
+      ?.map((part) => part?.text || "")
+      .join("")
+      .trim();
 
     if (!answer) {
       return res.status(502).json({
-        error: "AI Gateway returned an empty response",
+        error: "Gemini returned an empty response",
         request_id: requestId
       });
     }
@@ -155,12 +136,12 @@ ${mode}
         world: "The Ijaw Wave",
         mode
       },
-      model: activeModel,
-      provider,
+      model: geminiModel,
+      provider: "gemini-direct",
       request_id: requestId
     });
   } catch (error) {
-    console.error("WhityRay Gateway runtime error:", {
+    console.error("WhityRay Gemini runtime error:", {
       requestId,
       message: error?.message || "Unknown server error"
     });
