@@ -7,7 +7,8 @@
   },
   "dependencies": {
     "ai": "latest",
-    "dotenv": "latest"
+    "dotenv": "latest",
+    "magic-hour": "^0.70.0"
   },
   "devDependencies": {
     "@types/node": "latest",
