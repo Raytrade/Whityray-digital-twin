@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#070707">
+<title>IMMORTAL — Real-Life Learning Lab</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070707;color:#f5f5f5;font-family:Arial,Helvetica,sans-serif}button,textarea,input,select{font:inherit}button{cursor:pointer}.wrap{max-width:1100px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;gap:15px;align-items:center;margin-bottom:18px}.brand{font-weight:900;letter-spacing:3px;font-size:23px}.sub{color:#999;font-size:12px;margin-top:5px}.badge{border:1px solid #333;border-radius:999px;padding:8px 12px;color:#d7aa4a;font-size:11px}.hero,.panel{border:1px solid #292929;background:#101010;border-radius:16px;padding:20px;margin-bottom:15px}.hero h1{margin:0 0 10px;font-size:32px}.hero p,.notice,.small{color:#aaa;line-height:1.6}.notice{border-left:3px solid #d7aa4a;background:#17130a;padding:13px;margin-top:12px;font-size:13px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{margin-bottom:14px}.field label{display:block;color:#aaa;font-size:11px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}textarea,input,select{width:100%;background:#090909;color:#fff;border:1px solid #292929;border-radius:9px;padding:12px;outline:none}textarea{min-height:130px;resize:vertical}.row{display:flex;gap:9px;flex-wrap:wrap}.primary,.secondary{border-radius:9px;padding:11px 15px}.primary{border:0;background:#d7aa4a;color:#080808;font-weight:900}.secondary{border:1px solid #333;background:#111;color:#fff}.primary:disabled,.secondary:disabled{opacity:.45;cursor:not-allowed}.media{background:#050505;border:1px solid #292929;border-radius:12px;overflow:hidden;min-height:180px}.media video{width:100%;max-height:55vh;display:block}.status,.result{margin-top:12px;border:1px solid #292929;background:#090909;border-radius:9px;padding:13px;color:#bbb;white-space:pre-wrap;line-height:1.55}.result{max-height:500px;overflow:auto}.chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}.chip{border:1px solid #333;border-radius:999px;padding:6px 9px;color:#bbb;font-size:11px}.footer{color:#555;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-top:20px}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:14px}.top{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><div class="brand">IMMORTAL · REAL-LIFE LEARNING</div><div class="sub">Private reflection lab for WhityRay / Immortal Beast</div></div><div class="badge">LOCAL-FIRST</div></div>
+
+  <section class="hero">
+    <h1>Teach the Twin. Learn from the Twin.</h1>
+    <p>Record yourself speaking or moving naturally. Add a transcript or notes. The learning engine extracts grounded patterns in your tongue, thinking, emotions, creativity and performance so the Digital Twin can eventually reflect you more faithfully.</p>
+    <div class="notice"><strong>Privacy rule:</strong> raw audio/video stays in this browser in this first build. It is not uploaded by the learning button. Only the transcript and notes you deliberately submit are sent to <code>/api/learn</code> for analysis. Do not record other people without their permission.</div>
+  </section>
+
+  <section class="panel">
+    <h2>🎙️ Record real WhityRay</h2>
+    <div class="grid">
+      <div>
+        <div class="media"><video id="preview" autoplay muted playsinline></video></div>
+        <div class="row" style="margin-top:10px"><button class="primary" id="startRecord">Start recording</button><button class="secondary" id="stopRecord">Stop</button><button class="secondary" id="clearRecord">Clear</button></div>
+        <div class="status" id="recordStatus">Nothing recorded yet.</div>
+      </div>
+      <div>
+        <div class="field"><label>Session type</label><select id="sessionType"><option>Natural conversation</option><option>Voice note</option><option>Songwriting thought</option><option>Story / life memory</option><option>Performance / movement</option><option>Interview answer</option></select></div>
+        <div class="field"><label>What were you doing?</label><input id="context" maxlength="300" placeholder="e.g. talking about why I make music"></div>
+        <div class="small">Use normal speech. Don't perform for the machine. The most useful material is how you actually talk when you're being yourself.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>🗣️ Capture your natural tongue</h2>
+    <div class="row" style="margin-bottom:10px"><button class="secondary" id="speechStart">Start live transcript</button><button class="secondary" id="speechStop">Stop transcript</button></div>
+    <div class="field"><label>Transcript</label><textarea id="transcript" placeholder="Speak naturally. If live transcription is unavailable on your browser, paste a transcript here."></textarea></div>
+    <div class="field"><label>Your own notes</label><textarea id="notes" placeholder="What did you mean? What were you feeling? What happened before/after? Add context the transcript cannot capture."></textarea></div>
+    <div class="chips"><span class="chip">speech rhythm</span><span class="chip">Pidgin + English</span><span class="chip">thinking patterns</span><span class="chip">emotional truth</span><span class="chip">creative instincts</span><span class="chip">performance notes</span></div>
+  </section>
+
+  <section class="panel">
+    <h2>🧠 Teach the Brain</h2>
+    <p class="small">Analysis is evidence-based. One recording should not become a permanent personality fact. Repeated patterns can later become candidate memories.</p>
+    <div class="row"><button class="primary" id="analyze">Analyze this session</button><button class="secondary" id="saveLocal">Save learning card</button><button class="secondary" id="exportLocal">Export learning cards</button></div>
+    <div class="result" id="analysis">Nothing analyzed yet.</div>
+  </section>
+
+  <section class="panel">
+    <h2>🔄 The two-way loop</h2>
+    <p class="small">1. You live → 2. You record → 3. The Twin observes → 4. You approve what is true → 5. Approved patterns become learning material → 6. The Twin reflects you → 7. You notice what feels right or wrong → 8. You correct it → 9. The system gets closer to the real WhityRay.</p>
+    <div class="notice">This lab deliberately separates <strong>observation</strong> from <strong>memory</strong>. The Twin should never silently decide who you are from one clip.</div>
+  </section>
+
+  <div class="footer">IMMORTAL · WHITYRAY · THE IJAW WAVE · PRIVATE LEARNING LAB</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let stream=null,recorder=null,chunks=[],lastBlob=null,recognition=null,finalTranscript="";
+function status(t){$("recordStatus").textContent=t}
+async function getStream(){return navigator.mediaDevices.getUserMedia({audio:true,video:true})}
+$("startRecord").onclick=async()=>{try{stream=await getStream();$("preview").srcObject=stream;chunks=[];const mime=MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")?"video/webm;codecs=vp9,opus":"video/webm";recorder=new MediaRecorder(stream,{mimeType:mime});recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};recorder.onstart=()=>status("Recording live. Talk and move naturally — don't perform for the machine.");recorder.onstop=()=>{lastBlob=new Blob(chunks,{type:mime});stream.getTracks().forEach(t=>t.stop());stream=null;$("preview").srcObject=null;status("Captured locally: "+Math.round(lastBlob.size/1024)+" KB. Nothing was uploaded.")};recorder.start();$("startRecord").disabled=true;$("stopRecord").disabled=false}catch(e){status("Camera/microphone error: "+e.message)}};
+$("stopRecord").onclick=()=>{if(recorder&&recorder.state!=="inactive")recorder.stop();$("startRecord").disabled=false};
+$("clearRecord").onclick=()=>{lastBlob=null;chunks=[];status("Local recording cleared from this page session.")};
+function SpeechRecognitionClass(){return window.SpeechRecognition||window.webkitSpeechRecognition}
+$("speechStart").onclick=()=>{const C=SpeechRecognitionClass();if(!C){$("analysis").textContent="Live browser transcription is not available here. Record first, then paste a transcript from your preferred transcription tool.";return}recognition=new C();recognition.continuous=true;recognition.interimResults=true;recognition.lang="en-NG";recognition.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const s=e.results[i][0].transcript;if(e.results[i].isFinal)finalTranscript+=s+" ";else interim+=s}$("transcript").value=finalTranscript+interim};recognition.onerror=e=>{$("analysis").textContent="Transcript error: "+e.error};recognition.start();$("analysis").textContent="Live transcript running. Speak naturally."};
+$("speechStop").onclick=()=>{if(recognition){recognition.stop();recognition=null}finalTranscript=$("transcript").value};
+$("analyze").onclick=async()=>{const transcript=$("transcript").value.trim(),notes=$("notes").value.trim();if(!transcript&&!notes){$("analysis").textContent="Add a transcript or notes first.";return}$("analyze").disabled=true;$("analyze").textContent="Learning...";$("analysis").textContent="The Twin is studying this session for grounded patterns...";try{const r=await fetch("/api/learn",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({transcript,notes,context:$("context").value.trim()+" | "+$("sessionType").value})});const d=await r.json();if(!r.ok)throw new Error(d.error+(d.setup?"\n\n"+d.setup:""));$("analysis").textContent=JSON.stringify(d.analysis,null,2);window.lastAnalysis=d.analysis}catch(e){$("analysis").textContent="Learning error: "+e.message}finally{$("analyze").disabled=false;$("analyze").textContent="Analyze this session"}};
+function cards(){try{return JSON.parse(localStorage.getItem("whityray_learning_cards")||"[]")}catch{return[]}}
+$("saveLocal").onclick=()=>{if(!window.lastAnalysis){$("analysis").textContent="Analyze a session first.";return}const a=cards();a.push({id:Date.now(),date:new Date().toISOString(),session_type:$("sessionType").value,context:$("context").value.trim(),analysis:window.lastAnalysis});localStorage.setItem("whityray_learning_cards",JSON.stringify(a));$("analysis").textContent+="\n\n✓ Learning card saved locally in this browser. Review it before treating anything as memory."};
+$("exportLocal").onclick=()=>{const data=JSON.stringify(cards(),null,2);const blob=new Blob([data],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="whityray-learning-cards.json";a.click();URL.revokeObjectURL(url)};
+$("stopRecord").disabled=true;
+</script>
+</body>
+</html>
