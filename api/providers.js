@@ -18,10 +18,10 @@ const PROVIDERS = [
     note: "Provider slot only; use an authorized integration and never expose its key in the browser."
   },
   {
-    id: "visual",
-    label: "Visual / video",
-    env: ["VISUAL_PROVIDER_API_KEY"],
-    note: "Generic provider slot; configure only after choosing a provider."
+    id: "magic-hour",
+    label: "Magic Hour video / visual studio",
+    env: ["MAGIC_HOUR_API_KEY"],
+    note: "Secure server-side video and visual generation route at /api/video and /api/magic-hour."
   }
 ];
 
