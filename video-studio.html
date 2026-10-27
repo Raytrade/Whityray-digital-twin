@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>IMMORTAL — Video Studio</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#070707;color:#f5f5f5;font-family:Arial,Helvetica,sans-serif}main{max-width:1100px;margin:auto;padding:28px}.brand{letter-spacing:4px;font-weight:900;font-size:24px}.sub{color:#8f8f8f;margin:7px 0 25px}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.panel{background:#101010;border:1px solid #292929;border-radius:18px;padding:20px}label{display:block;color:#999;font-size:11px;text-transform:uppercase;letter-spacing:.8px;margin:0 0 7px}textarea,input,select{width:100%;background:#090909;color:#fff;border:1px solid #292929;border-radius:10px;padding:12px;font:inherit;outline:0}textarea{min-height:220px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}.primary,.secondary{padding:12px 16px;border-radius:10px;font-weight:800;cursor:pointer}.primary{border:0;background:#d7aa4a;color:#080808}.secondary{border:1px solid #292929;background:#111;color:#fff}.status{margin-top:15px;padding:14px;border:1px solid #292929;border-radius:10px;color:#aaa;white-space:pre-wrap;line-height:1.5}.preview{min-height:360px;background:#050505;border:1px solid #292929;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;color:#666;text-align:center}.preview video{width:100%;display:none}.notice{margin-top:14px;border-left:3px solid #d7aa4a;padding:12px;background:rgba(215,170,74,.06);color:#aaa;line-height:1.5;font-size:13px}.links{margin-top:18px;color:#777;font-size:12px}@media(max-width:800px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}main{padding:16px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">IMMORTAL</div>
+  <div class="sub">WHITYRAY DIGITAL TWIN · VIDEO STUDIO</div>
+  <div class="grid">
+    <section class="panel">
+      <label for="prompt">What do you want to create?</label>
+      <textarea id="prompt" placeholder="Example: WhityRay walking beside the Bomadi river at blue hour, calm after surviving betrayal, cinematic water reflections, slow controlled camera movement..."></textarea>
+      <div class="row">
+        <div><label for="model">Model</label><select id="model"><option value="ltx-2.5">LTX 2.5 — fast / free-tier friendly</option><option value="kling-3.0">Kling 3.0 — cinematic</option><option value="seedance-2.5">Seedance 2.5 — premium realism</option><option value="veo3.1">Veo 3.1 — expressive / high quality</option><option value="veo3.1-lite">Veo 3.1 Lite</option></select></div>
+        <div><label for="aspect">Aspect</label><select id="aspect"><option>16:9</option><option>9:16</option><option>1:1</option></select></div>
+        <div><label for="duration">Duration</label><select id="duration"><option>5</option><option>6</option><option>8</option><option>10</option><option>15</option><option>30</option></select></div>
+        <div><label for="resolution">Resolution</label><select id="resolution"><option>480p</option><option>720p</option><option>1080p</option></select></div>
+      </div>
+      <div class="actions"><button class="primary" id="create">Create Video</button><button class="secondary" id="refine">Refine Prompt with Immortal Brain</button></div>
+      <div class="status" id="status">Ready. Provider secrets stay on the server.</div>
+      <div class="notice">This studio never pretends a generation is free. The LTX model is the default because Magic Hour documents it as the free-tier default; other models may consume more credits. Actual limits can change with provider policy.</div>
+      <div class="links">Back to main Brain: <a href="/" style="color:#d7aa4a">IMMORTAL</a></div>
+    </section>
+    <section class="panel">
+      <label>Preview</label>
+      <div class="preview" id="preview"><span id="empty">Your generated video will appear here.</span><video id="video" controls playsinline></video></div>
+      <div class="status" id="meta">No generation yet.</div>
+    </section>
+  </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);let busy=false;
+$('refine').onclick=async()=>{const p=$('prompt').value.trim();if(!p)return $('status').textContent='Write a concept first.';$('status').textContent='Send this concept to the Brain module for refinement first: '+p;};
+$('create').onclick=async()=>{if(busy)return;const prompt=$('prompt').value.trim();if(!prompt)return $('status').textContent='Write a visual concept first.';busy=true;$('create').disabled=true;$('status').textContent='IMMORTAL is preparing the cinematic generation…';$('video').style.display='none';$('empty').style.display='block';try{const r=await fetch('/api/video',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,model:$('model').value,aspectRatio:$('aspect').value,endSeconds:Number($('duration').value),resolution:$('resolution').value,audio:false,name:'WhityRay Immortal Beast Video'})});const d=await r.json();if(!r.ok)throw new Error((d.error||'Generation failed')+(d.setup?'\n\n'+d.setup:'')+(d.hint?'\n\n'+d.hint:''));$('status').textContent='Generation complete.';const downloads=d.downloads||d.result?.downloads||[];const url=downloads[0]?.url||downloads[0]?.downloadUrl||downloads[0];if(url){$('video').src=url;$('video').style.display='block';$('empty').style.display='none';}else{$('status').textContent='Generation finished, but the provider did not return a direct preview URL. Project ID: '+(d.project_id||'unknown');}$('meta').textContent='Provider: '+d.provider+'\nModel: '+$('model').value+'\nProject: '+(d.project_id||'unknown')+'\nRequest: '+(d.request_id||'unknown');}catch(e){$('status').textContent='Video error: '+e.message;}finally{busy=false;$('create').disabled=false;}};
+</script>
+</body>
+</html>
