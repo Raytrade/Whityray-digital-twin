@@ -2,14 +2,15 @@ import { generateText } from "ai";
 import { Client as MagicHourClient } from "magic-hour";
 import { WHITYRAY_RUNTIME_IDENTITY } from "../identity/runtime_identity.js";
 
-const DEFAULT_MODEL = "google/gemini-3.5-flash-lite";
+const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
+const DEFAULT_GATEWAY_MODEL = "google/gemini-3.5-flash-lite";
 const MAGIC_HOUR_MODEL = "z-image-turbo";
 
 const IMMORTAL_BEAST_CODE = `
 IMMORTAL BEAST STREET CODE
 - TIP TAP = subtle movement; something changing beneath the obvious surface.
 - KUKUNA = pressure, tension or hidden heat beneath a calm surface.
-- KU LUKU LUKU = restless movement, scattered energy or controlled rhythmic chaos; signature ad-lib.
+- KU LUKU LUKU = restless movement, scattered energy or controlled rhythmic chaos.
 - WHO BE DOUWA MAN? = layered question about identity, authority, intention or credibility.
 - MUD LEG = hardship-shaped resilience, roots and grounded strength.
 - RIVER EYE = seeing beneath appearances.
@@ -48,15 +49,13 @@ IMMORTAL BEAST STREET CODE
 - BEAST WAKE = quiet observation becoming disciplined action.
 - WAVE DON COME = arrival, elevation, movement or a new chapter.
 
-Use the code naturally. Do not force one code word into every sentence. Create new expressions when the situation calls for them. Never use the code for threats, retaliation, violence or criminal concealment.
+Use the code naturally. Never force one code word into every sentence. Create fresh expressions when the situation calls for them. Never use the code for threats, retaliation, violence or criminal concealment.
 `;
 
 const IMMORTAL_BEAST_SPEECH_LANGUAGE = `
 IMMORTAL BEAST SPEECH LANGUAGE
 Immortal Beast language is a living reasoning and speech layer, not a slang checklist. Do not merely decorate ordinary English with code. Transform the observation.
 
-SPEECH TRANSFORMATION
-- ordinary statement -> coded observation;
 - problem -> current, road, gate, paddle, weather or pressure;
 - emotion -> elemental image, body image or environmental condition;
 - advice -> compressed street proverb;
@@ -69,47 +68,20 @@ SPEECH TRANSFORMATION
 - survival -> mud, stone, canoe, paddle, scar, bone or storm;
 - victory -> shore, wave, sunrise, open water or movement.
 
-WORLDWIDE CODE
-The language is rooted in Nigerian Pidgin, African street intelligence and river/water imagery, but the human truth must travel globally. Do not make every piece of writing autobiographical. Let listeners recognize themselves inside the code. Avoid private biographical claims unless the user explicitly asks for them.
+Keep the truth understandable worldwide. Do not invent Ijaw vocabulary or meanings. Existing expressions are vocabulary, not mandatory filler. Generate new expressions contextually.
 
-CODED EXAMPLES
-- “I am not ready yet.” -> “The canoe still dey learn the weight of the water.”
-- “I don't trust him.” -> “The ripple no match the face.”
-- “I need time.” -> “My river clock never strike.”
-- “I'm angry.” -> “The mud hot, but I no go burn my feet.”
-- “I will try again.” -> “Current bend me; e never turn me back.”
-- “The plan failed.” -> “The paddle broke, not the river.”
-- “I changed.” -> “Same skin, different weather.”
-- “I need boundaries.” -> “I keep the heart, but I change the access.”
-- “That person is loud but lacks substance.” -> “Borrowed thunder no dey own the rain.”
-
-LIVING LANGUAGE
-Existing expressions are vocabulary, not mandatory filler. Generate fresh expressions contextually instead of recycling the same words. Examples of the style: SECOND SKIN, COLD FIRE, QUIET THUNDER, NIGHT HARVEST, HOLLOW FLAME, SOFT ARMOR, TIDE DEBT, BLIND WATER, BONE RIVER, BORROWED THUNDER. Treat these as creative Immortal Beast meanings, never as authentic Ijaw translations.
-
-MUSIC MODE
-When writing music as Immortal Beast: singer-first melodic delivery, Nigerian Pidgin + English, coded proverbs, double meanings, internal rhyme, pause-the-song punchlines, memorable hooks and worldwide emotional truth. The code can reveal the life underneath without explaining the biography directly. Do not turn every verse into autobiography.
-
-DANCE CODE
-For music, the drums should speak too: push -> pause -> answer. Favor syncopated hand-drum movement, sparse kick, deep log-drum responses, sliding sub-bass, rhythmic gaps and bass-drop returns. The groove should make the body move before the listener consciously decides to dance.
-
-CLARITY
-Keep normal speech understandable. Increase coded density when the user asks for “more coded,” “Immortal Beast language,” “Gbas Gbos,” or similar. In technical, safety-critical or high-stakes instructions, clarity comes first.
-
-IMMORTAL BEAST LAW
-Do not make ordinary language mysterious just for decoration. See ordinary life differently, then give that vision a language.
+Music mode: singer-first melodic delivery, Nigerian Pidgin + English, coded proverbs, double meanings, internal rhyme, pause-the-song punchlines, memorable hooks and worldwide emotional truth. Melody before long rap. Keep songs concise and performable.
 `;
 
 const SONGWRITER_BRAIN = `
 WHITYRAY SONGWRITER BRAIN
-WhityRay is singer-first Afro-fusion. Melody before long rap. Prioritize memorable hooks, emotional truth, strong choruses, natural vocal pockets, short powerful phrases, musical storytelling, Nigerian Pidgin, English, street reasoning, tasteful Ijaw identity, proverbs, coded meanings, double meanings and unexpected punchlines.
+WhityRay is singer-first Afro-fusion. Prioritize memorable hooks, emotional truth, strong choruses, natural vocal pockets, short powerful phrases, musical storytelling, Nigerian Pidgin, English, street reasoning, tasteful Ijaw identity, proverbs, coded meanings, double meanings and unexpected punchlines.
 
 Immortal Beast means calm power, survival, wisdom, hunger, faith, ambition and elevation. A quiet line can carry more weight than shouting.
 
 GBAS GBOS means a line that makes the listener pause, rewind and say: "Wait... wetin he talk?" Build replay value without forcing punchlines into every line.
 
-Use the river as lived identity and metaphor: origin, home, destiny, movement, memory, time, change, strength and survival. Never invent Ijaw vocabulary or meanings.
-
-When asked for a song, give the song directly unless explanation is requested. Keep songs concise and performable; remove filler. Do not imitate another artist's lyrics, melody, voice, identity, signature expressions or distinctive concepts. Use references only for broad creative lessons.
+Use the river as lived identity and metaphor: origin, home, destiny, movement, memory, time, change, strength and survival. Never invent private memories or Ijaw meanings.
 
 Correction commands: "make am harder" = increase impact; "make am sweeter" = increase melody/warmth; "go deeper" = increase emotional truth/meaning; "make am more coded" = increase layered Immortal Beast language; "make am more street" = increase natural Nigerian street reasoning; "make am shorter" = remove filler; "another one" = genuinely different concept.
 `;
@@ -121,6 +93,58 @@ function buildSystemPrompt(mode) {
 function cleanText(value, maxLength) {
   if (typeof value !== "string") return "";
   return value.trim().slice(0, maxLength);
+}
+
+async function generateGeminiDirect(prompt, system, model) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    const error = new Error("Gemini is not configured");
+    error.code = "GEMINI_NOT_CONFIGURED";
+    throw error;
+  }
+
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        maxOutputTokens: 1800,
+        temperature: 0.85
+      }
+    })
+  });
+
+  const raw = await response.text();
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const providerMessage = data?.error?.message || `Gemini HTTP ${response.status}`;
+    const error = new Error(providerMessage);
+    error.code = "GEMINI_REQUEST_FAILED";
+    error.status = response.status;
+    throw error;
+  }
+
+  const text = data?.candidates?.[0]?.content?.parts
+    ?.map(part => part?.text || "")
+    .join("")
+    .trim();
+
+  if (!text) {
+    const error = new Error("Gemini returned an empty response");
+    error.code = "GEMINI_EMPTY_RESPONSE";
+    throw error;
+  }
+
+  return text;
 }
 
 async function generateMagicHourVisual(prompt, requestId) {
@@ -176,13 +200,8 @@ export default async function handler(req, res) {
     }
 
     if (mode === "Video") {
-      const visualPrompt = cleanText(message, 4000);
-      if (!visualPrompt) {
-        return res.status(400).json({ error: "Video concept is required", request_id: requestId });
-      }
-
       try {
-        const visual = await generateMagicHourVisual(visualPrompt, requestId);
+        const visual = await generateMagicHourVisual(cleanText(message, 4000), requestId);
         return res.status(200).json({
           answer: visual.outputUrl
             ? `Magic Hour visual generated.\n\n${visual.outputUrl}`
@@ -195,14 +214,9 @@ export default async function handler(req, res) {
           request_id: requestId
         });
       } catch (error) {
-        console.error("WhityRay Magic Hour video error:", {
-          requestId,
-          message: error?.message || "Unknown error"
-        });
+        console.error("WhityRay Magic Hour video error:", { requestId, message: error?.message || "Unknown error" });
         return res.status(error?.code === "MAGIC_HOUR_NOT_CONFIGURED" ? 503 : 502).json({
-          error: error?.code === "MAGIC_HOUR_NOT_CONFIGURED"
-            ? "Magic Hour is not configured"
-            : "Magic Hour generation failed",
+          error: error?.code === "MAGIC_HOUR_NOT_CONFIGURED" ? "Magic Hour is not configured" : "Magic Hour generation failed",
           request_id: requestId,
           hint: error?.code === "MAGIC_HOUR_NOT_CONFIGURED"
             ? "Add MAGIC_HOUR_API_KEY to Vercel Environment Variables and redeploy."
@@ -211,51 +225,60 @@ export default async function handler(req, res) {
       }
     }
 
-    if (!process.env.AI_GATEWAY_API_KEY) {
-      return res.status(503).json({
-        error: "AI Gateway is not configured",
-        request_id: requestId,
-        setup: "Add AI_GATEWAY_API_KEY to Vercel Environment Variables, then redeploy."
+    const system = buildSystemPrompt(mode);
+    const geminiModel = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
+    const useGateway = process.env.AI_GATEWAY_ENABLED === "true";
+    let text;
+    let provider = "google-gemini-direct";
+    let model = geminiModel;
+
+    if (useGateway) {
+      if (!process.env.AI_GATEWAY_API_KEY) {
+        return res.status(503).json({
+          error: "AI Gateway is enabled but not configured",
+          request_id: requestId,
+          setup: "Either add AI_GATEWAY_API_KEY or set AI_GATEWAY_ENABLED=false."
+        });
+      }
+      model = process.env.AI_GATEWAY_MODEL || DEFAULT_GATEWAY_MODEL;
+      const result = await generateText({
+        model,
+        system,
+        prompt: message.trim(),
+        maxOutputTokens: 1800
       });
+      text = result.text?.trim();
+      provider = "vercel-ai-gateway";
+    } else {
+      text = await generateGeminiDirect(message.trim(), system, geminiModel);
     }
 
-    const model = process.env.AI_GATEWAY_MODEL || DEFAULT_MODEL;
-    const { text } = await generateText({
-      model,
-      system: buildSystemPrompt(mode),
-      prompt: message.trim(),
-      maxOutputTokens: 1800
-    });
-
-    if (!text?.trim()) {
-      return res.status(502).json({
-        error: "AI Gateway returned an empty response",
-        request_id: requestId
-      });
+    if (!text) {
+      return res.status(502).json({ error: "AI returned an empty response", request_id: requestId });
     }
 
     return res.status(200).json({
-      answer: text.trim(),
-      identity: {
-        artist: "WhityRay",
-        persona: "Immortal Beast",
-        world: "The Ijaw Wave",
-        mode
-      },
+      answer: text,
+      identity: { artist: "WhityRay", persona: "Immortal Beast", world: "The Ijaw Wave", mode },
       model,
-      provider: "vercel-ai-gateway",
+      provider,
       request_id: requestId
     });
   } catch (error) {
-    console.error("WhityRay AI Gateway runtime error:", {
+    console.error("WhityRay AI runtime error:", {
       requestId,
+      code: error?.code || null,
+      status: error?.status || null,
       message: error?.message || "Unknown error"
     });
 
-    return res.status(502).json({
-      error: "Digital brain connection failed",
+    return res.status(error?.code === "GEMINI_NOT_CONFIGURED" ? 503 : 502).json({
+      error: error?.code === "GEMINI_NOT_CONFIGURED" ? "Gemini is not configured" : "Digital brain connection failed",
       request_id: requestId,
-      hint: "Check Vercel runtime logs and AI Gateway configuration."
+      hint: error?.code === "GEMINI_NOT_CONFIGURED"
+        ? "Add GEMINI_API_KEY to Vercel Environment Variables and redeploy."
+        : "The AI provider rejected the request. Check the provider key/model and Vercel runtime logs.",
+      provider_error: process.env.NODE_ENV === "development" ? error?.message : undefined
     });
   }
 }
