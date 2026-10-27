@@ -2,8 +2,8 @@ import { generateText } from "ai";
 import { Client as MagicHourClient } from "magic-hour";
 import { WHITYRAY_RUNTIME_IDENTITY } from "../identity/runtime_identity.js";
 
-const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
-const DEFAULT_GATEWAY_MODEL = "google/gemini-3.5-flash-lite";
+const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
+const DEFAULT_GATEWAY_MODEL = "google/gemini-3.8-flash";
 const MAGIC_HOUR_MODEL = "z-image-turbo";
 
 const IMMORTAL_BEAST_CODE = `
@@ -226,7 +226,10 @@ export default async function handler(req, res) {
     }
 
     const system = buildSystemPrompt(mode);
-    const geminiModel = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
+    const configuredGeminiModel = process.env.GEMINI_MODEL?.trim();
+    const geminiModel = configuredGeminiModel && configuredGeminiModel !== "gemini-2.5-flash"
+      ? configuredGeminiModel
+      : DEFAULT_GEMINI_MODEL;
     const useGateway = process.env.AI_GATEWAY_ENABLED === "true";
     let text;
     let provider = "google-gemini-direct";
