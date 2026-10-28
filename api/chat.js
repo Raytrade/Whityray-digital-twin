@@ -403,7 +403,7 @@ function localImmortalFallback(message, mode) {
   }
   const izonWave = /\\b(izon|ijaw|owigiri|izon-ebe|king robert|ebizimor|ijaw wave|amapiano|traditional ijaw|ijaw culture)\\b/i.test(intentText);
   const style = (izonWave
-    ? "Original Izon Wave: Owigiri / Izon-ebe cultural foundation fused with modern amapiano and Afro-fusion; " + (readField("MOOD") || "communal, proud, spiritual and danceable") + "; " + (readField("TEMPO") || "producer chooses"); 
+    ? "Original Izon Wave: Owigiri / Izon-ebe cultural foundation fused with modern amapiano and Afro-fusion; " + (readField("MOOD") || "communal, proud, spiritual and danceable") + "; " + (readField("TEMPO") || "producer chooses")
     : "Owigiri-inspired Ijaw Wave meets cinematic Afro-fusion; " + (readField("MOOD") || "calm power, deep and spiritual") + "; " + (readField("TEMPO") || "producer chooses")) +
     "; singer-first WhityRay melodic delivery, Nigerian Pidgin + English, add Izon only from verified user/source glossary, call-and-response, cyclical dance groove, layered live-feeling percussion, melodic lead responses, warm bass and modern log-drum movement where it fits, spacious contemporary club mix, no duet or substitute voice. Honour Ijaw roots without copying King Robert Ebizimor's exact lyrics, melodies or voice.";
   return "IMMORTAL LOCAL MODE — title-aware rules-based draft created without a paid AI API. This is not a full cloud-model response.\n\nTITLE: " + finalTitle +
