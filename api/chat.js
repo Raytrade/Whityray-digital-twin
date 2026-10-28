@@ -334,7 +334,12 @@ function localImmortalFallback(message, mode) {
   const seed = [...(title + "|" + story)].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) >>> 0, 7);
   let angle = "A specific human choice gives the title its meaning; the song moves from observation to a personal truth.";
   let hook = "", verse = "", bridge = "";
-  if (/\b(room|bedroom|alone with|draw her close|make her feel|chemistry|intimate|romantic|play.*girl|girl.*close)\b/i.test(intentText)) {
+  if (/\b(izon|ijaw|owigiri|izon-ebe|king robert|ebizimor|ijaw wave|amapiano|traditional ijaw|ijaw culture)\b/i.test(intentText)) {
+    angle = "An original Izon Wave statement: the old river rhythm meets a new worldwide dance floor, with cultural pride carried through the groove and a simple communal hook. This honours Ijaw musical foundations without copying any one artist.";
+    hook = "From the river to the world, make the whole floor know,\\nOld roots, new fire, feel the current flow.\\nNo need to change my name to make the whole room move,\\nIzon in the heartbeat, let the whole world groove.";
+    verse = "Grandma story in the rhythm, tomorrow in the bass,\\nHome inside the drumline, every shore a place.\\nI carry what they gave me, then I shape a sound anew,\\nNot a borrowed shadow, na my own wave coming through.\\nCall and answer rising, let the people sing along,\\nDifferent tongues together, one pulse inside the song.";
+    bridge = "Keep the root alive, let the new sound grow,\\nFrom our side of the water to the world-wide show.";
+  } else if (/\b(room|bedroom|alone with|draw her close|make her feel|chemistry|intimate|romantic|play.*girl|girl.*close)\b/i.test(intentText)) {
     angle = "A private moment turns on mutual comfort and quiet chemistry; the song invites closeness without pressure, using warmth and restraint instead of loud promises.";
     hook = "Make the room slow down, let the outside fade,\nNo need to perform, I like the peace we make.\nYour smile say plenty, I no need to rush,\nLet the beat breathe small, make the silence blush.";
     verse = "Low light resting softly on the wall,\nYour laugh turn a small room big for us all.\nI no dey force the moment, make am find its pace,\nSometimes one gentle song fit give the heart some space.\nIf you move near, na your choice, no demand,\nI go keep the rhythm warm, make you understand.";
@@ -396,8 +401,11 @@ function localImmortalFallback(message, mode) {
   if (/MODE:\s*lyrics-only/i.test(request)) {
     return "IMMORTAL LOCAL MODE — original rules-based draft, not a full cloud-model response.\n\nTITLE: " + finalTitle + "\n\nCREATIVE ANGLE: " + angle + "\n\n" + lyrics;
   }
-  const style = "Owigiri-inspired Ijaw Wave meets cinematic Afro-fusion; " + (readField("MOOD") || "calm power, deep and spiritual") +
-    "; " + (readField("TEMPO") || "producer chooses") + "; singer-first WhityRay melodic delivery, Nigerian Pidgin + English, warm human phrasing, layered percussion, organic bass, water/river texture only where it serves the story, no duet or substitute voice.";
+  const izonWave = /\\b(izon|ijaw|owigiri|izon-ebe|king robert|ebizimor|ijaw wave|amapiano|traditional ijaw|ijaw culture)\\b/i.test(intentText);
+  const style = (izonWave
+    ? "Original Izon Wave: Owigiri / Izon-ebe cultural foundation fused with modern amapiano and Afro-fusion; " + (readField("MOOD") || "communal, proud, spiritual and danceable") + "; " + (readField("TEMPO") || "producer chooses"); 
+    : "Owigiri-inspired Ijaw Wave meets cinematic Afro-fusion; " + (readField("MOOD") || "calm power, deep and spiritual") + "; " + (readField("TEMPO") || "producer chooses")) +
+    "; singer-first WhityRay melodic delivery, Nigerian Pidgin + English, add Izon only from verified user/source glossary, call-and-response, cyclical dance groove, layered live-feeling percussion, melodic lead responses, warm bass and modern log-drum movement where it fits, spacious contemporary club mix, no duet or substitute voice. Honour Ijaw roots without copying King Robert Ebizimor's exact lyrics, melodies or voice.";
   return "IMMORTAL LOCAL MODE — title-aware rules-based draft created without a paid AI API. This is not a full cloud-model response.\n\nTITLE: " + finalTitle +
     "\n\nCREATIVE ANGLE: " + angle + "\n\nLYRICS:\n" + lyrics +
     "\n\nSOUND / STYLE PROMPT:\n" + style +
