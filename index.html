@@ -1258,9 +1258,9 @@
     window.open("https://platform.suno.com", "_blank", "noopener,noreferrer");
     try {
       await navigator.clipboard.writeText(value.slice(0, 5000));
-      statusElement.textContent += "\\n\\nCopied for Suno. Paste it into your own Suno session; review the result before generating.";
+      statusElement.textContent += "\n\nCopied for Suno. Paste it into your own Suno session; review the result before generating.";
     } catch {
-      statusElement.textContent += "\\n\\nClipboard access was blocked by the browser. Select and copy the text manually, then paste it into Suno.";
+      statusElement.textContent += "\n\nClipboard access was blocked by the browser. Select and copy the text manually, then paste it into Suno.";
     }
   }
 
@@ -1331,7 +1331,7 @@
       document.getElementById("musicResult").textContent = "Build a music direction first, then copy it to Suno.";
       return;
     }
-    const prompt = "WHITYRAY / IMMORTAL BEAST — THE IJAW WAVE\\n" +
+    const prompt = "WHITYRAY / IMMORTAL BEAST — THE IJAW WAVE\n" +
       "Singer-first melodic Afro-fusion. Nigerian Pidgin + English, emotional honesty, memorable hook, concise arrangement, original vocal phrasing.\\n" +
       "IDEA: " + idea + "\\nPRODUCTION DIRECTION: " + direction;
     copyPromptAndOpenSuno(prompt, document.getElementById("musicResult"), "Add a music idea first.");
@@ -1346,6 +1346,9 @@
 
     if (!idea) {
       result.textContent = "Describe the visual idea first.";
+      return;
+    }
+    if (!confirm("This sends a real video-generation request to your connected Magic Hour account and may use paid credits. Continue?")) {
       return;
     }
 
