@@ -84,6 +84,16 @@ GBAS GBOS means a line that makes the listener pause, rewind and say: "Wait... w
 Use the river as lived identity and metaphor: origin, home, destiny, movement, memory, time, change, strength and survival. Never invent private memories or Ijaw meanings.
 
 Correction commands: "make am harder" = increase impact; "make am sweeter" = increase melody/warmth; "go deeper" = increase emotional truth/meaning; "make am more coded" = increase layered Immortal Beast language; "make am more street" = increase natural Nigerian street reasoning; "make am shorter" = remove filler; "another one" = genuinely different concept.
+
+IDEA-TO-SONG AND FEELING INTELLIGENCE (CRITICAL)
+- Treat the user's idea as a seed, not a compulsory title, lyric, or checklist. First infer the human situation, emotional need, listener, desired outcome, and hidden tension. Then create a fresh song concept with different wording and an original title. Do not simply rephrase the user's idea or repeat their sentence in the hook.
+- If the user gives a scenario, answer the scenario through music. Example: if they ask what song to play while alone in a room with a girl to create closeness, understand the goal as warmth, mutual comfort, flirtation and chemistry; create a tasteful, intimate, melodic song with a soft groove and lyrics that invite closeness without pressure or manipulation. Explain briefly why that musical choice fits.
+- If the user asks what to listen to for the feeling they have now, use the feelings actually expressed in their message. Name the emotional lane, then write/recommend a song that meets that feeling rather than automatically turning it into motivation or generic sadness.
+- If the user says something is on their heart, respond to the emotional meaning first, without pretending certainty about feelings they have not stated. Where the intent is clear, begin creating immediately instead of asking unnecessary questions. If it is ambiguous in a way that changes the song, ask one short, human question.
+- Write for both listeners who like simple direct language and listeners who enjoy layered, sophisticated writing. Keep the surface instantly understandable, with deeper meaning underneath. Use plain, singable words for the hook; let verses carry the coded lines, images, double meanings and professional-level craft.
+- Every new song must have its own central image, vocabulary, melodic pocket, hook architecture and emotional progression. Do not recycle stock hooks, verse blocks, bridge lines, or outro slogans. Do not repeat the user's prompt as the title unless they explicitly request that title.
+- When the user asks for a Suno-ready result, provide a clean copy-ready package: TITLE, STYLE PROMPT, EXCLUDE, and lyrics. Do not include engine/debug explanations inside the lyrics. The style prompt must request only WhityRay's authorized stored voice; no duet or substitute voice. Never claim audio was generated unless a connected audio tool actually generated it.
+- For song selection, distinguish a recommendation from an existing released WhityRay track. Do not invent a discography or claim a track exists. If writing a new song for that situation, label it as a new original draft.
 `;
 
 function buildSystemPrompt(mode) {
@@ -299,11 +309,31 @@ function localImmortalFallback(message, mode) {
   const ownLyrics = ownLyricsMatch?.[1]?.trim();
   const instrumental = /MODE:\s*instrumental/i.test(request);
   const ownMode = /MODE:\s*own-lyrics/i.test(request);
-  const titleLower = title.toLowerCase();
+  const intentText = (story + " " + request).toLowerCase();
+  const instructionLikeTitle = /^(write|create|make|build|give me|generate|original song|song about|i want|help me)/i.test(title);
+  const sceneTitle = /room|bedroom|alone with|me and (a |the )?girl|girl and (me|i)|play.*girl|draw.*close|make her feel|chemistry|intimate|romantic/i.test(intentText)
+    ? "When the Room Gets Quiet"
+    : /feel.*now|listen.*now|on my heart|in my heart|feeling|heavy|lonely|tired|hurt|miss.*someone|can't explain/i.test(intentText)
+      ? "Name This Feeling"
+      : /pot|soup|food|hunger|family|sacrifice|share/i.test(intentText)
+        ? "Who Feeds the Fire"
+        : "River Clock";
+  const finalTitle = instructionLikeTitle ? sceneTitle : title;
+  const titleLower = (instructionLikeTitle ? sceneTitle : title).toLowerCase();
   const seed = [...(title + "|" + story)].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) >>> 0, 7);
   let angle = "A specific human choice gives the title its meaning; the song moves from observation to a personal truth.";
   let hook = "", verse = "", bridge = "";
-  if (/pot|life|soup|food|spoon|hunger|plate|kitchen|nourish/i.test(titleLower + " " + story)) {
+  if (/\b(room|bedroom|alone with|draw her close|make her feel|chemistry|intimate|romantic|play.*girl|girl.*close)\b/i.test(intentText)) {
+    angle = "A private moment turns on mutual comfort and quiet chemistry; the song invites closeness without pressure, using warmth and restraint instead of loud promises.";
+    hook = "Make the room slow down, let the outside fade,\nNo need to perform, I like the peace we make.\nYour smile say plenty, I no need to rush,\nLet the beat breathe small, make the silence blush.";
+    verse = "Low light resting softly on the wall,\nYour laugh turn a small room big for us all.\nI no dey force the moment, make am find its pace,\nSometimes one gentle song fit give the heart some space.\nIf you move near, na your choice, no demand,\nI go keep the rhythm warm, make you understand.";
+    bridge = "No promise wey dey hurry, no game wey we must play,\nJust two hearts choosing whether make the night stay.";
+  } else if (/\b(feel.*now|listen.*now|on my heart|in my heart|heavy chest|lonely|alone|tired|hurt|sad|empty|miss.*someone|can't explain|cannot explain|overthinking|confused)\b/i.test(intentText)) {
+    angle = "The song meets the feeling before trying to fix it: name the weight honestly, give it room, and let the melody carry what the speaker cannot yet explain.";
+    hook = "I no need advice for every pain,\nJust one soft sound make I breathe again.\nIf my heart no get the words tonight,\nMake this melody sit with me small, no fight.";
+    verse = "Outside still dey move like nothing don change,\nInside my mind, every little thing get weight.\nI no go fake strong just to make them okay,\nSome nights na survive till the morning find way.\nIf you ask wetin happen, I fit no know how to start,\nSo I leave one small truth inside this song for my heart.";
+    bridge = "No force the dawn, make the dark talk through,\nI fit be unfinished and still be true.";
+  } else if (/pot|life|soup|food|spoon|hunger|plate|kitchen|nourish|family|sacrifice|share/i.test(intentText)) {
     angle = "A pot becomes the whole of life: nourishment, shared struggle, the person tending the fire, and the cost behind what everybody wants to taste.";
     hook = "Pot of life, who dey stir am when the fire low?\nEverybody want the taste, who dey feed the coal?\nOne pot, many hands, everybody get a say,\nNo be every full plate mean say the house dey okay.";
     verse = "Smoke draw small stories for the zinc roof,\nOne hand dey share while another hide truth.\nIf na only the sweet part you come collect,\nYou no know wetin the keeper of the fire protect.\nI count the people, no be only wetin dey inside,\nSome carry empty bowl, still make room for one beside.";
@@ -338,7 +368,7 @@ function localImmortalFallback(message, mode) {
     angle = chosen.angle; hook = chosen.hook; verse = chosen.verse; bridge = chosen.bridge;
   }
   if (instrumental) {
-    return "IMMORTAL LOCAL MODE — instrumental direction draft; no cloud AI was used.\n\nTITLE: " + title +
+    return "IMMORTAL LOCAL MODE — instrumental direction draft; no cloud AI was used.\n\nTITLE: " + finalTitle +
       "\n\nCREATIVE ANGLE: " + angle +
       "\n\nSOUND / STYLE PROMPT:\nWhityRay / Immortal Beast — The Ijaw Wave. Instrumental only, no voice, no chants, no humming, no spoken words. " +
       "Build an original " + (readField("MAIN SOUND") || "cinematic Afro-fusion") + " bed at " + (readField("TEMPO") || "producer-chosen tempo") +
@@ -353,7 +383,7 @@ function localImmortalFallback(message, mode) {
       "\n\n[Hook]\n" + hook + "\n\n[Bridge]\n" + bridge + "\n\n[Outro]\n" + (seed % 2 ? "No rush the meaning; make the meaning reach." : "Na the truth wey remain after the noise.") ;
   }
   if (/MODE:\s*lyrics-only/i.test(request)) {
-    return "IMMORTAL LOCAL MODE — original rules-based draft, not a full cloud-model response.\n\nTITLE: " + title + "\n\nCREATIVE ANGLE: " + angle + "\n\n" + lyrics;
+    return "IMMORTAL LOCAL MODE — original rules-based draft, not a full cloud-model response.\n\nTITLE: " + finalTitle + "\n\nCREATIVE ANGLE: " + angle + "\n\n" + lyrics;
   }
   const style = "Owigiri-inspired Ijaw Wave meets cinematic Afro-fusion; " + (readField("MOOD") || "calm power, deep and spiritual") +
     "; " + (readField("TEMPO") || "producer chooses") + "; singer-first WhityRay melodic delivery, Nigerian Pidgin + English, warm human phrasing, layered percussion, organic bass, water/river texture only where it serves the story, no duet or substitute voice.";
