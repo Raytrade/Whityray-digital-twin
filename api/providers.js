@@ -6,6 +6,12 @@ const PROVIDERS = [
     note: "Direct Gemini API route used by /api/chat."
   },
   {
+    id: "ai-gateway",
+    label: "Vercel AI Gateway",
+    env: ["AI_GATEWAY_API_KEY"],
+    note: "Used when AI_GATEWAY_ENABLED=true; direct Gemini fallback requires GEMINI_API_KEY."
+  },
+  {
     id: "elevenlabs",
     label: "ElevenLabs voice",
     env: ["ELEVENLABS_API_KEY"],
@@ -22,6 +28,12 @@ const PROVIDERS = [
     label: "Magic Hour video / visual studio",
     env: ["MAGIC_HOUR_API_KEY"],
     note: "Secure server-side video and visual generation route at /api/video and /api/magic-hour."
+  },
+  {
+    id: "kubpay",
+    label: "KubPay finance bridge",
+    env: ["KUBPAY_API_BASE_URL"],
+    note: "Presence only. Login and account endpoints must pass live checks; payouts remain separately gated."
   }
 ];
 
@@ -42,6 +54,12 @@ export default async function handler(req, res) {
 
   return res.status(200).json({
     identity: "WhityRay Digital Twin",
-    providers
+    checked_at: new Date().toISOString(),
+    providers,
+    finance: {
+      kubpay_configured: Boolean(process.env.KUBPAY_API_BASE_URL),
+      payout_requests_enabled: process.env.FINANCE_ENABLE_PAYOUTS === "true",
+      note: "Configuration presence is not proof of provider health, available funds, or successful transfers."
+    }
   });
 }
