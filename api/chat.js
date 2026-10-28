@@ -282,16 +282,83 @@ async function generateMagicHourVisual(prompt, requestId) {
 function localImmortalFallback(message, mode) {
   const request = String(message || "").trim();
   const lower = request.toLowerCase();
-  const title = request.length > 64 ? request.slice(0, 64).trim() + "…" : request;
-  if (/song|lyric|hook|chorus|verse|music|afro|write me|write a/.test(lower) || /songwriter/i.test(mode)) {
-    return `IMMORTAL LOCAL MODE — draft created without a paid AI API.\n\nTITLE: ${title || "River Clock"}\n\n[Hook]\nWave don come, I no need announce,\nMud for my leg but my eye dey bounce.\nIf the road close, I go read the tide,\nNo borrowed light — make my own thing shine.\n\n[Verse]\nI learn say quiet no mean say man don lose,\nSome doors need patience, some road need choose.\nWater keep record wey the mouth no talk,\nI keep my paddle, make my own path waka.\n\n[Outro]\nRiver no argue… e just dey move.\n\nThis is a lightweight local draft, not a full cloud-model response. Ask for a specific mood, tempo, or subject to shape the next draft.`;
+  const readField = (label) => {
+    const match = request.match(new RegExp("^" + label + "\\s*:\\s*(.+)$", "im"));
+    return match ? match[1].trim().split(/\r?\n/)[0].trim() : "";
+  };
+  const studio = /music studio/i.test(String(mode || "")) || /build a music creation package/i.test(lower);
+  const title = readField("WORKING TITLE") || readField("TITLE") ||
+    (request.match(/(?:title|called|name it)\s*[:=-]\s*["“]?([^"\n”]+)/i)?.[1] || "").trim() ||
+    (request.length > 64 ? request.slice(0, 64).trim() + "…" : request) || "River Clock";
+  const storyMatch = request.match(/STORY\s*\/\s*IDEA\s*:\s*([\s\S]*?)(?:\nUSER LYRICS|\nLIVE RESEARCH NOTES|\nARTIST RULES|\nOUTPUT FORMAT|$)/i);
+  const story = (storyMatch?.[1] || request).trim().slice(0, 500);
+  const ownLyricsMatch = request.match(/USER LYRICS \(preserve exactly if own-lyrics mode\):\s*([\s\S]*?)(?:\n\nLIVE RESEARCH NOTES|\n\nRECENT LOCAL CREATIVE MEMORY|\n\nCREATIVE REASONING|\n\nARTIST RULES|$)/i);
+  const ownLyrics = ownLyricsMatch?.[1]?.trim();
+  const instrumental = /MODE:\s*instrumental/i.test(request);
+  const ownMode = /MODE:\s*own-lyrics/i.test(request);
+  const titleLower = title.toLowerCase();
+  const seed = [...(title + "|" + story)].reduce((n, ch) => (n * 31 + ch.charCodeAt(0)) >>> 0, 7);
+  let angle = "A specific human choice gives the title its meaning; the song moves from observation to a personal truth.";
+  let hook = "", verse = "", bridge = "";
+  if (/pot|life|soup|food|spoon|hunger|plate|kitchen|nourish/i.test(titleLower + " " + story)) {
+    angle = "A pot becomes the whole of life: nourishment, shared struggle, the person tending the fire, and the cost behind what everybody wants to taste.";
+    hook = "Pot of life, who dey stir am when the fire low?\nEverybody want the taste, who dey feed the coal?\nOne pot, many hands, everybody get a say,\nNo be every full plate mean say the house dey okay.";
+    verse = "Smoke draw small stories for the zinc roof,\nOne hand dey share while another hide truth.\nIf na only the sweet part you come collect,\nYou no know wetin the keeper of the fire protect.\nI count the people, no be only wetin dey inside,\nSome carry empty bowl, still make room for one beside.";
+    bridge = "If the pot finish, wetin remain?\nNa the love wey we share, or the hunger and blame?";
+  } else if (/love|heart|girl|boyfriend|girlfriend|romance|kiss|miss you/i.test(titleLower + " " + story)) {
+    angle = "Love is shown through one small, revealing action rather than generic promises; the hook turns on what is done when nobody is watching.";
+    hook = "No tell me forever if today no get care,\nLove no be loud perfume, na who still dey there.\nIf your word na roof, make your action be the door,\nI no need big promise, make the small thing sure.";
+    verse = "You fit type ten paragraphs, still leave me alone,\nOne honest check-in fit feel like home.\nI no dey price affection by the noise wey e make,\nNa the truth in your timing wey dey show wetin you carry.";
+    bridge = "If the light go low, will your hand still find mine?\nNa there I dey read the real meaning of time.";
+  } else if (/money|million|billion|rich|cash|wealth|grind|success|grammy|fame/i.test(titleLower + " " + story)) {
+    angle = "Ambition is measured by what the artist builds and protects, not by the image he sells before the work is done.";
+    hook = "No count my future from the shoes wey I wear,\nSeed no dey make noise when e dey grow under there.\nIf the whole world see the shine but miss the years,\nNa the unseen work be the price of the cheers.";
+    verse = "Small room, big map, I dey measure the route,\nI no dey sell tomorrow just to look rich now.\nEvery no be a lesson, every delay be a fee,\nI want a life wey get value when nobody dey see.";
+    bridge = "If the money come, make my sense come too,\nA full hand no mean say the heart don renew.";
+  } else if (/betray|fake|friend|trust|silence|alone|pain|scar|struggle|survive|hardship/i.test(titleLower + " " + story)) {
+    angle = "The song is about learning who is real without turning pain into revenge; the ending chooses boundaries over bitterness.";
+    hook = "I no turn cold, I just learn where to stand,\nNo be every open door deserve my hand.\nI fit wish you well from the other side,\nPeace be my witness, I no need to fight.";
+    verse = "Some people love the road when the road dey smooth,\nWhen rain touch the roof, you go see who bring tool.\nI no carry every goodbye like stone for chest,\nI leave the lesson, make the heavy part rest.";
+    bridge = "No be hate if I lock one gate,\nNa how I protect wetin still dey great.";
+  } else if (/faith|prayer|god|spirit|soul|heaven|hope|blessing/i.test(titleLower + " " + story)) {
+    angle = "Faith is quiet work under uncertainty: hope stays alive without pretending the struggle has disappeared.";
+    hook = "I pray with my feet, I move with my doubt,\nSmall light for my hand, still I find my route.\nIf heaven hear the whisper wey the crowd no know,\nMake my heart stay clean as the river flow.";
+    verse = "No be every answer land like thunder,\nSome come as strength to carry one more wonder.\nI no need to fake say the storm don pass,\nI just keep one seed safe under the grass.";
+    bridge = "If I no see the whole road today,\nGive me enough light for the next small way.";
+  } else {
+    const options = [
+      { angle: "A turning point: the narrator notices one small sign and changes direction before the world understands why.", hook: "One small sign, I change my lane,\nSame old sky but a different rain.\nI no need crowd to approve my sight,\nI move when the inside signal right.", verse: "I read the room, then I read myself,\nSome answers no dey sit on anybody shelf.\nIf the old map stop matching the ground,\nI draw new lines, no wait for sound.", bridge: "New direction, same heartbeat,\nI bring my own truth to the next street." },
+      { angle: "A community story: different people carry different versions of the same event, and the narrator finds the truth between them.", hook: "Everybody get story, everybody get side,\nTruth dey walk slowly where the loud words collide.\nI hear the front talk, I check behind,\nThe deepest answer need a patient mind.", verse: "One person bring the drum, another bring the blame,\nSame night, different memory, nobody tell am same.\nI no rush judge from the first thing I hear,\nThe quiet detail fit make the whole thing clear.", bridge: "Deep ear, cool head,\nKnow the full story before you choose your step." },
+      { angle: "An inner transformation: the narrator stops waiting for permission and begins with the resources already in hand.", hook: "I start with the little wey dey my side,\nNo wait for perfect weather before I ride.\nSmall fire fit wake one sleeping town,\nNa who keep am alive go earn the crown.", verse: "I use wetin I get, I learn wetin I lack,\nIf the first door close, I no sleep for the mat.\nNo shame for the beginning, no pride for the pose,\nThe seed know the work before the flower show.", bridge: "One step honest, one step clear,\nMy future no dey wait for fear." }
+    ];
+    const chosen = options[seed % options.length];
+    angle = chosen.angle; hook = chosen.hook; verse = chosen.verse; bridge = chosen.bridge;
   }
-  if (/status|error|api|provider|billing|credit|free|deploy/.test(lower)) {
-    return `IMMORTAL LOCAL MODE\n\nI can still help from the Twin's built-in rules when an external AI provider is unavailable. The last provider request failed, so this reply was generated locally; it does not confirm that a cloud AI request succeeded.\n\nNext checks: verify the provider's free-tier quota and model availability, then keep paid-provider calls disabled unless you explicitly choose them. Local mode can handle basic guidance and drafts, but it cannot replace a full language model for every complex question.`;
+  if (instrumental) {
+    return "IMMORTAL LOCAL MODE — instrumental direction draft; no cloud AI was used.\n\nTITLE: " + title +
+      "\n\nCREATIVE ANGLE: " + angle +
+      "\n\nSOUND / STYLE PROMPT:\nWhityRay / Immortal Beast — The Ijaw Wave. Instrumental only, no voice, no chants, no humming, no spoken words. " +
+      "Build an original " + (readField("MAIN SOUND") || "cinematic Afro-fusion") + " bed at " + (readField("TEMPO") || "producer-chosen tempo") +
+      ". Use " + (readField("MOOD") || "deep, distinctive mood") + ", organic percussion, a memorable bass motif, spacious melody, clear transitions and a concise ending. Avoid copying any existing recording.\n\n" +
+      "ARRANGEMENT: Intro texture → establish groove → add counter-melody → short breakdown → final lift → clean outro.\n\nThis is a local rules-based draft, not generated audio.";
   }
-  return `IMMORTAL LOCAL MODE\n\nI received your message: “${request.slice(0, 500)}”\n\nI can keep the Twin responsive using its built-in WhityRay / Immortal Beast identity and simple local rules, without charging a paid API. This fallback is limited: it is not a full AI model, and I won't pretend it has understood or completed complex work that needs a real model or external verification.\n\nTry asking for a short lyric, hook, title, outline, or a practical next-step checklist.`;
+  let lyrics = "";
+  if (ownMode && ownLyrics && !/^\[No user lyrics supplied\]$/i.test(ownLyrics)) {
+    lyrics = ownLyrics;
+  } else {
+    lyrics = "[Intro]\n" + title + "… WhityRay.\nOya, make we reason am.\n\n[Hook]\n" + hook + "\n\n[Verse 1]\n" + verse +
+      "\n\n[Hook]\n" + hook + "\n\n[Bridge]\n" + bridge + "\n\n[Outro]\n" + (seed % 2 ? "No rush the meaning; make the meaning reach." : "Na the truth wey remain after the noise.") ;
+  }
+  if (/MODE:\s*lyrics-only/i.test(request)) {
+    return "IMMORTAL LOCAL MODE — original rules-based draft, not a full cloud-model response.\n\nTITLE: " + title + "\n\nCREATIVE ANGLE: " + angle + "\n\n" + lyrics;
+  }
+  const style = "Owigiri-inspired Ijaw Wave meets cinematic Afro-fusion; " + (readField("MOOD") || "calm power, deep and spiritual") +
+    "; " + (readField("TEMPO") || "producer chooses") + "; singer-first WhityRay melodic delivery, Nigerian Pidgin + English, warm human phrasing, layered percussion, organic bass, water/river texture only where it serves the story, no duet or substitute voice.";
+  return "IMMORTAL LOCAL MODE — title-aware rules-based draft created without a paid AI API. This is not a full cloud-model response.\n\nTITLE: " + title +
+    "\n\nCREATIVE ANGLE: " + angle + "\n\nLYRICS:\n" + lyrics +
+    "\n\nSOUND / STYLE PROMPT:\n" + style +
+    "\n\nARRANGEMENT NOTES:\nConcise " + (readField("LENGTH") || "1:45–2:20") + ". Short atmospheric intro, bring the hook in early, one focused verse, hook return, bridge with a fresh melody, clean outro. Keep the vocal melodic and the mix spacious.\n\nEXCLUDE:\nGeneric repeated hooks, long rap verses, fake Ijaw vocabulary, copied lyrics, duet or substitute voice.\n\nLOCAL MODE LIMIT: public-web research notes can guide a full model, but this fallback does not deeply synthesize research. No audio has been generated.";
 }
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
