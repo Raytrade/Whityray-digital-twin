@@ -1519,11 +1519,19 @@
       const response = await fetch("/api/providers", { headers: { "Accept": "application/json" } });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Status check failed");
-      providerStatus.textContent = data.providers.map(provider =>
+      const providerLines = data.providers.map(provider =>
         (provider.configured ? "✓ " : "○ ") + provider.label + " — " +
-        (provider.configured ? "Secret configured" : "Not configured") +
+        (provider.configured ? (provider.id === "kubpay" ? "Server URL configured" : "Secret configured") : "Not configured") +
         (provider.note ? "\\n  " + provider.note : "")
-      ).join("\\n\\n") + "\\n\\nConfigured status does not verify credentials or provider availability.";
+      );
+      const finance = data.finance || {};
+      providerLines.push(
+        "\\nFINANCE SAFETY\\nKubPay bridge: " + (finance.kubpay_configured ? "URL configured" : "Not configured") +
+        "\\nPayout requests: " + (finance.payout_requests_enabled ? "ENABLED — verify before use" : "LOCKED (safe default)") +
+        "\\n" + (finance.note || "Configuration does not prove funds or transfer success.")
+      );
+      providerStatus.textContent = providerLines.join("\\n\\n") +
+        "\\n\\nConfigured status does not verify credentials, quotas, provider health, or account funds.";
     } catch (error) {
       providerStatus.textContent = "Could not load provider status: " + error.message;
     }
