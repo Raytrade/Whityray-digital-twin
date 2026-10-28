@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080808">
+<title>IMMORTAL — Audience Growth Engine</title>
+<style>
+:root{--bg:#070707;--panel:#111;--line:#2a2a2a;--text:#f5f5f5;--muted:#a0a0a0;--gold:#d7aa4a;--gold2:#f0c969;--green:#68c58a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#3b2c0d44,transparent 35%),var(--bg);color:var(--text);font:15px Arial,sans-serif}a{color:var(--gold2)}button,input,select,textarea{font:inherit}button{cursor:pointer}.wrap{max-width:1120px;margin:auto;padding:20px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}.brand{font-weight:900;letter-spacing:3px}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:1px;margin-top:5px}.btn{border:0;border-radius:9px;padding:12px 15px;background:var(--gold);color:#080808;font-weight:800}.btn.alt{background:#171717;color:white;border:1px solid var(--line)}.hero,.box,.stat{border:1px solid var(--line);background:linear-gradient(145deg,#121212,#0a0a0a);border-radius:15px;padding:20px}.hero{margin-bottom:15px}.eyebrow{font-size:11px;color:var(--gold2);letter-spacing:2px;text-transform:uppercase}.hero h1{font-size:clamp(28px,5vw,46px);margin:10px 0}.muted{color:var(--muted);line-height:1.55}.status{display:inline-block;border:1px solid #d7aa4a66;background:#d7aa4a14;color:var(--gold2);border-radius:999px;padding:8px 11px;font-size:12px;margin-top:10px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px}.stat strong{display:block;font-size:clamp(21px,4vw,32px);margin:10px 0}.stat small{color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{margin:12px 0}.field label{display:block;font-size:11px;color:#aaa;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px}input,select,textarea{width:100%;padding:12px;background:#080808;color:white;border:1px solid var(--line);border-radius:9px}textarea{min-height:105px;resize:vertical}.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.small{font-size:12px;color:var(--muted);line-height:1.5}.result{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;background:#080808;border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:12px;min-height:65px}.task{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);line-height:1.45}.task input{width:auto;flex-shrink:0}.task:last-child{border-bottom:0}.platforms{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.platforms a{border:1px solid var(--line);border-radius:9px;padding:10px;text-decoration:none}.foot{color:#666;font-size:10px;letter-spacing:1px;margin:24px 0;text-transform:uppercase}@media(max-width:760px){.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.wrap{padding:13px}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top"><div class="brand">WHITYRAY · IMMORTAL<small>REAL AUDIENCE GROWTH ENGINE</small></div><a class="btn alt" href="/">← Back to Digital Twin</a></header>
+<section class="hero"><div class="eyebrow">The Ijaw Wave · Independent Artist Growth</div><h1>Build real listeners.<br>Turn attention into community.</h1><p class="muted">Your 555,000+ goal is recorded as a target—not a fake live count. This studio helps plan campaigns, track real numbers you enter, create shareable promo copy, and build repeatable discovery. It does not buy followers, fake streams, or pretend to connect analytics that are not connected.</p><div class="status" id="goalStatus">TARGET · 555,000+ real followers</div></section>
+<section class="stats">
+<div class="stat"><span>Follower target</span><strong>555K+</strong><small>Long-term ambition</small></div>
+<div class="stat"><span>Followers now</span><strong id="followersDisplay">—</strong><small>Enter verified count below</small></div>
+<div class="stat"><span>Monthly listeners</span><strong id="listenersDisplay">—</strong><small>Enter platform analytics</small></div>
+<div class="stat"><span>Track plays</span><strong id="playsDisplay">—</strong><small>Enter verified total</small></div>
+</section>
+<div class="grid">
+<section class="box"><h2>Track real numbers</h2><p class="muted">These are your own entries saved in this browser only. No platform account is connected here, and no numbers are invented.</p>
+<div class="field"><label for="followers">Total followers across platforms (avoid double-counting if possible)</label><input id="followers" type="number" min="0" step="1" placeholder="Enter verified total"></div>
+<div class="field"><label for="listeners">Monthly listeners</label><input id="listeners" type="number" min="0" step="1" placeholder="Enter actual analytics"></div>
+<div class="field"><label for="plays">Total plays / streams</label><input id="plays" type="number" min="0" step="1" placeholder="Enter actual analytics"></div>
+<div class="field"><label for="goal">Follower goal</label><input id="goal" type="number" min="1" step="1" value="555000"></div>
+<div class="row"><button class="btn" id="saveMetrics">Save real metrics</button><button class="btn alt" id="clearMetrics">Clear local metrics</button></div><div class="result" id="metricStatus" aria-live="polite">Metrics have not been entered yet.</div>
+</section>
+<section class="box"><h2>Daily growth routine</h2><p class="muted">Check off work only after you actually do it. Progress is stored locally in this browser.</p>
+<div id="tasks">
+<label class="task"><input type="checkbox" data-task="hook">Post one 10–20 second strongest hook, with readable captions.</label>
+<label class="task"><input type="checkbox" data-task="story">Share the real story behind one line or song; invite a genuine reply.</label>
+<label class="task"><input type="checkbox" data-task="community">Reply thoughtfully to comments and engage with similar independent artists.</label>
+<label class="task"><input type="checkbox" data-task="cta">Use one clear call to action: save, share, follow, or listen—one at a time.</label>
+<label class="task"><input type="checkbox" data-task="review">Review analytics and repeat the format that earned real watch time and saves.</label>
+</div><div class="row"><button class="btn alt" id="resetTasks">Reset daily checklist</button></div><div class="small" id="taskStatus">0 of 5 completed today.</div>
+</section>
+<section class="box"><h2>Campaign copy builder</h2><p class="muted">Create an honest promo caption from your own song details—ready to adapt for TikTok, Reels, Shorts or your music community.</p>
+<div class="field"><label for="song">Song / release title</label><input id="song" maxlength="100" placeholder="e.g. Pot of Life"></div>
+<div class="field"><label for="story">The real story or feeling</label><textarea id="story" maxlength="600" placeholder="What makes this song yours? What should listeners feel?"></textarea></div>
+<div class="field"><label for="cta">Main call to action</label><select id="cta"><option>Follow WhityRay for the journey</option><option>Save this song and share it with one person</option><option>Comment with the line that touched you</option><option>Listen and tell me what you felt</option></select></div>
+<div class="row"><button class="btn" id="buildCaption">Build promo caption</button><button class="btn alt" id="copyCaption">Copy caption</button></div><div class="result" id="captionResult" aria-live="polite">Your campaign caption will appear here.</div>
+</section>
+<section class="box"><h2>Where to publish</h2><p class="muted">Publish through your own accounts. Review each platform's rules; never buy fake engagement or use stream farms. Add your exact profile/release links once you have them.</p>
+<div class="platforms"><a href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">TikTok</a><a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">YouTube</a><a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">Instagram</a><a href="https://open.spotify.com/" target="_blank" rel="noopener noreferrer">Spotify</a><a href="https://suno.com/" target="_blank" rel="noopener noreferrer">Suno</a></div>
+<h3 style="margin-top:20px">Simple 7-day test</h3><div class="task">Day 1 — Introduce the song's real story in one short video.</div><div class="task">Day 2 — Post the strongest hook with captions.</div><div class="task">Day 3 — Perform the hook in a different setting or vocal take.</div><div class="task">Day 4 — Reply to comments with a follow-up clip.</div><div class="task">Day 5 — Share a lyric meaning or coded line breakdown.</div><div class="task">Day 6 — Invite fans to duet, stitch, or share their interpretation where available.</div><div class="task">Day 7 — Check saves, completion rate, shares, follows and listener retention; repeat the strongest format.</div>
+</section></div>
+<p class="foot">IMMORTAL · Real people. Real plays. Real growth. No fabricated metrics.</p></div>
+<script>
+const ids=["followers","listeners","plays","goal"];
+const fmt=n=>Number(n||0).toLocaleString("en-US");
+function loadMetrics(){try{const m=JSON.parse(localStorage.getItem("immortalGrowthMetrics")||"{}");ids.forEach(id=>{if(m[id]!==undefined)document.getElementById(id).value=m[id]});updateMetrics();}catch{}}
+function updateMetrics(){const f=document.getElementById("followers").value,l=document.getElementById("listeners").value,p=document.getElementById("plays").value,g=Number(document.getElementById("goal").value||555000);document.getElementById("followersDisplay").textContent=f===""?"—":fmt(f);document.getElementById("listenersDisplay").textContent=l===""?"—":fmt(l);document.getElementById("playsDisplay").textContent=p===""?"—":fmt(p);const current=Number(f||0);document.getElementById("goalStatus").textContent="TARGET · "+fmt(g)+"+ real followers"+(f!==""?" · "+fmt(Math.max(0,g-current))+" to target":"");}
+document.getElementById("saveMetrics").onclick=()=>{const m={};ids.forEach(id=>m[id]=document.getElementById(id).value);localStorage.setItem("immortalGrowthMetrics",JSON.stringify(m));updateMetrics();document.getElementById("metricStatus").textContent="Saved in this browser only. These are your entered figures, not independently verified platform analytics.";};
+document.getElementById("clearMetrics").onclick=()=>{localStorage.removeItem("immortalGrowthMetrics");ids.forEach(id=>document.getElementById(id).value=id==="goal"?"555000":"");updateMetrics();document.getElementById("metricStatus").textContent="Local metrics cleared.";};
+ids.forEach(id=>document.getElementById(id).addEventListener("input",updateMetrics));
+const taskKey="immortalGrowthTasks-"+new Date().toISOString().slice(0,10);
+function loadTasks(){let a=[];try{a=JSON.parse(localStorage.getItem(taskKey)||"[]")}catch{}document.querySelectorAll("[data-task]").forEach(el=>el.checked=a.includes(el.dataset.task));updateTasks();}
+function updateTasks(){const els=[...document.querySelectorAll("[data-task]")];const done=els.filter(e=>e.checked).length;document.getElementById("taskStatus").textContent=done+" of "+els.length+" completed today.";localStorage.setItem(taskKey,JSON.stringify(els.filter(e=>e.checked).map(e=>e.dataset.task)));}
+document.querySelectorAll("[data-task]").forEach(el=>el.addEventListener("change",updateTasks));
+document.getElementById("resetTasks").onclick=()=>{document.querySelectorAll("[data-task]").forEach(e=>e.checked=false);updateTasks();};
+document.getElementById("buildCaption").onclick=()=>{const song=document.getElementById("song").value.trim();const story=document.getElementById("story").value.trim();const cta=document.getElementById("cta").value;if(!song||!story){document.getElementById("captionResult").textContent="Add the song title and its real story first.";return;}document.getElementById("captionResult").textContent="WHITYRAY — "+song+" 🌊\n\n"+story+"\n\n"+cta+".\n\n#WhityRay #ImmortalBeast #TheIjawWave #AfroFusion";};
+document.getElementById("copyCaption").onclick=async()=>{const text=document.getElementById("captionResult").textContent;if(!text||text==="Your campaign caption will appear here.")return;try{await navigator.clipboard.writeText(text);document.getElementById("captionResult").textContent=text+"\n\n[Copied to clipboard]";}catch{document.getElementById("captionResult").textContent=text+"\n\nSelect and copy this text manually.";}}
+loadMetrics();loadTasks();
+</script></body></html>
