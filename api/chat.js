@@ -95,7 +95,21 @@ function cleanText(value, maxLength) {
   return value.trim().slice(0, maxLength);
 }
 
-async function generateGeminiDirect(prompt, system, model) {
+function normalizeHistory(value) {
+  if (!Array.isArray(value)) return [];
+  const normalized = [];
+  let totalLength = 0;
+  for (const item of value.slice(-8).reverse()) {
+    if (!item || !["user", "assistant"].includes(item.role) || typeof item.content !== "string") continue;
+    const content = item.content.trim().slice(0, 1200);
+    if (!content || totalLength + content.length > 6000) continue;
+    normalized.push({ role: item.role, content });
+    totalLength += content.length;
+  }
+  return normalized.reverse();
+}
+
+async function generateGeminiDirect(prompt, system, model, history = []) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     const error = new Error("Gemini is not configured");
@@ -109,7 +123,13 @@ async function generateGeminiDirect(prompt, system, model) {
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
       systemInstruction: { parts: [{ text: system }] },
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      contents: [
+        ...history.map(item => ({
+          role: item.role === "assistant" ? "model" : "user",
+          parts: [{ text: item.content }]
+        })),
+        { role: "user", parts: [{ text: prompt }] }
+      ],
       generationConfig: {
         maxOutputTokens: 1800,
         temperature: 0.85
@@ -187,7 +207,8 @@ export default async function handler(req, res) {
   res.setHeader("X-WhityRay-Request-Id", requestId);
 
   try {
-    const { message, mode = "Digital Twin" } = req.body || {};
+    const { message, mode = "Digital Twin", history = [] } = req.body || {};
+    const chatHistory = normalizeHistory(history);
 
     if (typeof message !== "string" || !message.trim()) {
       return res.status(400).json({ error: "Message is required", request_id: requestId });
@@ -241,7 +262,10 @@ export default async function handler(req, res) {
         const result = await generateText({
           model: gatewayModel,
           system,
-          prompt: message.trim(),
+          messages: [
+            ...chatHistory.map(item => ({ role: item.role, content: item.content })),
+            { role: "user", content: message.trim() }
+          ],
           maxOutputTokens: 1800
         });
         text = result.text?.trim();
@@ -254,14 +278,14 @@ export default async function handler(req, res) {
           requestId,
           message: gatewayError?.message || "Unknown gateway error"
         });
-        text = await generateGeminiDirect(message.trim(), system, geminiModel);
+        text = await generateGeminiDirect(message.trim(), system, geminiModel, chatHistory);
         model = geminiModel;
         provider = "google-gemini-direct-fallback";
       }
     } else {
       // If the gateway is disabled or its key is missing, use the configured
       // direct Gemini provider instead of leaving the creative brain offline.
-      text = await generateGeminiDirect(message.trim(), system, geminiModel);
+      text = await generateGeminiDirect(message.trim(), system, geminiModel, chatHistory);
     }
 
     if (!text) {
