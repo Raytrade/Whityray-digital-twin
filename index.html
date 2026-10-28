@@ -1930,7 +1930,7 @@
     worldPulseStatus.textContent = "Searching current public sources…";
     worldPulseResults.replaceChildren(pulseEl("div", "Scanning global music movement, artist news, collaboration leads and release opportunities…", "notice"));
     try {
-      const response = await fetch("/api/world-pulse", { method: "GET", cache: "no-store", headers: { "Accept": "application/json" } });
+      const response = await fetch("/api/chat?task=world-pulse", { method: "GET", cache: "no-store", headers: { "Accept": "application/json" } });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "World Pulse could not load.");
       worldPulseResults.replaceChildren();
