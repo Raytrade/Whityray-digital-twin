@@ -629,6 +629,19 @@
         <div class="notice">After adding credits or fixing a spend limit, wait a few minutes, return here, and send a short test message. Never enter your card number or API key into the Twin chat.</div>
       </div>
 
+      <div class="workspace" id="worldPulseCard" style="margin-bottom:18px">
+        <div class="studio-kicker">IMMORTAL WORLD PULSE · GLOBAL MUSIC INTELLIGENCE</div>
+        <h3 style="font-size:20px;margin:6px 0 8px">What is happening in the world right now?</h3>
+        <p style="color:var(--muted);line-height:1.6;margin:0 0 12px">A fresh scan of public music news, international artist moves, Afrobeats/global discovery, creator opportunities and collaboration leads — translated into possible next moves for WhityRay. No fake numbers or guaranteed opportunities.</p>
+        <div class="button-row" style="margin-bottom:12px">
+          <button type="button" id="refreshWorldPulse">Refresh World Pulse</button>
+          <span id="worldPulseStatus" class="studio-kicker" aria-live="polite">Preparing latest scan…</span>
+        </div>
+        <div id="worldPulseResults" style="display:grid;gap:10px">
+          <div class="notice">Scanning public sources. Results depend on search availability and may need verification before acting.</div>
+        </div>
+      </div>
+
       <div class="chat-box">
 
         <div class="chat-header">
@@ -1897,6 +1910,87 @@
 
     settingsResult.textContent =
       "Settings saved on this device.";
+  });
+
+
+
+  // IMMORTAL WORLD PULSE: public-source discovery, refreshed when the Twin opens.
+  const worldPulseResults = document.getElementById("worldPulseResults");
+  const worldPulseStatus = document.getElementById("worldPulseStatus");
+  const refreshWorldPulse = document.getElementById("refreshWorldPulse");
+  function pulseEl(tag, textValue, className) {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    el.textContent = textValue || "";
+    return el;
+  }
+  async function loadWorldPulse() {
+    if (!worldPulseResults || !refreshWorldPulse) return;
+    refreshWorldPulse.disabled = true;
+    worldPulseStatus.textContent = "Searching current public sources…";
+    worldPulseResults.replaceChildren(pulseEl("div", "Scanning global music movement, artist news, collaboration leads and release opportunities…", "notice"));
+    try {
+      const response = await fetch("/api/world-pulse", { method: "GET", cache: "no-store", headers: { "Accept": "application/json" } });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "World Pulse could not load.");
+      worldPulseResults.replaceChildren();
+      const groups = Array.isArray(data.groups) ? data.groups : [];
+      if (!groups.length) {
+        worldPulseResults.appendChild(pulseEl("div", "No reliable public results came back this time. Refresh later; the Twin will not invent current news.", "notice"));
+      }
+      groups.forEach(group => {
+        const box = document.createElement("div");
+        box.style.cssText = "padding:12px;border:1px solid var(--border,rgba(255,255,255,.12));border-radius:12px;background:rgba(255,255,255,.025)";
+        box.appendChild(pulseEl("div", group.label || "World signal", "studio-kicker"));
+        if (group.summary) box.appendChild(pulseEl("p", group.summary, ""));
+        const list = document.createElement("div");
+        list.style.cssText = "display:grid;gap:9px;margin-top:8px";
+        (group.items || []).forEach(item => {
+          const row = document.createElement("div");
+          row.style.cssText = "padding:9px 0;border-top:1px solid rgba(255,255,255,.08)";
+          const title = document.createElement("a");
+          title.href = item.url;
+          title.target = "_blank";
+          title.rel = "noopener noreferrer";
+          title.textContent = item.title || "Open source";
+          title.style.cssText = "font-weight:700;color:var(--text,#fff);text-decoration:underline";
+          row.appendChild(title);
+          if (item.snippet) row.appendChild(pulseEl("p", item.snippet, ""));
+          list.appendChild(row);
+        });
+        if (!(group.items || []).length) list.appendChild(pulseEl("p", "No usable results in this category yet.", ""));
+        box.appendChild(list);
+        worldPulseResults.appendChild(box);
+      });
+      const actions = document.createElement("div");
+      actions.style.cssText = "padding:12px;border:1px solid rgba(99,190,150,.4);border-radius:12px";
+      actions.appendChild(pulseEl("div", "WHAT WHITYRAY CAN DO NEXT", "studio-kicker"));
+      (data.action_ideas || []).forEach((idea, index) => actions.appendChild(pulseEl("p", (index + 1) + ". " + idea, "")));
+      const planBtn = document.createElement("button");
+      planBtn.type = "button";
+      planBtn.textContent = "Turn these signals into my WhityRay action plan";
+      planBtn.addEventListener("click", () => {
+        const summary = groups.map(g => g.label + ": " + (g.items || []).slice(0,3).map(x => x.title + " — " + x.snippet + " (" + x.url + ")").join(" | ")).join("\n");
+        const request = "Act as my global music strategist, Immortal Beast. Use these fresh public World Pulse research leads to build a realistic 7-day action plan for WhityRay / The Ijaw Wave. Keep every song, caption and outreach message in my natural Nigerian Pidgin + English speaking style, with singer-first melodic identity and original coded wisdom. Prioritize opportunities I can verify and act on; separate confirmed facts from ideas, never fake follower/stream counts, never claim a collaboration is agreed, and do not copy artists. WORLD PULSE LEADS:\n" + summary + "\nGive me: top 3 priorities, one original content idea, one song angle, 3 artist/collaborator discovery targets with public source links if present, and a daily checklist.";
+        if (typeof runBrain === "function") runBrain(request, "Global Music Strategy");
+        document.getElementById("panel-brain")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      actions.appendChild(planBtn);
+      worldPulseResults.appendChild(actions);
+      worldPulseStatus.textContent = "Updated " + (data.updated_at ? new Date(data.updated_at).toLocaleString() : "just now") + " · " + (data.result_count || 0) + " public results";
+      if (data.notice) worldPulseResults.appendChild(pulseEl("div", data.notice, "notice"));
+    } catch (error) {
+      worldPulseResults.replaceChildren(pulseEl("div", "World Pulse could not reach live public search just now. Nothing has been invented. Tap Refresh World Pulse to retry. Detail: " + error.message, "notice"));
+      worldPulseStatus.textContent = "Live scan unavailable";
+    } finally {
+      refreshWorldPulse.disabled = false;
+    }
+  }
+  refreshWorldPulse?.addEventListener("click", loadWorldPulse);
+  // Run on page open, and refresh if the tab returns after a while.
+  loadWorldPulse();
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && Date.now() - (window.__immortalWorldPulseLast || 0) > 15 * 60 * 1000) loadWorldPulse();
   });
 
 </script>
