@@ -1,4 +1,4 @@
-import { send, baseUrl, getSession, clearSession, kubpay } from "./_shared.js";
+import { send, baseUrl, getSession, clearSession, kubpay } from "../../lib/finance-kubpay.js";
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "GET") return send(res, 405, { error: "Method not allowed" });
