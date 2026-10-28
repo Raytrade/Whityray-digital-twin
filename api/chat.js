@@ -336,9 +336,9 @@ function localImmortalFallback(message, mode) {
   let hook = "", verse = "", bridge = "";
   if (/\b(izon|ijaw|owigiri|izon-ebe|king robert|ebizimor|ijaw wave|amapiano|traditional ijaw|ijaw culture)\b/i.test(intentText)) {
     angle = "An original Izon Wave statement: the old river rhythm meets a new worldwide dance floor, with cultural pride carried through the groove and a simple communal hook. This honours Ijaw musical foundations without copying any one artist.";
-    hook = "From the river to the world, make the whole floor know,\\nOld roots, new fire, feel the current flow.\\nNo need to change my name to make the whole room move,\\nIzon in the heartbeat, let the whole world groove.";
-    verse = "Grandma story in the rhythm, tomorrow in the bass,\\nHome inside the drumline, every shore a place.\\nI carry what they gave me, then I shape a sound anew,\\nNot a borrowed shadow, na my own wave coming through.\\nCall and answer rising, let the people sing along,\\nDifferent tongues together, one pulse inside the song.";
-    bridge = "Keep the root alive, let the new sound grow,\\nFrom our side of the water to the world-wide show.";
+    hook = "From the river to the world, make the whole floor know,\nOld roots, new fire, feel the current flow.\nNo need to change my name to make the whole room move,\nIzon in the heartbeat, let the whole world groove.";
+    verse = "Grandma story in the rhythm, tomorrow in the bass,\nHome inside the drumline, every shore a place.\nI carry what they gave me, then I shape a sound anew,\nNot a borrowed shadow, na my own wave coming through.\nCall and answer rising, let the people sing along,\nDifferent tongues together, one pulse inside the song.";
+    bridge = "Keep the root alive, let the new sound grow,\nFrom our side of the water to the world-wide show.";
   } else if (/\b(room|bedroom|alone with|draw her close|make her feel|chemistry|intimate|romantic|play.*girl|girl.*close)\b/i.test(intentText)) {
     angle = "A private moment turns on mutual comfort and quiet chemistry; the song invites closeness without pressure, using warmth and restraint instead of loud promises.";
     hook = "Make the room slow down, let the outside fade,\nNo need to perform, I like the peace we make.\nYour smile say plenty, I no need to rush,\nLet the beat breathe small, make the silence blush.";
@@ -401,7 +401,7 @@ function localImmortalFallback(message, mode) {
   if (/MODE:\s*lyrics-only/i.test(request)) {
     return "IMMORTAL LOCAL MODE — original rules-based draft, not a full cloud-model response.\n\nTITLE: " + finalTitle + "\n\nCREATIVE ANGLE: " + angle + "\n\n" + lyrics;
   }
-  const izonWave = /\\b(izon|ijaw|owigiri|izon-ebe|king robert|ebizimor|ijaw wave|amapiano|traditional ijaw|ijaw culture)\\b/i.test(intentText);
+  const izonWave = /\b(izon|ijaw|owigiri|izon-ebe|king robert|ebizimor|ijaw wave|amapiano|traditional ijaw|ijaw culture)\b/i.test(intentText);
   const style = (izonWave
     ? "Original Izon Wave: Owigiri / Izon-ebe cultural foundation fused with modern amapiano and Afro-fusion; " + (readField("MOOD") || "communal, proud, spiritual and danceable") + "; " + (readField("TEMPO") || "producer chooses")
     : "Owigiri-inspired Ijaw Wave meets cinematic Afro-fusion; " + (readField("MOOD") || "calm power, deep and spiritual") + "; " + (readField("TEMPO") || "producer chooses")) +
