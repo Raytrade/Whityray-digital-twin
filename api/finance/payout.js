@@ -1,4 +1,4 @@
-import { send, sameOrigin, baseUrl, getSession, kubpay, readJson } from "./_shared.js";
+import { send, sameOrigin, baseUrl, getSession, kubpay, readJson } from "../../lib/finance-kubpay.js";
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return send(res, 405, { error: "Method not allowed" });
