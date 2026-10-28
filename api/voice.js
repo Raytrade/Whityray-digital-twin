@@ -16,7 +16,7 @@ export default async function handler(req, res) {
 
   const body = req.body || {};
   const text = typeof body.text === "string" ? body.text.trim() : "";
-  const voiceId = typeof body.voice_id === "string"
+  let voiceId = typeof body.voice_id === "string"
     ? body.voice_id.trim()
     : (process.env.ELEVENLABS_VOICE_ID || "").trim();
 
@@ -24,14 +24,36 @@ export default async function handler(req, res) {
   if (text.length > 5000) {
     return res.status(413).json({ error: "Text is too long. Maximum is 5,000 characters." });
   }
-  if (!voiceId || !/^[a-zA-Z0-9_-]{2,128}$/.test(voiceId)) {
-    return res.status(400).json({
-      error: "A valid voice ID is required.",
-      hint: "Copy the ID of your authorized WhityRay voice from ElevenLabs and enter it in the Voice panel."
-    });
+  if (voiceId && !/^[a-zA-Z0-9_-]{2,128}$/.test(voiceId)) {
+    return res.status(400).json({ error: "Invalid voice selection." });
   }
 
   try {
+    // Resolve the authorized WhityRay clone on the server if no ID is configured.
+    // The API key and voice ID are never returned to the browser.
+    if (!voiceId) {
+      const voicesResponse = await fetch("https://api.elevenlabs.io/v1/voices", {
+        method: "GET",
+        headers: { "xi-api-key": apiKey, "Accept": "application/json" }
+      });
+      if (!voicesResponse.ok) {
+        console.error("ElevenLabs voice lookup failed", { status: voicesResponse.status });
+        return res.status(502).json({
+          error: "Could not resolve the authorized WhityRay voice.",
+          hint: "Check the ElevenLabs connection and confirm the WhityRay cloned voice is available in that account."
+        });
+      }
+      const voicesData = await voicesResponse.json();
+      const matches = Array.isArray(voicesData && voicesData.voices) ? voicesData.voices : [];
+      const ownVoice = matches.find((item) => typeof item.name === "string" && item.name.trim().toLowerCase() === "whityray" && typeof item.voice_id === "string");
+      if (!ownVoice) {
+        return res.status(503).json({
+          error: "The authorized WhityRay voice was not found in the connected ElevenLabs account.",
+          hint: "No substitute voice will be selected. Connect the account containing the WhityRay cloned voice."
+        });
+      }
+      voiceId = ownVoice.voice_id;
+    }
     const modelId = process.env.ELEVENLABS_MODEL_ID || "eleven_multilingual_v2";
     const response = await fetch(
       "https://api.elevenlabs.io/v1/text-to-speech/" + encodeURIComponent(voiceId) + "?output_format=mp3_44100_128",
