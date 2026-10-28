@@ -1295,52 +1295,61 @@
   /* VIDEO */
 
   document.getElementById("buildVideo").addEventListener("click", async () => {
-
     const idea = document.getElementById("videoIdea").value.trim();
     const result = document.getElementById("videoResult");
+    const button = document.getElementById("buildVideo");
 
     if (!idea) {
       result.textContent = "Describe the visual idea first.";
       return;
     }
 
-    result.textContent = "Building cinematic concept...";
+    button.disabled = true;
+    button.textContent = "Generating video…";
+    result.textContent = "Sending your WhityRay concept to the video provider. This may take a while; no video is claimed until the provider returns a result.";
 
     try {
-
-      const response = await fetch("/api/chat", {
+      const response = await fetch("/api/video", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({
-          mode: "Video",
-          provider: document.getElementById("brainProvider")?.value || "default",
-          message:
-            `Build an original cinematic music-video concept from this idea:\n\n${idea}\n\n` +
-            `Include opening shot, environment, movement, performance, ` +
-            `camera language, lighting, transitions and ending. Keep it concise.`
+          prompt: idea,
+          name: "WhityRay Immortal Beast music video",
+          model: "ltx-2.5",
+          aspectRatio: "16:9",
+          resolution: "480p",
+          endSeconds: 5,
+          audio: false
         })
       });
 
-      const data = await response.json();
-
+      const data = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error(
-          data.provider_message ||
-          data.error ||
-          "Video request failed."
-        );
+        throw new Error((data.error || "Video generation failed.") +
+          (data.hint ? "\\n\\n" + data.hint : ""));
       }
 
-      result.textContent = data.answer || "No concept returned.";
+      const downloads = Array.isArray(data.downloads) ? data.downloads : [];
+      const directUrl = downloads.find(item => typeof item === "string" && /^https:\\/\\//i.test(item)) ||
+        downloads.find(item => item && typeof item.url === "string" && /^https:\\/\\//i.test(item.url))?.url ||
+        data.result?.output?.url || data.result?.url || null;
 
+      if (directUrl) {
+        result.textContent = "Provider returned a video output. Open/copy the result URL:\\n" + directUrl +
+          "\\n\\nProvider status: " + (data.status || data.result?.status || "returned");
+      } else {
+        result.textContent = "Video provider returned a response, but no direct playback URL was included.\\n" +
+          "Status: " + (data.status || data.result?.status || "unknown") +
+          "\\nProject ID: " + (data.project_id || data.result?.id || "not supplied") +
+          "\\nCheck provider output before treating this as a finished video.";
+      }
     } catch (error) {
-      result.textContent =
-        "Video error:\n\n" + error.message;
+      result.textContent = "Video error:\\n\\n" + error.message;
+    } finally {
+      button.disabled = false;
+      button.textContent = "Build Video";
     }
   });
-
 
   /* VOICE RECORDING */
 
