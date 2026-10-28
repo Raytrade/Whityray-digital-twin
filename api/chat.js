@@ -235,24 +235,32 @@ export default async function handler(req, res) {
     let provider = "google-gemini-direct";
     let model = geminiModel;
 
-    if (useGateway) {
-      if (!process.env.AI_GATEWAY_API_KEY) {
-        return res.status(503).json({
-          error: "AI Gateway is enabled but not configured",
-          request_id: requestId,
-          setup: "Either add AI_GATEWAY_API_KEY or set AI_GATEWAY_ENABLED=false."
+    if (useGateway && process.env.AI_GATEWAY_API_KEY) {
+      const gatewayModel = process.env.AI_GATEWAY_MODEL || DEFAULT_GATEWAY_MODEL;
+      try {
+        const result = await generateText({
+          model: gatewayModel,
+          system,
+          prompt: message.trim(),
+          maxOutputTokens: 1800
         });
+        text = result.text?.trim();
+        if (!text) throw new Error("AI Gateway returned an empty response");
+        model = gatewayModel;
+        provider = "vercel-ai-gateway";
+      } catch (gatewayError) {
+        if (!process.env.GEMINI_API_KEY) throw gatewayError;
+        console.error("WhityRay AI Gateway failed; trying direct Gemini fallback", {
+          requestId,
+          message: gatewayError?.message || "Unknown gateway error"
+        });
+        text = await generateGeminiDirect(message.trim(), system, geminiModel);
+        model = geminiModel;
+        provider = "google-gemini-direct-fallback";
       }
-      model = process.env.AI_GATEWAY_MODEL || DEFAULT_GATEWAY_MODEL;
-      const result = await generateText({
-        model,
-        system,
-        prompt: message.trim(),
-        maxOutputTokens: 1800
-      });
-      text = result.text?.trim();
-      provider = "vercel-ai-gateway";
     } else {
+      // If the gateway is disabled or its key is missing, use the configured
+      // direct Gemini provider instead of leaving the creative brain offline.
       text = await generateGeminiDirect(message.trim(), system, geminiModel);
     }
 
