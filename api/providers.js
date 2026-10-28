@@ -18,10 +18,10 @@ const PROVIDERS = [
     note: "Secure text-to-speech route is available at /api/voice; configuration presence does not verify credentials or quota."
   },
   {
-    id: "music",
-    label: "Music generation",
-    env: ["SUNO_API_KEY"],
-    note: "Provider slot only; use an authorized integration and never expose its key in the browser."
+    id: "music-studio",
+    label: "Immortal Music Lab",
+    env: ["GEMINI_API_KEY"],
+    note: "Songwriting and production-prompt creation runs through the Digital Brain. Suno is a handoff destination for audio generation, not a direct API provider in this app."
   },
   {
     id: "magic-hour",
