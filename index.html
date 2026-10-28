@@ -1092,6 +1092,7 @@
   const messages = document.getElementById("messages");
   const chatInput = document.getElementById("chatInput");
   const sendBtn = document.getElementById("sendBtn");
+  const brainHistory = [];
 
   function addMessage(type, text) {
     const item = document.createElement("div");
@@ -1128,6 +1129,7 @@
         body: JSON.stringify({
           message,
           mode,
+          history: brainHistory.slice(-8),
           provider: document.getElementById("brainProvider")?.value || "default"
         })
       });
@@ -1144,10 +1146,13 @@
         );
       }
 
-      addMessage(
-        "twin",
-        data.answer || "No answer returned."
+      const answer = data.answer || "No answer returned.";
+      brainHistory.push(
+        { role: "user", content: message },
+        { role: "assistant", content: answer }
       );
+      if (brainHistory.length > 12) brainHistory.splice(0, brainHistory.length - 12);
+      addMessage("twin", answer);
 
     } catch (error) {
       addMessage(
