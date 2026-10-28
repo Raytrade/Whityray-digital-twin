@@ -750,6 +750,8 @@
         </div>
         <div class="field" style="margin-top:15px"><label for="studioBrief">Song idea / story / feeling</label><textarea id="studioBrief" placeholder="What happened, what should the listener feel, or what should the song say?"></textarea></div>
         <div class="field"><label for="studioLyrics">Lyrics (required for “my own lyrics”; optional otherwise)</label><textarea id="studioLyrics" placeholder="Paste your lyrics here, or leave blank for original lyrics to be written."></textarea></div>
+        <label class="checkline"><input id="studioResearch" type="checkbox" checked /> Research worldwide references + Bomadi / Ijaw context before writing</label>
+        <div class="notice" style="margin-top:6px">Research-first mode looks for public references, local place context, meanings and fresh language ideas. It separates verified facts from creative interpretation and avoids inventing Ijaw meanings.</div>
         <label class="checkline"><input id="studioUseWhityVoice" type="checkbox" checked disabled /> WhityRay singer-first vocal identity only — no duet or substitute voice</label>
         <div class="button-row"><button class="primary" id="generateMusicPackage">Build Music Package</button><button class="secondary" id="clearMusicStudio">Clear Studio</button></div>
         <div class="result studio-result" id="musicStudioResult">Your title, lyrics (when requested), arrangement notes and sound prompt will appear here.</div>
@@ -1410,13 +1412,31 @@
       "own-lyrics": "Keep the user's supplied lyrics intact. Do not rewrite or replace them. Build the sound prompt and production arrangement around the lyrics.",
       "lyrics-only": "Write original lyrics only with clear sections. Add one short style prompt at the end."
     };
+    let researchNotes = "Research not requested.";
+    let researchSources = [];
+    if (document.getElementById("studioResearch")?.checked) {
+      musicStudioResult.textContent = "Researching the title, wider world references and Bomadi / Ijaw context first…";
+      try {
+        const rr = await fetch("/api/research", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: title || "Untitled WhityRay song", idea: brief, genre, mood, location: "Bomadi, Delta State, Nigeria" }) });
+        const rd = await rr.json().catch(() => ({}));
+        if (rr.ok) { researchNotes = rd.research_notes || "No useful public search results returned. Do not invent facts or local slang."; researchSources = Array.isArray(rd.sources) ? rd.sources : []; }
+        else researchNotes = "Live research endpoint unavailable. Do not claim research was completed or invent facts, slang or Ijaw meanings.";
+      } catch { researchNotes = "Live research could not be reached. Do not claim research was completed or invent facts, slang or Ijaw meanings."; }
+    }
+    let creativeMemory = [];
+    try { creativeMemory = JSON.parse(localStorage.getItem("immortalMusicMemory") || "[]"); } catch { creativeMemory = []; }
+    const memoryBrief = creativeMemory.slice(-8).map((item, i) => (i + 1) + ". TITLE: " + (item.title || "Untitled") + " | IDEA: " + (item.idea || "") + " | EXCERPT: " + (item.excerpt || "")).join("\n");
     const prompt = "Build a music creation package for WhityRay / Immortal Beast — The Ijaw Wave.\n\n" +
       "MODE: " + mode + "\nINSTRUCTIONS: " + instructions[mode] + "\nWORKING TITLE: " + (title || "Choose a strong original title") +
       "\nMAIN SOUND: " + genre + "\nMOOD: " + mood + "\nTEMPO: " + tempo + "\nLENGTH: " + length +
       "\nSTORY / IDEA: " + (brief || "Use the supplied lyrics as the source of truth.") +
       "\nUSER LYRICS (preserve exactly if own-lyrics mode):\n" + (lyrics || "[No user lyrics supplied]") +
-      "\n\nARTIST RULES: singer-first melodic delivery, not long rap verses; English + natural Nigerian Pidgin; tasteful Ijaw/water imagery where fitting; coded Immortal Beast wisdom and memorable hook; emotionally honest, original, concise and performable. Use only WhityRay's stored authorized voice identity in vocal direction; no duet, no substitute singer, no imitation of another artist. Never invent Ijaw words or meanings. If instrumental mode, absolutely no voice." +
-      "\n\nOUTPUT FORMAT: 1) TITLE 2) LYRICS (omit entirely for instrumental mode) 3) SOUND / STYLE PROMPT (compact, ready to paste into a music generator) 4) ARRANGEMENT NOTES (intro, hook/verse structure, transitions, outro; concise) 5) EXCLUDE (things generation should avoid). Keep practical to paste into Suno. Do not claim audio has been generated.";
+      "\n\nLIVE RESEARCH NOTES (leads, not proof; never fabricate citations):\n" + researchNotes +
+      "\nRESEARCH SOURCES:\n" + (researchSources.length ? researchSources.map(x => x.title + " — " + x.url).join("\n") : "No verified source links available.") +
+      "\n\nRECENT LOCAL CREATIVE MEMORY — AVOID REPEATING TITLES, HOOKS, METAPHORS, STORY ANGLES OR LINE SHAPES:\n" + (memoryBrief || "No saved Music Lab history on this browser yet.") +
+      "\n\nCREATIVE REASONING: Interpret the title universally, then find a fresh angle tied to the user’s brief. Research worldwide references and Bomadi / Niger Delta context where relevant; translate discoveries into WhityRay language rather than copying. Do not invent Ijaw vocabulary or meanings. Make every song structurally and emotionally distinct. Avoid defaulting to the same river/mud/quiet/light hook unless the concept truly calls for it. The title must drive the story, not merely appear in the chorus. Every verse advances the story; the hook is memorable and singable." +
+      "\n\nARTIST RULES: singer-first melodic delivery, not long rap verses; English + natural Nigerian Pidgin; tasteful Ijaw/water imagery where fitting; coded Immortal Beast wisdom and memorable hook; emotionally honest, original, concise and performable. Use only WhityRay’s stored authorized voice identity in vocal direction; no duet, no substitute singer, no imitation of another artist. Never invent Ijaw words or meanings. If instrumental mode, absolutely no voice." +
+      "\n\nOUTPUT FORMAT: 1) TITLE 2) CREATIVE ANGLE (2-3 lines: universal meaning + fresh angle) 3) LYRICS (omit for instrumental mode) 4) SOUND / STYLE PROMPT 5) ARRANGEMENT NOTES 6) EXCLUDE. Keep practical to paste into Suno. Do not claim audio has been generated.";
     button.disabled = true;
     button.textContent = "Building package…";
     musicStudioResult.textContent = "Building lyrics and production direction…";
@@ -1436,7 +1456,9 @@
         throw new Error("The Digital Brain returned an unreadable response. Please try again.");
       }
       if (!response.ok) throw new Error(data.hint || data.provider_message || data.error || "Music package request failed.");
-      musicStudioResult.textContent = (title ? "WORKING TITLE: " + title + "\n\n" : "") + (data.answer || "No package returned.");
+      const packageText = (title ? "WORKING TITLE: " + title + "\n\n" : "") + (data.answer || "No package returned.");
+      musicStudioResult.textContent = packageText + (researchSources.length ? "\n\nRESEARCH REFERENCES (for verification, not lyric copy):\n" + researchSources.map(x => x.title + "\n" + x.url).join("\n") : "");
+      try { const excerpt = packageText.match(/\[?Hook\]?([\s\S]{0,500})/i)?.[1] || packageText.slice(0, 240); creativeMemory.push({ title: title || "Untitled", idea: brief.slice(0, 220), excerpt: excerpt.slice(0, 320), savedAt: new Date().toISOString() }); localStorage.setItem("immortalMusicMemory", JSON.stringify(creativeMemory.slice(-12))); } catch {}
     } catch (error) {
       if (error.name === "AbortError") {
         musicStudioResult.textContent = "Music Studio timed out after 75 seconds. Your draft is still in the form. Try Build Music Package again in a moment; if it repeats, the AI provider may be busy or its account needs attention.";
@@ -1452,6 +1474,7 @@
   document.getElementById("clearMusicStudio").addEventListener("click", () => {
     ["studioTitle","studioBrief","studioLyrics"].forEach(id => { document.getElementById(id).value = ""; });
     ["studioMode","studioGenre","studioMood","studioTempo","studioLength"].forEach(id => { document.getElementById(id).selectedIndex = 0; });
+    if (document.getElementById("studioResearch")) document.getElementById("studioResearch").checked = true;
     musicStudioResult.textContent = "Your title, lyrics (when requested), arrangement notes and sound prompt will appear here.";
   });
   document.getElementById("copyMusicPackage").addEventListener("click", () => {
