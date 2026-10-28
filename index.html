@@ -1233,15 +1233,17 @@
       return;
     }
 
-    result.textContent = "Building...";
+    const buildButton = document.getElementById("buildSong");
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 75000);
+    result.textContent = "Building your song package…";
+    buildButton.disabled = true;
 
     try {
-
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           mode: "Songwriter",
           provider: document.getElementById("brainProvider")?.value || "default",
@@ -1249,26 +1251,24 @@
             `Write an original WhityRay singer-first song.\n\n` +
             `Direction: ${direction}\n` +
             `Idea: ${idea}\n\n` +
-            `Keep it coded, tight, melodic and memorable. ` +
-            `Do not add a Creative Angle or explanation after the song.`
+            `Keep it coded, tight, melodic and memorable. Use natural Nigerian Pidgin and English when fitting, with emotional truth and original coded wisdom. Do not add a Creative Angle or explanation after the song.`
         })
       });
-
-      const data = await response.json();
+      let data;
+      try { data = await response.json(); }
+      catch { throw new Error("The Digital Brain returned an unreadable response. Please try again."); }
 
       if (!response.ok) {
-        throw new Error(
-          data.provider_message ||
-          data.error ||
-          "Songwriter request failed."
-        );
+        throw new Error(data.hint || data.provider_message || data.error || "Songwriter request failed.");
       }
-
       result.textContent = data.answer || "No song returned.";
-
     } catch (error) {
-      result.textContent =
-        "Songwriter error:\n\n" + error.message;
+      result.textContent = error.name === "AbortError"
+        ? "Songwriter timed out after 75 seconds. Your song idea is still in the form. Try again shortly; if it repeats, the AI provider may be busy or the account needs attention."
+        : "Songwriter error:\n\n" + error.message + "\n\nYour song idea remains in the form.";
+    } finally {
+      clearTimeout(timeout);
+      buildButton.disabled = false;
     }
   });
 
@@ -1647,24 +1647,42 @@
   const faceStatus = document.getElementById("faceStatus");
 
   document.getElementById("startCamera").addEventListener("click", async () => {
+    const startButton = document.getElementById("startCamera");
+    startButton.disabled = true;
+    faceStatus.textContent = "Checking camera access…";
 
     try {
+      if (!window.isSecureContext) throw new Error("SECURE_CONTEXT_REQUIRED");
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("CAMERA_API_UNAVAILABLE");
 
-      cameraStream =
-        await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false
-        });
-
+      cameraStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false
+      });
       camera.srcObject = cameraStream;
-
-      faceStatus.textContent =
-        "Camera active. Nothing is uploaded automatically.";
-
+      await camera.play();
+      faceStatus.textContent = "Camera active. Your live preview stays on this device; nothing is uploaded automatically.";
     } catch (error) {
+      if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
+      cameraStream = null;
+      camera.srcObject = null;
 
-      faceStatus.textContent =
-        "Camera error: " + error.message;
+      const name = error?.name || "";
+      if (error.message === "SECURE_CONTEXT_REQUIRED") {
+        faceStatus.textContent = "Camera needs a secure HTTPS page. Open the official site address beginning with https://.";
+      } else if (error.message === "CAMERA_API_UNAVAILABLE") {
+        faceStatus.textContent = "This browser view does not expose camera access. Open the Digital Twin directly in Chrome or another full browser, not an in-app preview, then try again.";
+      } else if (name === "NotAllowedError" || name === "PermissionDeniedError") {
+        faceStatus.textContent = "Camera permission was blocked. In Android Settings or your browser's site settings, allow Camera for this site, then reload. If this page is inside another app, open it directly in Chrome.";
+      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+        faceStatus.textContent = "No available camera was found on this device.";
+      } else if (name === "NotReadableError" || name === "TrackStartError") {
+        faceStatus.textContent = "The camera may be busy in another app. Close apps using the camera and try again.";
+      } else {
+        faceStatus.textContent = "Camera could not start (" + (name || "browser error") + "). Allow camera access in site settings, close other camera apps, and retry in Chrome.";
+      }
+    } finally {
+      startButton.disabled = false;
     }
   });
 
