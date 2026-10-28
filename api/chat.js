@@ -379,7 +379,7 @@ function localImmortalFallback(message, mode) {
   if (ownMode && ownLyrics && !/^\[No user lyrics supplied\]$/i.test(ownLyrics)) {
     lyrics = ownLyrics;
   } else {
-    lyrics = "[Intro]\n" + title + "… WhityRay.\nOya, make we reason am.\n\n[Hook]\n" + hook + "\n\n[Verse 1]\n" + verse +
+    lyrics = "[Intro]\n" + finalTitle + "… WhityRay.\nOya, make we reason am.\n\n[Hook]\n" + hook + "\n\n[Verse 1]\n" + verse +
       "\n\n[Hook]\n" + hook + "\n\n[Bridge]\n" + bridge + "\n\n[Outro]\n" + (seed % 2 ? "No rush the meaning; make the meaning reach." : "Na the truth wey remain after the noise.") ;
   }
   if (/MODE:\s*lyrics-only/i.test(request)) {
@@ -387,7 +387,7 @@ function localImmortalFallback(message, mode) {
   }
   const style = "Owigiri-inspired Ijaw Wave meets cinematic Afro-fusion; " + (readField("MOOD") || "calm power, deep and spiritual") +
     "; " + (readField("TEMPO") || "producer chooses") + "; singer-first WhityRay melodic delivery, Nigerian Pidgin + English, warm human phrasing, layered percussion, organic bass, water/river texture only where it serves the story, no duet or substitute voice.";
-  return "IMMORTAL LOCAL MODE — title-aware rules-based draft created without a paid AI API. This is not a full cloud-model response.\n\nTITLE: " + title +
+  return "IMMORTAL LOCAL MODE — title-aware rules-based draft created without a paid AI API. This is not a full cloud-model response.\n\nTITLE: " + finalTitle +
     "\n\nCREATIVE ANGLE: " + angle + "\n\nLYRICS:\n" + lyrics +
     "\n\nSOUND / STYLE PROMPT:\n" + style +
     "\n\nARRANGEMENT NOTES:\nConcise " + (readField("LENGTH") || "1:45–2:20") + ". Short atmospheric intro, bring the hook in early, one focused verse, hook return, bridge with a fresh melody, clean outro. Keep the vocal melodic and the mix spacious.\n\nEXCLUDE:\nGeneric repeated hooks, long rap verses, fake Ijaw vocabulary, copied lyrics, duet or substitute voice.\n\nLOCAL MODE LIMIT: public-web research notes can guide a full model, but this fallback does not deeply synthesize research. No audio has been generated.";
