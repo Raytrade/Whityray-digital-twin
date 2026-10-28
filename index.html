@@ -439,6 +439,14 @@
       font-size: 13px;
     }
 
+    .studio-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .studio-grid .field { margin-bottom:4px; }
+    .studio-result { min-height:150px; color:#eee; }
+    .studio-kicker { color:var(--gold2); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px; }
+    .checkline { display:flex; gap:9px; align-items:center; color:#ccc; font-size:13px; margin:10px 0; }
+    .checkline input { width:auto; accent-color:var(--gold); }
+    @media (max-width:600px) { .studio-grid { grid-template-columns:1fr; } }
+
     /* CAMERA */
 
     .camera-wrap {
@@ -709,6 +717,27 @@
       <div class="module-head">
         <h2>Music</h2>
         <p>Music direction, production ideas and arrangement planning.</p>
+      </div>
+
+      <div class="workspace" style="margin-bottom:16px">
+        <div class="studio-kicker">Immortal Music Lab</div>
+        <h3 style="font-size:22px;margin-bottom:7px">Create a song</h3>
+        <p style="color:var(--muted);line-height:1.5;margin-bottom:18px">Shape the idea, lyrics, vocal direction and production prompt in one place. Build a complete creation package, then send it to your own Suno session.</p>
+        <div class="studio-grid">
+          <div class="field"><label for="studioTitle">Song title / working name</label><input id="studioTitle" maxlength="100" placeholder="e.g. No Borrowed Light" /></div>
+          <div class="field"><label for="studioMode">Creation mode</label><select id="studioMode"><option value="full">Song with original lyrics + music prompt</option><option value="instrumental">Instrumental only — no lyrics or vocals</option><option value="own-lyrics">Build music around my own lyrics</option><option value="lyrics-only">Write lyrics only</option></select></div>
+          <div class="field"><label for="studioGenre">Main sound</label><select id="studioGenre"><option>Dark cinematic Afro-fusion</option><option>Afrodrill / melodic street</option><option>Afrobeats / Afro-pop</option><option>Afro-spiritual trance</option><option>Owigiri-inspired Ijaw Wave</option><option>Afro-R&B / emotional</option><option>Amapiano Afro-fusion</option><option>Acoustic / soulful</option><option>Custom blend</option></select></div>
+          <div class="field"><label for="studioMood">Mood / energy</label><select id="studioMood"><option>Calm power, deep and spiritual</option><option>Emotional and healing</option><option>Street pressure, controlled menace</option><option>Victory and elevation</option><option>Romantic and sweet</option><option>Dark, mysterious and cinematic</option><option>Danceable, hypnotic and tribal</option><option>Hopeful, prayerful and warm</option></select></div>
+          <div class="field"><label for="studioTempo">Tempo</label><select id="studioTempo"><option value="producer chooses">Let the producer choose</option><option>70–85 BPM — slow / heavy</option><option>86–100 BPM — mid-tempo bounce</option><option>101–115 BPM — Afro-fusion groove</option><option>116–125 BPM — dance / trance</option><option>126–140 BPM — fast / drill energy</option></select></div>
+          <div class="field"><label for="studioLength">Arrangement length</label><select id="studioLength"><option>Concise — about 1:45 to 2:20</option><option>Radio — about 2:20 to 2:50</option><option>Extended — about 3:00</option></select></div>
+        </div>
+        <div class="field" style="margin-top:15px"><label for="studioBrief">Song idea / story / feeling</label><textarea id="studioBrief" placeholder="What happened, what should the listener feel, or what should the song say?"></textarea></div>
+        <div class="field"><label for="studioLyrics">Lyrics (required for “my own lyrics”; optional otherwise)</label><textarea id="studioLyrics" placeholder="Paste your lyrics here, or leave blank for original lyrics to be written."></textarea></div>
+        <label class="checkline"><input id="studioUseWhityVoice" type="checkbox" checked disabled /> WhityRay singer-first vocal identity only — no duet or substitute voice</label>
+        <div class="button-row"><button class="primary" id="generateMusicPackage">Build Music Package</button><button class="secondary" id="clearMusicStudio">Clear Studio</button></div>
+        <div class="result studio-result" id="musicStudioResult">Your title, lyrics (when requested), arrangement notes and sound prompt will appear here.</div>
+        <div class="button-row"><button class="secondary" id="copyMusicPackage">Copy full package for Suno</button><button class="secondary" id="saveMusicPackage">Save to Studio Draft</button></div>
+        <div class="notice">This builds the creative package inside WhityRay Digital Twin. The Suno button copies the package and opens Suno for you to review and generate there; it does not claim to create audio inside this app.</div>
       </div>
 
       <div class="cards">
@@ -1335,6 +1364,83 @@
       "Singer-first melodic Afro-fusion. Nigerian Pidgin + English, emotional honesty, memorable hook, concise arrangement, original vocal phrasing.\\n" +
       "IDEA: " + idea + "\\nPRODUCTION DIRECTION: " + direction;
     copyPromptAndOpenSuno(prompt, document.getElementById("musicResult"), "Add a music idea first.");
+  });
+
+
+  /* IMMORTAL MUSIC LAB — creative package builder */
+  const musicStudioResult = document.getElementById("musicStudioResult");
+  document.getElementById("generateMusicPackage").addEventListener("click", async () => {
+    const button = document.getElementById("generateMusicPackage");
+    const title = document.getElementById("studioTitle").value.trim();
+    const mode = document.getElementById("studioMode").value;
+    const genre = document.getElementById("studioGenre").value;
+    const mood = document.getElementById("studioMood").value;
+    const tempo = document.getElementById("studioTempo").value;
+    const length = document.getElementById("studioLength").value;
+    const brief = document.getElementById("studioBrief").value.trim();
+    const lyrics = document.getElementById("studioLyrics").value.trim();
+    if (!brief && !lyrics && !title) {
+      musicStudioResult.textContent = "Add a song title, idea, story or lyrics first.";
+      return;
+    }
+    if (mode === "own-lyrics" && !lyrics) {
+      musicStudioResult.textContent = "Paste your own lyrics first, or change the creation mode.";
+      return;
+    }
+    const instructions = {
+      full: "Create a complete original WhityRay song package: title, concise performable lyrics with sections, then a separate ready-to-paste sound/style prompt.",
+      instrumental: "Create an instrumental-only package. Do NOT write lyrics, vocals, humming, chants, spoken words or a singer. Give title, instrumental arrangement and ready-to-paste instrumental style prompt.",
+      "own-lyrics": "Keep the user's supplied lyrics intact. Do not rewrite or replace them. Build the sound prompt and production arrangement around the lyrics.",
+      "lyrics-only": "Write original lyrics only with clear sections. Add one short style prompt at the end."
+    };
+    const prompt = "Build a music creation package for WhityRay / Immortal Beast — The Ijaw Wave.\n\n" +
+      "MODE: " + mode + "\nINSTRUCTIONS: " + instructions[mode] + "\nWORKING TITLE: " + (title || "Choose a strong original title") +
+      "\nMAIN SOUND: " + genre + "\nMOOD: " + mood + "\nTEMPO: " + tempo + "\nLENGTH: " + length +
+      "\nSTORY / IDEA: " + (brief || "Use the supplied lyrics as the source of truth.") +
+      "\nUSER LYRICS (preserve exactly if own-lyrics mode):\n" + (lyrics || "[No user lyrics supplied]") +
+      "\n\nARTIST RULES: singer-first melodic delivery, not long rap verses; English + natural Nigerian Pidgin; tasteful Ijaw/water imagery where fitting; coded Immortal Beast wisdom and memorable hook; emotionally honest, original, concise and performable. Use only WhityRay's stored authorized voice identity in vocal direction; no duet, no substitute singer, no imitation of another artist. Never invent Ijaw words or meanings. If instrumental mode, absolutely no voice." +
+      "\n\nOUTPUT FORMAT: 1) TITLE 2) LYRICS (omit entirely for instrumental mode) 3) SOUND / STYLE PROMPT (compact, ready to paste into a music generator) 4) ARRANGEMENT NOTES (intro, hook/verse structure, transitions, outro; concise) 5) EXCLUDE (things generation should avoid). Keep practical to paste into Suno. Do not claim audio has been generated.";
+    button.disabled = true;
+    button.textContent = "Building package…";
+    musicStudioResult.textContent = "Building lyrics and production direction…";
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "Music Studio", provider: document.getElementById("brainProvider")?.value || "default", message: prompt })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.hint || data.provider_message || data.error || "Music package request failed.");
+      musicStudioResult.textContent = (title ? "WORKING TITLE: " + title + "\n\n" : "") + (data.answer || "No package returned.");
+    } catch (error) {
+      musicStudioResult.textContent = "Music Studio error:\n\n" + error.message;
+    } finally {
+      button.disabled = false;
+      button.textContent = "Build Music Package";
+    }
+  });
+  document.getElementById("clearMusicStudio").addEventListener("click", () => {
+    ["studioTitle","studioBrief","studioLyrics"].forEach(id => { document.getElementById(id).value = ""; });
+    ["studioMode","studioGenre","studioMood","studioTempo","studioLength"].forEach(id => { document.getElementById(id).selectedIndex = 0; });
+    musicStudioResult.textContent = "Your title, lyrics (when requested), arrangement notes and sound prompt will appear here.";
+  });
+  document.getElementById("copyMusicPackage").addEventListener("click", () => {
+    const value = musicStudioResult.textContent.trim();
+    if (!value || value.startsWith("Your title,") || value.startsWith("Building") || value.startsWith("Music Studio error:")) {
+      musicStudioResult.textContent = "Build a music package first, then copy it to Suno.";
+      return;
+    }
+    copyPromptAndOpenSuno(value, musicStudioResult, "Build a music package first.");
+  });
+  document.getElementById("saveMusicPackage").addEventListener("click", () => {
+    const value = musicStudioResult.textContent.trim();
+    if (!value || value.startsWith("Your title,") || value.startsWith("Building")) {
+      musicStudioResult.textContent = "Build a music package first, then save it to Studio Draft.";
+      return;
+    }
+    document.getElementById("sessionName").value = document.getElementById("studioTitle").value.trim() || "Immortal Music Lab draft";
+    document.getElementById("sessionDraft").value = value;
+    document.getElementById("sessionStatus").textContent = "Music package copied into Studio Draft. Press Save Version to store it on this device.";
+    openPanel("settings");
   });
 
   /* VIDEO */
