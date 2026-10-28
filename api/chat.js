@@ -403,8 +403,11 @@ async function handleWorldPulse(res) {
   ];
   const clean = (s, n=350) => String(s || "").replace(/<!\\[CDATA\\[|\\]\\]>/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(\\d+);/g, (_,d) => String.fromCharCode(Number(d))).replace(/\\s+/g, " ").trim().slice(0,n);
   const tag = (block, name) => {
-    const match = block.match(new RegExp("<" + name + "(?:\\\\s[^>]*)?>([\\\\s\\\\S]*?)</" + name + ">", "i"));
-    return match ? clean(match[1], name === "description" ? 420 : 900) : "";
+    const start = block.indexOf("<" + name);
+    if (start < 0) return "";
+    const contentStart = block.indexOf(">", start) + 1;
+    const end = block.indexOf("</" + name + ">", contentStart);
+    return contentStart > 0 && end >= contentStart ? clean(block.slice(contentStart, end), name === "description" ? 420 : 900) : "";
   };
   const groupsOut = await Promise.all(groups.map(async group => {
     const found = [];
@@ -414,7 +417,7 @@ async function handleWorldPulse(res) {
         const r = await fetch(feed, { headers: { "user-agent": "Mozilla/5.0 (compatible; ImmortalWorldPulse/1.0)", "accept": "application/rss+xml, application/xml, text/xml" }, signal: AbortSignal.timeout(7000) });
         if (!r.ok) return;
         const xml = await r.text();
-        const itemRe = new RegExp("<item>([\\\\s\\\\S]*?)</item>", "gi");
+        const itemRe = /<item>([\\s\\S]*?)<\\/item>/gi;
         let m;
         while ((m = itemRe.exec(xml)) && found.length < 8) {
           const block = m[1];
