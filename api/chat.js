@@ -395,39 +395,51 @@ function localImmortalFallback(message, mode) {
 
 async function handleWorldPulse(res) {
   const groups = [
-    { label: "WORLD MUSIC NEWS & RELEASE MOVES", queries: ["latest global music news artist releases this week", "international music artists new projects tour announcements latest"] },
-    { label: "AFROBEATS GOING GLOBAL", queries: ["Afrobeats global music news international collaborations charts latest", "Nigerian music artists international opportunities latest"] },
-    { label: "ARTIST DISCOVERY & COLLABORATION LEADS", queries: ["independent music artists open collaboration call singer producer 2026", "Afro-fusion producers artists collaboration opportunities open submissions"] },
-    { label: "CREATOR & DISTRIBUTION OPPORTUNITIES", queries: ["music creator opportunities open submissions playlist pitching independent artists 2026", "music festivals artist submissions emerging artists 2026 global"] },
-    { label: "GLOBAL SOUND & CULTURE SIGNALS", queries: ["global music trends sounds genres audience culture 2026", "international music culture trend dance sound discovery latest"] }
+    { label: "WORLD MUSIC NEWS & RELEASE MOVES", queries: ["global music industry artist releases tour announcements", "international music artists new album singles tour news"] },
+    { label: "AFROBEATS GOING GLOBAL", queries: ["Afrobeats global music international collaboration news", "Nigerian music artists global music industry news"] },
+    { label: "ARTIST DISCOVERY & COLLABORATION LEADS", queries: ["independent music artist producer collaboration open call", "Afro fusion singer producer collaboration opportunities"] },
+    { label: "CREATOR & DISTRIBUTION OPPORTUNITIES", queries: ["independent artist music submissions opportunities festival", "music distribution playlist pitching opportunities independent artists"] },
+    { label: "GLOBAL SOUND & CULTURE SIGNALS", queries: ["global music trends new genres sounds 2026", "international music culture viral sound trends"] }
   ];
-  const clean = (s, n=350) => String(s || "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\s+/g, " ").trim().slice(0,n);
+  const clean = (s, n=350) => String(s || "").replace(/<!\\[CDATA\\[|\\]\\]>/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(\\d+);/g, (_,d) => String.fromCharCode(Number(d))).replace(/\\s+/g, " ").trim().slice(0,n);
+  const tag = (block, name) => {
+    const match = block.match(new RegExp("<" + name + "(?:\\\\s[^>]*)?>([\\\\s\\\\S]*?)</" + name + ">", "i"));
+    return match ? clean(match[1], name === "description" ? 420 : 900) : "";
+  };
   const groupsOut = await Promise.all(groups.map(async group => {
     const found = [];
     await Promise.all(group.queries.map(async q => {
       try {
-        const r = await fetch("https://html.duckduckgo.com/html/?q=" + encodeURIComponent(q), { headers: { "user-agent": "Mozilla/5.0 (compatible; ImmortalWorldPulse/1.0)" }, signal: AbortSignal.timeout(8500) });
+        const feed = "https://news.google.com/rss/search?q=" + encodeURIComponent(q + " when:30d") + "&hl=en-US&gl=US&ceid=US:en";
+        const r = await fetch(feed, { headers: { "user-agent": "Mozilla/5.0 (compatible; ImmortalWorldPulse/1.0)", "accept": "application/rss+xml, application/xml, text/xml" }, signal: AbortSignal.timeout(7000) });
         if (!r.ok) return;
-        const html = await r.text();
-        const re = new RegExp('<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?<a[^>]*class="result__snippet"[^>]*>([\\s\\S]*?)</a>', "gi");
+        const xml = await r.text();
+        const itemRe = new RegExp("<item>([\\\\s\\\\S]*?)</item>", "gi");
         let m;
-        while ((m = re.exec(html)) && found.length < 6) {
-          let url = clean(m[1], 900);
-          try { const u = new URL(url, "https://duckduckgo.com"); url = u.searchParams.get("uddg") ? decodeURIComponent(u.searchParams.get("uddg")) : url; } catch {}
-          const title = clean(m[2], 180), snippet = clean(m[3], 400);
-          if (/^https?:\/\//i.test(url) && title && !found.some(x => x.url === url)) found.push({ title, url, snippet });
+        while ((m = itemRe.exec(xml)) && found.length < 8) {
+          const block = m[1];
+          const title = tag(block, "title");
+          const url = tag(block, "link");
+          const snippet = tag(block, "description");
+          const published = tag(block, "pubDate");
+          if (title && (url.startsWith("https://") || url.startsWith("http://")) && !found.some(x => x.url === url)) {
+            found.push({ title, url, snippet, published });
+          }
         }
       } catch {}
     }));
-    return { label: group.label, summary: found.length ? "Fresh public search leads. Check the linked page for its publication date and details before making decisions." : "Search returned no usable items for this category.", items: found.slice(0,5) };
+    return { label: group.label, summary: found.length ? "Recent public news/search leads. Open the source to verify the publication date, context and eligibility." : "No usable public results returned for this category right now.", items: found.slice(0,5) };
   }));
   const count = groupsOut.reduce((n,g)=>n+g.items.length,0);
   const actionIdeas = [
-    "Choose one real global signal and turn it into an original 20–30 second WhityRay melodic clip; add your own point of view instead of copying the trend.",
+    "Choose one verified global signal and turn it into an original 20–30 second WhityRay melodic clip; add your own point of view instead of copying the trend.",
     "Shortlist two artists or producers whose public work genuinely fits your sound; verify their official page and prepare a respectful, specific collaboration pitch before contacting them.",
     "Turn one research finding into a story-led song or post in your own Nigerian Pidgin + English voice. Track real responses and saves; do not buy or fabricate engagement."
   ];
-  return res.status(200).json({ updated_at: new Date().toISOString(), result_count: count, groups: groupsOut, action_ideas: actionIdeas, notice: "This is a point-in-time scan of public search results, not exhaustive monitoring of every platform. Search snippets may be stale or incomplete; open sources to verify dates, artist announcements and eligibility. Collaboration leads are not endorsements or confirmed invitations." });
+  return res.status(200).json({
+    updated_at: new Date().toISOString(), result_count: count, groups: groupsOut, action_ideas: actionIdeas,
+    notice: "This is a point-in-time scan of public news search results, not exhaustive monitoring of every platform. Search feeds may be incomplete; open sources to verify dates, artist announcements and eligibility. Collaboration leads are not endorsements or confirmed invitations."
+  });
 }
 
 export default async function handler(req, res) {
