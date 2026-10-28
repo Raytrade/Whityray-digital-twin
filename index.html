@@ -1330,8 +1330,8 @@
       }
 
       const downloads = Array.isArray(data.downloads) ? data.downloads : [];
-      const directUrl = downloads.find(item => typeof item === "string" && /^https:\\/\\//i.test(item)) ||
-        downloads.find(item => item && typeof item.url === "string" && /^https:\\/\\//i.test(item.url))?.url ||
+      const directUrl = downloads.find(item => typeof item === "string" && item.startsWith("https://")) ||
+        downloads.find(item => item && typeof item.url === "string" && item.url.startsWith("https://"))?.url ||
         data.result?.output?.url || data.result?.url || null;
 
       if (directUrl) {
