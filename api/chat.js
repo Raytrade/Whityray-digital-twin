@@ -275,6 +275,20 @@ async function generateMagicHourVisual(prompt, requestId) {
   return { result, outputUrl, requestId };
 }
 
+
+function localImmortalFallback(message, mode) {
+  const request = String(message || "").trim();
+  const lower = request.toLowerCase();
+  const title = request.length > 64 ? request.slice(0, 64).trim() + "…" : request;
+  if (/song|lyric|hook|chorus|verse|music|afro|write me|write a/.test(lower) || /songwriter/i.test(mode)) {
+    return `IMMORTAL LOCAL MODE — draft created without a paid AI API.\n\nTITLE: ${title || "River Clock"}\n\n[Hook]\nWave don come, I no need announce,\nMud for my leg but my eye dey bounce.\nIf the road close, I go read the tide,\nNo borrowed light — make my own thing shine.\n\n[Verse]\nI learn say quiet no mean say man don lose,\nSome doors need patience, some road need choose.\nWater keep record wey the mouth no talk,\nI keep my paddle, make my own path waka.\n\n[Outro]\nRiver no argue… e just dey move.\n\nThis is a lightweight local draft, not a full cloud-model response. Ask for a specific mood, tempo, or subject to shape the next draft.`;
+  }
+  if (/status|error|api|provider|billing|credit|free|deploy/.test(lower)) {
+    return `IMMORTAL LOCAL MODE\n\nI can still help from the Twin's built-in rules when an external AI provider is unavailable. The last provider request failed, so this reply was generated locally; it does not confirm that a cloud AI request succeeded.\n\nNext checks: verify the provider's free-tier quota and model availability, then keep paid-provider calls disabled unless you explicitly choose them. Local mode can handle basic guidance and drafts, but it cannot replace a full language model for every complex question.`;
+  }
+  return `IMMORTAL LOCAL MODE\n\nI received your message: “${request.slice(0, 500)}”\n\nI can keep the Twin responsive using its built-in WhityRay / Immortal Beast identity and simple local rules, without charging a paid API. This fallback is limited: it is not a full AI model, and I won't pretend it has understood or completed complex work that needs a real model or external verification.\n\nTry asking for a short lyric, hook, title, outline, or a practical next-step checklist.`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -400,16 +414,19 @@ export default async function handler(req, res) {
     });
 
     const missingProvider = error?.code === "GEMINI_NOT_CONFIGURED" || error?.code === "OPENAI_NOT_CONFIGURED";
-    return res.status(missingProvider ? 503 : 502).json({
-      error: missingProvider ? "AI provider is not configured" : "Digital brain connection failed",
+    // Free-first resilience: never leave the Twin completely blank when a cloud
+    // provider is unavailable. This is an explicitly labelled local fallback,
+    // not a claim that a full AI model succeeded.
+    const fallbackMode = req.body?.mode || "Digital Twin";
+    const fallbackMessage = typeof req.body?.message === "string" ? req.body.message : "";
+    return res.status(200).json({
+      answer: localImmortalFallback(fallbackMessage, fallbackMode),
+      identity: { artist: "WhityRay", persona: "Immortal Beast", world: "The Ijaw Wave", mode: fallbackMode },
+      provider: "immortal-local-fallback",
+      model: "built-in-rules",
+      degraded: true,
       request_id: requestId,
-      hint: error?.code === "OPENAI_REQUEST_FAILED" || error?.code === "OPENAI_TIMEOUT" || error?.code === "OPENAI_NETWORK_ERROR"
-        ? "Check OPENAI_API_KEY, OpenAI API billing/limits, OPENAI_MODEL access, and the Vercel runtime logs."
-        : error?.code === "GEMINI_NOT_CONFIGURED"
-          ? "Add GEMINI_API_KEY or configure OPENAI_API_KEY in Vercel Environment Variables, then redeploy."
-          : "Check the configured AI provider and Vercel runtime logs.",
-      provider_status: Number.isInteger(error?.status) ? error.status : undefined,
-      provider_error: process.env.NODE_ENV === "development" ? error?.message : undefined
+      notice: "Cloud AI unavailable; this reply used limited built-in rules. No paid API call is required for this fallback."
     });
   }
 }
