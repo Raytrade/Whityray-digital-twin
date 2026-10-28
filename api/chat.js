@@ -409,7 +409,7 @@ async function handleWorldPulse(res) {
         const r = await fetch("https://html.duckduckgo.com/html/?q=" + encodeURIComponent(q), { headers: { "user-agent": "Mozilla/5.0 (compatible; ImmortalWorldPulse/1.0)" }, signal: AbortSignal.timeout(8500) });
         if (!r.ok) return;
         const html = await r.text();
-        const re = /<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>[\s\S]*?<a[^>]*class="result__snippet"[^>]*>([\\s\\S]*?)<\\/a>/gi;
+        const re = new RegExp('<a[^>]*class="result__a"[^>]*href="([^"]+)"[^>]*>([\\s\\S]*?)</a>[\\s\\S]*?<a[^>]*class="result__snippet"[^>]*>([\\s\\S]*?)</a>', "gi");
         let m;
         while ((m = re.exec(html)) && found.length < 6) {
           let url = clean(m[1], 900);
