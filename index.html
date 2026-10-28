@@ -92,6 +92,23 @@
       gap: 5px;
     }
 
+    .nav a.nav-link {
+      display: block;
+      width: 100%;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #aaa;
+      text-align: left;
+      padding: 13px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: .2s;
+    }
+    .nav a.nav-link:hover {
+      background: #151515;
+      color: white;
+    }
+
     .nav button {
       width: 100%;
       border: 1px solid transparent;
@@ -534,6 +551,10 @@
       <button class="nav-btn" data-panel="connections">
         🔑 Connections
       </button>
+
+      <a class="nav-link" href="/distribution.html">
+        🌍 Global Distribution
+      </a>
 
       <button class="nav-btn" data-panel="settings">
         ⚙️ Settings
