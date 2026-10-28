@@ -1,4 +1,4 @@
-import { send, sameOrigin, baseUrl, setSession, readJson, kubpay } from "./_shared.js";
+import { send, sameOrigin, baseUrl, setSession, readJson, kubpay } from "../../lib/finance-kubpay.js";
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
