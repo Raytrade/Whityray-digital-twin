@@ -692,6 +692,10 @@
         <div class="result" id="songResult">
           Your song will appear here.
         </div>
+        <div class="button-row">
+          <button class="secondary" id="copySongToSuno">Copy song for Suno</button>
+        </div>
+        <div class="notice">This safely hands your lyrics to your own Suno session. It does not submit or generate a track automatically.</div>
 
       </div>
 
@@ -751,6 +755,10 @@
         <div class="result" id="musicResult">
           Production direction will appear here.
         </div>
+        <div class="button-row">
+          <button class="secondary" id="copyMusicToSuno">Copy sound prompt for Suno</button>
+        </div>
+        <div class="notice">Opens the official Suno platform and copies a prompt for you to paste. No third-party music API or extra charge is triggered by this button.</div>
 
       </div>
 
@@ -1241,6 +1249,30 @@
       "Your song will appear here.";
   });
 
+  async function copyPromptAndOpenSuno(prompt, statusElement, emptyMessage) {
+    const value = (prompt || "").trim();
+    if (!value) {
+      statusElement.textContent = emptyMessage;
+      return;
+    }
+    window.open("https://platform.suno.com", "_blank", "noopener,noreferrer");
+    try {
+      await navigator.clipboard.writeText(value.slice(0, 5000));
+      statusElement.textContent += "\\n\\nCopied for Suno. Paste it into your own Suno session; review the result before generating.";
+    } catch {
+      statusElement.textContent += "\\n\\nClipboard access was blocked by the browser. Select and copy the text manually, then paste it into Suno.";
+    }
+  }
+
+  document.getElementById("copySongToSuno").addEventListener("click", () => {
+    const lyrics = document.getElementById("songResult").textContent.trim();
+    copyPromptAndOpenSuno(
+      lyrics,
+      document.getElementById("songResult"),
+      "Build the song first, then copy it to Suno."
+    );
+  });
+
 
   /* MUSIC */
 
@@ -1291,6 +1323,19 @@
     }
   });
 
+
+  document.getElementById("copyMusicToSuno").addEventListener("click", () => {
+    const idea = document.getElementById("musicIdea").value.trim();
+    const direction = document.getElementById("musicResult").textContent.trim();
+    if (!idea || direction === "Production direction will appear here.") {
+      document.getElementById("musicResult").textContent = "Build a music direction first, then copy it to Suno.";
+      return;
+    }
+    const prompt = "WHITYRAY / IMMORTAL BEAST — THE IJAW WAVE\\n" +
+      "Singer-first melodic Afro-fusion. Nigerian Pidgin + English, emotional honesty, memorable hook, concise arrangement, original vocal phrasing.\\n" +
+      "IDEA: " + idea + "\\nPRODUCTION DIRECTION: " + direction;
+    copyPromptAndOpenSuno(prompt, document.getElementById("musicResult"), "Add a music idea first.");
+  });
 
   /* VIDEO */
 
