@@ -118,6 +118,74 @@ function normalizeHistory(value) {
   return normalized.reverse();
 }
 
+
+async function generateOpenAIResponses(prompt, system, model, history = []) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    const error = new Error("OpenAI is not configured");
+    error.code = "OPENAI_NOT_CONFIGURED";
+    throw error;
+  }
+
+  let response;
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model,
+        instructions: system,
+        input: [
+          ...history.map(item => ({ role: item.role, content: item.content })),
+          { role: "user", content: prompt }
+        ],
+        max_output_tokens: 1800
+      }),
+      signal: AbortSignal.timeout(45000)
+    });
+  } catch (cause) {
+    const error = new Error(cause?.name === "TimeoutError"
+      ? "OpenAI request timed out after 45 seconds"
+      : (cause?.message || "Could not reach OpenAI"));
+    error.code = cause?.name === "TimeoutError" ? "OPENAI_TIMEOUT" : "OPENAI_NETWORK_ERROR";
+    throw error;
+  }
+
+  const raw = await response.text();
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const error = new Error(data?.error?.message || `OpenAI HTTP ${response.status}`);
+    error.code = "OPENAI_REQUEST_FAILED";
+    error.status = response.status;
+    throw error;
+  }
+
+  const text = typeof data?.output_text === "string"
+    ? data.output_text.trim()
+    : (Array.isArray(data?.output)
+      ? data.output.flatMap(item => Array.isArray(item?.content) ? item.content : [])
+          .filter(item => item?.type === "output_text" && typeof item?.text === "string")
+          .map(item => item.text).join("\\n").trim()
+      : "");
+
+  if (!text) {
+    const error = new Error("OpenAI returned an empty response");
+    error.code = "OPENAI_EMPTY_RESPONSE";
+    throw error;
+  }
+
+  return text;
+}
+
 async function generateGeminiDirect(prompt, system, model, history = []) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -256,6 +324,21 @@ export default async function handler(req, res) {
     }
 
     const system = buildSystemPrompt(mode);
+
+    // Prefer OpenAI Responses API when an OpenAI project key is configured.
+    // This avoids the current Vercel AI Gateway billing gate and the failing Gemini route.
+    if (process.env.OPENAI_API_KEY) {
+      const openaiModel = process.env.OPENAI_MODEL?.trim() || "gpt-6-astra";
+      const text = await generateOpenAIResponses(message.trim(), system, openaiModel, chatHistory);
+      return res.status(200).json({
+        answer: text,
+        identity: { artist: "WhityRay", persona: "Immortal Beast", world: "The Ijaw Wave", mode },
+        model: openaiModel,
+        provider: "openai-responses",
+        request_id: requestId
+      });
+    }
+
     const configuredGeminiModel = process.env.GEMINI_MODEL?.trim();
     const geminiModel = configuredGeminiModel && configuredGeminiModel !== "gemini-2.5-flash"
       ? configuredGeminiModel
@@ -316,12 +399,16 @@ export default async function handler(req, res) {
       message: error?.message || "Unknown error"
     });
 
-    return res.status(error?.code === "GEMINI_NOT_CONFIGURED" ? 503 : 502).json({
-      error: error?.code === "GEMINI_NOT_CONFIGURED" ? "Gemini is not configured" : "Digital brain connection failed",
+    const missingProvider = error?.code === "GEMINI_NOT_CONFIGURED" || error?.code === "OPENAI_NOT_CONFIGURED";
+    return res.status(missingProvider ? 503 : 502).json({
+      error: missingProvider ? "AI provider is not configured" : "Digital brain connection failed",
       request_id: requestId,
-      hint: error?.code === "GEMINI_NOT_CONFIGURED"
-        ? "Add GEMINI_API_KEY to Vercel Environment Variables and redeploy."
-        : "The AI provider rejected the request. Check the provider key/model and Vercel runtime logs.",
+      hint: error?.code === "OPENAI_REQUEST_FAILED" || error?.code === "OPENAI_TIMEOUT" || error?.code === "OPENAI_NETWORK_ERROR"
+        ? "Check OPENAI_API_KEY, OpenAI API billing/limits, OPENAI_MODEL access, and the Vercel runtime logs."
+        : error?.code === "GEMINI_NOT_CONFIGURED"
+          ? "Add GEMINI_API_KEY or configure OPENAI_API_KEY in Vercel Environment Variables, then redeploy."
+          : "Check the configured AI provider and Vercel runtime logs.",
+      provider_status: Number.isInteger(error?.status) ? error.status : undefined,
       provider_error: process.env.NODE_ENV === "development" ? error?.message : undefined
     });
   }
