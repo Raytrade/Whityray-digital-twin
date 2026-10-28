@@ -401,7 +401,12 @@ async function handleWorldPulse(res) {
     { label: "CREATOR & DISTRIBUTION OPPORTUNITIES", queries: ["independent artist music submissions opportunities festival", "music distribution playlist pitching opportunities independent artists"] },
     { label: "GLOBAL SOUND & CULTURE SIGNALS", queries: ["global music trends new genres sounds 2026", "international music culture viral sound trends"] }
   ];
-  const clean = (s, n=350) => String(s || "").replace(/<!\\[CDATA\\[|\\]\\]>/g, "").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#39;|&#x27;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#(\\d+);/g, (_,d) => String.fromCharCode(Number(d))).replace(/\\s+/g, " ").trim().slice(0,n);
+  const clean = (s, n=350) => String(s || "")
+    .split("<![CDATA[").join("").split("]]>").join("")
+    .replace(/<[^>]+>/g, " ")
+    .split("&amp;").join("&").split("&quot;").join('"')
+    .split("&#39;").join("'").split("&lt;").join("<").split("&gt;").join(">")
+    .split("\n").join(" ").split("\r").join(" ").split("\t").join(" ").trim().slice(0,n);
   const tag = (block, name) => {
     const start = block.indexOf("<" + name);
     if (start < 0) return "";
@@ -417,10 +422,13 @@ async function handleWorldPulse(res) {
         const r = await fetch(feed, { headers: { "user-agent": "Mozilla/5.0 (compatible; ImmortalWorldPulse/1.0)", "accept": "application/rss+xml, application/xml, text/xml" }, signal: AbortSignal.timeout(7000) });
         if (!r.ok) return;
         const xml = await r.text();
-        const itemRe = /<item>([\\s\\S]*?)<\\/item>/gi;
-        let m;
-        while ((m = itemRe.exec(xml)) && found.length < 8) {
-          const block = m[1];
+        let cursor = 0;
+        let itemStart = -1;
+        while ((itemStart = xml.indexOf("<item>", cursor)) >= 0 && found.length < 8) {
+          const itemEnd = xml.indexOf("</item>", itemStart);
+          if (itemEnd < 0) break;
+          const block = xml.slice(itemStart + 6, itemEnd);
+          cursor = itemEnd + 7;
           const title = tag(block, "title");
           const url = tag(block, "link");
           const snippet = tag(block, "description");
