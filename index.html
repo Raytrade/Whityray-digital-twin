@@ -887,6 +887,31 @@
       </div>
       <div class="workspace">
         <div class="notice">For full-body coaching, place your phone far enough away to show your head, hands and feet, with good lighting. The camera preview stays on your device. A still image is sent to the secure dance-coach endpoint only when you press “Analyse My Move”.</div>
+
+        <div class="workspace" style="margin:14px 0;border-color:rgba(215,170,74,.35)">
+          <div class="studio-kicker">IMMORTAL IDENTITY VAULT · PRIVATE REFERENCE</div>
+          <h3 style="font-size:20px;margin-bottom:8px">Build with your real identity</h3>
+          <p style="color:var(--muted);line-height:1.6;margin-bottom:12px">Save one clear photo as your visual reference, then create new outfits, higher-self looks and environments around you. Immortal's prompt is designed to preserve your face, body shape, skin tone and natural proportions. Generated images can still vary; inspect every result.</p>
+          <div class="field"><label for="identityUpload">Choose a reference photo</label><input id="identityUpload" type="file" accept="image/*" /></div>
+          <div class="button-row">
+            <button class="secondary" id="snapIdentity" type="button">Snap Current Camera</button>
+            <button class="primary" id="saveIdentity" type="button">Save to Identity Brain</button>
+            <button class="secondary" id="clearIdentity" type="button">Forget Saved Photo</button>
+          </div>
+          <div class="result" id="identityStatus" role="status" aria-live="polite">No identity reference saved on this device yet.</div>
+          <img id="identityPreview" alt="Saved identity reference preview" style="display:none;max-width:100%;max-height:360px;object-fit:contain;margin-top:12px;border-radius:12px;border:1px solid var(--line)" />
+          <div class="studio-grid" style="margin-top:14px">
+            <div class="field"><label for="transformOutfit">Clothes / styling</label><input id="transformOutfit" maxlength="240" placeholder="e.g. custom black-and-gold Immortal Beast fit" /></div>
+            <div class="field"><label for="transformSelf">Higher-self direction</label><select id="transformSelf"><option>Calm, healed, confident higher self</option><option>Immortal Beast — cinematic and powerful</option><option>Grammy-stage WhityRay — premium artist styling</option><option>River son — elegant Ijaw Wave identity</option><option>Soft, joyful, peaceful version of me</option><option>My own direction below</option></select></div>
+            <div class="field"><label for="transformEnvironment">Environment / scene</label><input id="transformEnvironment" maxlength="240" placeholder="e.g. moonlit Niger Delta river, cinematic studio" /></div>
+            <div class="field"><label for="transformExtra">Extra details</label><input id="transformExtra" maxlength="300" placeholder="Jewellery, colours, lighting, pose, mood…" /></div>
+          </div>
+          <label class="checkline"><input id="preserveIdentity" type="checkbox" checked /> Strict identity lock: keep my face and body proportions unchanged</label>
+          <div class="button-row"><button class="primary" id="createIdentityLook" type="button">Create My Transformation</button><button class="secondary" id="downloadIdentityLook" type="button" disabled>Save Generated Image</button></div>
+          <div class="result studio-result" id="transformStatus" aria-live="polite">Save a reference photo first. The reference stays in this browser's private local storage unless you choose to generate a transformation.</div>
+          <img id="transformPreview" alt="Generated WhityRay identity transformation" style="display:none;max-width:100%;max-height:640px;object-fit:contain;margin-top:12px;border-radius:12px;border:1px solid var(--line)" />
+          <div class="notice">Privacy: the saved reference is stored in this browser on this device, not magically in cloud memory. When you press Create My Transformation, that photo is sent to the configured image provider for processing. Use only your own photo or a photo you have permission to use. Generation requires an image-edit provider key and available credits.</div>
+        </div>
         <div class="camera-wrap" style="margin-top:14px">
           <video id="camera" autoplay muted playsinline></video>
         </div>
@@ -1683,6 +1708,164 @@
   });
 
 
+
+  /* IMMORTAL IDENTITY VAULT + PHOTO TRANSFORMATION */
+  const identityUpload = document.getElementById("identityUpload");
+  const identityStatus = document.getElementById("identityStatus");
+  const identityPreview = document.getElementById("identityPreview");
+  const transformStatus = document.getElementById("transformStatus");
+  const transformPreview = document.getElementById("transformPreview");
+  const saveIdentityButton = document.getElementById("saveIdentity");
+  const createIdentityLookButton = document.getElementById("createIdentityLook");
+  const downloadIdentityLookButton = document.getElementById("downloadIdentityLook");
+  const identityDbName = "ImmortalIdentityVault";
+  const identityStoreName = "references";
+  let pendingIdentityData = "";
+  let generatedIdentityData = "";
+
+  function openIdentityDb() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(identityDbName, 1);
+      request.onupgradeneeded = () => {
+        if (!request.result.objectStoreNames.contains(identityStoreName)) request.result.createObjectStore(identityStoreName);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Could not open local identity storage."));
+    });
+  }
+  async function identityDbAction(mode, action, value) {
+    const db = await openIdentityDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(identityStoreName, mode);
+      const store = tx.objectStore(identityStoreName);
+      let request;
+      if (action === "put") request = store.put(value, "primary-reference");
+      else if (action === "get") request = store.get("primary-reference");
+      else request = store.delete("primary-reference");
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Identity storage action failed."));
+      tx.oncomplete = () => db.close();
+      tx.onerror = () => { db.close(); reject(tx.error || new Error("Identity storage transaction failed.")); };
+    });
+  }
+  function showIdentityReference(dataUrl, label) {
+    identityPreview.src = dataUrl;
+    identityPreview.style.display = "block";
+    identityStatus.textContent = label;
+  }
+  async function loadIdentityReference() {
+    try {
+      const saved = await identityDbAction("readonly", "get");
+      if (saved && typeof saved.dataUrl === "string") showIdentityReference(saved.dataUrl, "Identity reference saved on this device" + (saved.savedAt ? " · " + new Date(saved.savedAt).toLocaleString() : "") + ".");
+    } catch (error) {
+      identityStatus.textContent = "Local identity vault unavailable: " + (error.message || String(error));
+    }
+  }
+  identityUpload.addEventListener("change", () => {
+    const file = identityUpload.files && identityUpload.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { identityStatus.textContent = "Choose an image file."; return; }
+    if (file.size > 12 * 1024 * 1024) { identityStatus.textContent = "Photo is too large. Choose one under 12 MB."; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      pendingIdentityData = String(reader.result || "");
+      showIdentityReference(pendingIdentityData, "Photo selected. Tap Save to Identity Brain to keep it on this device.");
+    };
+    reader.onerror = () => { identityStatus.textContent = "Could not read that photo. Try another image."; };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById("snapIdentity").addEventListener("click", () => {
+    const liveCamera = document.getElementById("camera");
+    if (!liveCamera.srcObject || !liveCamera.videoWidth || !liveCamera.videoHeight) {
+      identityStatus.textContent = "Open Camera first, wait until your live picture appears, then tap Snap Current Camera.";
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    const scale = Math.min(1, 1200 / liveCamera.videoWidth);
+    canvas.width = Math.round(liveCamera.videoWidth * scale);
+    canvas.height = Math.round(liveCamera.videoHeight * scale);
+    canvas.getContext("2d").drawImage(liveCamera, 0, 0, canvas.width, canvas.height);
+    pendingIdentityData = canvas.toDataURL("image/jpeg", 0.88);
+    showIdentityReference(pendingIdentityData, "Camera photo captured locally. Tap Save to Identity Brain to keep this reference.");
+  });
+  saveIdentityButton.addEventListener("click", async () => {
+    if (!pendingIdentityData) { identityStatus.textContent = "Choose a photo or snap one with the camera first."; return; }
+    saveIdentityButton.disabled = true;
+    try {
+      await identityDbAction("readwrite", "put", { dataUrl: pendingIdentityData, savedAt: new Date().toISOString() });
+      showIdentityReference(pendingIdentityData, "Saved to Identity Brain on this device. Immortal can reuse this reference for future looks in this browser.");
+    } catch (error) {
+      identityStatus.textContent = "Could not save locally: " + (error.message || String(error)) + ". Try a smaller photo or free browser storage.";
+    } finally { saveIdentityButton.disabled = false; }
+  });
+  document.getElementById("clearIdentity").addEventListener("click", async () => {
+    try {
+      await identityDbAction("readwrite", "delete");
+      pendingIdentityData = "";
+      identityUpload.value = "";
+      identityPreview.removeAttribute("src");
+      identityPreview.style.display = "none";
+      identityStatus.textContent = "Saved identity photo forgotten on this device.";
+    } catch (error) { identityStatus.textContent = "Could not clear local reference: " + (error.message || String(error)); }
+  });
+  createIdentityLookButton.addEventListener("click", async () => {
+    createIdentityLookButton.disabled = true;
+    transformStatus.textContent = "Loading your saved identity reference…";
+    transformPreview.style.display = "none";
+    try {
+      let reference = pendingIdentityData;
+      if (!reference) {
+        const saved = await identityDbAction("readonly", "get");
+        reference = saved && saved.dataUrl;
+      }
+      if (!reference) throw new Error("Save a photo to Identity Brain first.");
+      const outfit = document.getElementById("transformOutfit").value.trim() || "premium custom WhityRay / Immortal Beast stagewear";
+      const self = document.getElementById("transformSelf").value;
+      const environment = document.getElementById("transformEnvironment").value.trim() || "a cinematic Niger Delta-inspired environment with believable natural light";
+      const extra = document.getElementById("transformExtra").value.trim();
+      const strict = document.getElementById("preserveIdentity").checked;
+      const prompt = [
+        "Create a photorealistic transformation of the same adult artist shown in the supplied reference photograph.",
+        "IDENTITY MUST REMAIN THE SAME PERSON: preserve the person's recognizable face, facial structure, skin tone, hairline, age appearance, body type, height impression, shoulder width, torso, limbs, hands, feet and natural body proportions. Do not beautify into a different person, slim, enlarge muscles, change anatomy, duplicate limbs, or add a second person.",
+        strict ? "STRICT IDENTITY LOCK: change only clothing, styling, pose only if explicitly requested, lighting and surroundings. Keep body shape and face as close to the reference as possible." : "Keep the same recognizable person and natural proportions while allowing a creative cinematic treatment.",
+        "Outfit: " + outfit + ".",
+        "Higher-self / emotional direction: " + self + ".",
+        "Environment: " + environment + ".",
+        extra ? "Additional direction: " + extra + "." : "",
+        "Premium realistic photography, coherent shadows, physically believable fabric, natural hands and anatomy, polished but not plastic skin. The transformation should feel joyful, healing, empowering and still authentically the same artist. Do not add text, logos, or watermarks."
+      ].filter(Boolean).join("\n");
+      transformStatus.textContent = "Sending your chosen reference and transformation brief to the configured image provider…";
+      const response = await fetch("/api/identity-transform", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ image_data: reference, prompt })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const details = typeof data.error === "string" ? data.error : JSON.stringify(data.error || data);
+        throw new Error(details + (data.hint ? "\n" + data.hint : ""));
+      }
+      if (!data.image_data) throw new Error("Image provider returned no generated image.");
+      generatedIdentityData = data.image_data;
+      transformPreview.src = generatedIdentityData;
+      transformPreview.style.display = "block";
+      downloadIdentityLookButton.disabled = false;
+      transformStatus.textContent = "Transformation created. Check that your face and body proportions still look like you; regenerate with a more specific brief if needed.";
+    } catch (error) {
+      transformStatus.textContent = "Transformation issue: " + (error.message || String(error));
+    } finally { createIdentityLookButton.disabled = false; }
+  });
+  downloadIdentityLookButton.addEventListener("click", () => {
+    if (!generatedIdentityData) return;
+    const link = document.createElement("a");
+    link.href = generatedIdentityData;
+    link.download = "whityray-immortal-identity-look.png";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  });
+  loadIdentityReference();
+
   /* CAMERA + DANCE COACH */
   let cameraStream = null;
   let cameraFacing = "user";
@@ -1769,7 +1952,7 @@
       if (!response.ok) throw new Error((data.error || "Dance analysis failed") + (data.hint ? "\\n" + data.hint : ""));
       danceCoachResult.textContent = data.answer || "No coaching response returned.";
     } catch (error) {
-      danceCoachResult.textContent = "Dance coach connection issue: " + error.message + "\\nCheck that the deployment has OPENAI_API_KEY or GEMINI_API_KEY configured, then redeploy.";
+      danceCoachResult.textContent = "Dance coach connection issue: " + (error && error.message ? error.message : String(error)) + "\\nCheck the deployment logs and confirm OPENAI_API_KEY or GEMINI_API_KEY is configured with available quota.";
     } finally {
       analyseDanceButton.disabled = !cameraStream;
     }
