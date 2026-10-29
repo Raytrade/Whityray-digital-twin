@@ -67,8 +67,49 @@ export default async function handler(req, res) {
   res.setHeader("X-WhityRay-Magic-Hour-Request-Id", requestId);
 
   try {
-    const apiKey = process.env.MAGIC_HOUR_API_KEY;
+    const body = req.body || {};
 
+    // Image-to-image mode shares this existing serverless function to stay within Vercel Hobby limits.
+    if (typeof body.image_data === "string") {
+      const match = body.image_data.match(/^data:(image\\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+      const prompt = cleanText(body.prompt, 5000);
+      if (!match) return res.status(400).json({ error: "A valid JPEG, PNG, or WebP reference image is required." });
+      if (body.image_data.length > 4000000) return res.status(413).json({ error: "Reference image is too large. Use a smaller photo." });
+      if (!prompt) return res.status(400).json({ error: "Transformation prompt is required." });
+      if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: "Identity image editing is not configured.", hint: "Add OPENAI_API_KEY in Vercel Environment Variables and redeploy." });
+
+      try {
+        const bytes = Buffer.from(match[2], "base64");
+        const form = new FormData();
+        form.append("model", process.env.OPENAI_IMAGE_EDIT_MODEL?.trim() || "gpt-image-1");
+        form.append("prompt", prompt);
+        form.append("image", new Blob([bytes], { type: match[1] }), "reference." + (match[1] === "image/png" ? "png" : match[1] === "image/webp" ? "webp" : "jpg"));
+        form.append("size", "1024x1024");
+        form.append("quality", "medium");
+        form.append("n", "1");
+        const response = await fetch("https://api.openai.com/v1/images/edits", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + process.env.OPENAI_API_KEY },
+          body: form
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          console.error("Identity transform provider error", { status: response.status, message: typeof data.error?.message === "string" ? data.error.message.slice(0, 400) : "" });
+          return res.status(502).json({
+            error: response.status === 429 ? "Image provider quota or rate limit reached." : "Image provider could not transform this reference.",
+            hint: "Check OpenAI API billing, image-edit model access, account credits and Vercel logs. ChatGPT subscription billing and API billing are separate."
+          });
+        }
+        const generated = data.data?.[0]?.b64_json;
+        if (!generated) return res.status(502).json({ error: "Image provider returned no image data.", hint: "Confirm image generation is enabled for this API account." });
+        return res.status(200).json({ ok: true, provider: "openai-image-edit", model: process.env.OPENAI_IMAGE_EDIT_MODEL?.trim() || "gpt-image-1", image_data: "data:image/png;base64," + generated });
+      } catch (error) {
+        console.error("Identity transform runtime error", { message: error?.message || "Unknown error" });
+        return res.status(502).json({ error: "Could not reach the image provider.", hint: "Try again and inspect Vercel function logs." });
+      }
+    }
+
+    const apiKey = process.env.MAGIC_HOUR_API_KEY;
     if (!apiKey) {
       return res.status(503).json({
         error: "Magic Hour is not configured",
@@ -77,7 +118,6 @@ export default async function handler(req, res) {
       });
     }
 
-    const body = req.body || {};
     const rawPrompt = cleanText(body.prompt, 4000);
 
     if (!rawPrompt) {
