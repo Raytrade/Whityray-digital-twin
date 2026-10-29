@@ -71,7 +71,7 @@ export default async function handler(req, res) {
 
     // Image-to-image mode shares this existing serverless function to stay within Vercel Hobby limits.
     if (typeof body.image_data === "string") {
-      const match = body.image_data.match(/^data:(image\\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+      const match = body.image_data.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
       const prompt = cleanText(body.prompt, 5000);
       if (!match) return res.status(400).json({ error: "A valid JPEG, PNG, or WebP reference image is required." });
       if (body.image_data.length > 4000000) return res.status(413).json({ error: "Reference image is too large. Use a smaller photo." });
