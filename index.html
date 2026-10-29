@@ -878,39 +878,30 @@
     </section>
 
 
-    <!-- FACE -->
+    <!-- FACE + LIVE DANCE COACH -->
 
     <section class="panel" id="panel-face">
-
       <div class="module-head">
-        <h2>Face</h2>
-        <p>Authorized visual identity and camera capture.</p>
+        <h2>Face &amp; Live Movement</h2>
+        <p>Open your camera, show your full-body dance, and ask Immortal for movement feedback.</p>
       </div>
-
       <div class="workspace">
-
-        <div class="camera-wrap">
+        <div class="notice">For full-body coaching, place your phone far enough away to show your head, hands and feet, with good lighting. The camera preview stays on your device. A still image is sent to the secure dance-coach endpoint only when you press “Analyse My Move”.</div>
+        <div class="camera-wrap" style="margin-top:14px">
           <video id="camera" autoplay muted playsinline></video>
         </div>
-
         <div class="button-row">
-
-          <button class="primary" id="startCamera">
-            Open Camera
-          </button>
-
-          <button class="secondary" id="stopCamera">
-            Stop Camera
-          </button>
-
+          <button class="primary" id="startCamera" type="button">Open Camera</button>
+          <button class="secondary" id="switchCamera" type="button">Switch Camera</button>
+          <button class="secondary" id="stopCamera" type="button">Stop Camera</button>
         </div>
-
-        <div class="result" id="faceStatus">
-          Camera is off.
+        <div class="result" id="faceStatus" role="status" aria-live="polite">Camera is off. Tap Open Camera and allow camera permission.</div>
+        <div class="button-row">
+          <button class="primary" id="analyseDance" type="button" disabled>Analyse My Move</button>
         </div>
-
+        <div class="result studio-result" id="danceCoachResult" aria-live="polite">Your dance coaching will appear here after you choose Analyse My Move.</div>
+        <div class="notice"><strong>Camera not opening?</strong><br>Open this site directly in Chrome using the browser menu, not inside an in-app preview. Check Android Settings → Apps → Chrome → Permissions → Camera, and also tap the lock/site-settings icon in Chrome to allow Camera for this website. Reload and try again. HTTPS is required. If the page is embedded in an iframe that blocks camera access, the host must allow camera permissions; page code cannot override a browser or device permission denial.</div>
       </div>
-
     </section>
 
 
@@ -1692,67 +1683,95 @@
   });
 
 
-  /* CAMERA */
-
+  /* CAMERA + DANCE COACH */
   let cameraStream = null;
-
+  let cameraFacing = "user";
   const camera = document.getElementById("camera");
   const faceStatus = document.getElementById("faceStatus");
+  const analyseDanceButton = document.getElementById("analyseDance");
+  const danceCoachResult = document.getElementById("danceCoachResult");
 
-  document.getElementById("startCamera").addEventListener("click", async () => {
+  async function stopCameraTracks(updateStatus = true) {
+    if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+    camera.srcObject = null;
+    analyseDanceButton.disabled = true;
+    if (updateStatus) faceStatus.textContent = "Camera is off. Camera light should now be off.";
+  }
+
+  async function startCamera() {
     const startButton = document.getElementById("startCamera");
     startButton.disabled = true;
-    faceStatus.textContent = "Checking camera access…";
-
+    faceStatus.textContent = "Checking browser and camera permissions…";
     try {
+      await stopCameraTracks(false);
       if (!window.isSecureContext) throw new Error("SECURE_CONTEXT_REQUIRED");
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error("CAMERA_API_UNAVAILABLE");
-
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== "function") throw new Error("CAMERA_API_UNAVAILABLE");
       cameraStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-        audio: false
+        audio: false,
+        video: { facingMode: { ideal: cameraFacing }, width: { ideal: 1280 }, height: { ideal: 720 } }
       });
       camera.srcObject = cameraStream;
+      await new Promise((resolve, reject) => {
+        if (camera.readyState >= 2) return resolve();
+        camera.onloadedmetadata = resolve;
+        camera.onerror = () => reject(new Error("VIDEO_PREVIEW_FAILED"));
+        setTimeout(() => reject(new Error("VIDEO_PREVIEW_TIMEOUT")), 10000);
+      });
       await camera.play();
-      faceStatus.textContent = "Camera active. Your live preview stays on this device; nothing is uploaded automatically.";
+      analyseDanceButton.disabled = false;
+      faceStatus.textContent = "Camera active. Live video stays on this device. Tap Analyse My Move when you want feedback.";
     } catch (error) {
-      if (cameraStream) cameraStream.getTracks().forEach(track => track.stop());
-      cameraStream = null;
-      camera.srcObject = null;
-
+      await stopCameraTracks(false);
       const name = error?.name || "";
-      if (error.message === "SECURE_CONTEXT_REQUIRED") {
-        faceStatus.textContent = "Camera needs a secure HTTPS page. Open the official site address beginning with https://.";
-      } else if (error.message === "CAMERA_API_UNAVAILABLE") {
-        faceStatus.textContent = "This browser view does not expose camera access. Open the Digital Twin directly in Chrome or another full browser, not an in-app preview, then try again.";
-      } else if (name === "NotAllowedError" || name === "PermissionDeniedError") {
-        faceStatus.textContent = "Camera permission was blocked. In Android Settings or your browser's site settings, allow Camera for this site, then reload. If this page is inside another app, open it directly in Chrome.";
-      } else if (name === "NotFoundError" || name === "DevicesNotFoundError") {
-        faceStatus.textContent = "No available camera was found on this device.";
-      } else if (name === "NotReadableError" || name === "TrackStartError") {
-        faceStatus.textContent = "The camera may be busy in another app. Close apps using the camera and try again.";
-      } else {
-        faceStatus.textContent = "Camera could not start (" + (name || "browser error") + "). Allow camera access in site settings, close other camera apps, and retry in Chrome.";
-      }
+      if (error.message === "SECURE_CONTEXT_REQUIRED") faceStatus.textContent = "This page is not running in a secure context. Open the deployed site using its https:// address.";
+      else if (error.message === "CAMERA_API_UNAVAILABLE") faceStatus.textContent = "This app/browser preview does not expose camera access. Copy the site address and open it directly in Chrome. An embedded app view can block the camera API.";
+      else if (name === "NotAllowedError" || name === "PermissionDeniedError") faceStatus.textContent = "Camera permission was denied or blocked. In Android Settings → Apps → Chrome → Permissions → Camera, allow it. Then open Chrome site settings for this website, set Camera to Allow, reload and try again.";
+      else if (name === "NotFoundError" || name === "DevicesNotFoundError") faceStatus.textContent = "No camera was found. Check that your phone camera works in the Camera app.";
+      else if (name === "NotReadableError" || name === "TrackStartError") faceStatus.textContent = "The camera is busy or unavailable. Close other camera/video apps, then retry.";
+      else if (name === "OverconstrainedError") faceStatus.textContent = "That camera mode is unavailable. Tap Open Camera again; try switching cameras if needed.";
+      else if (error.message === "VIDEO_PREVIEW_FAILED" || error.message === "VIDEO_PREVIEW_TIMEOUT") faceStatus.textContent = "Camera permission opened, but video preview did not start. Reload the page, close other camera apps and retry in Chrome.";
+      else faceStatus.textContent = "Camera error (" + (name || error.message || "unknown") + "). Open the site in Chrome, allow camera permission, close other camera apps and retry.";
     } finally {
       startButton.disabled = false;
     }
+  }
+
+  document.getElementById("startCamera").addEventListener("click", startCamera);
+  document.getElementById("switchCamera").addEventListener("click", async () => {
+    cameraFacing = cameraFacing === "user" ? "environment" : "user";
+    if (cameraStream) await startCamera();
+    else faceStatus.textContent = "Preferred camera changed. Tap Open Camera.";
   });
+  document.getElementById("stopCamera").addEventListener("click", () => stopCameraTracks(true));
+  window.addEventListener("pagehide", () => { if (cameraStream) cameraStream.getTracks().forEach(track => track.stop()); });
 
-  document.getElementById("stopCamera").addEventListener("click", () => {
-
-    if (cameraStream) {
-
-      cameraStream.getTracks().forEach(track => track.stop());
-
-      camera.srcObject = null;
-      cameraStream = null;
-
-      faceStatus.textContent = "Camera is off.";
-
-    } else {
-
-      faceStatus.textContent = "Camera is already off.";
+  analyseDanceButton.addEventListener("click", async () => {
+    if (!cameraStream || !camera.videoWidth || !camera.videoHeight) {
+      danceCoachResult.textContent = "Open the camera and wait until the live picture appears first.";
+      return;
+    }
+    analyseDanceButton.disabled = true;
+    danceCoachResult.textContent = "Capturing one frame and asking Immortal for dance feedback…";
+    try {
+      const canvas = document.createElement("canvas");
+      const scale = Math.min(1, 768 / camera.videoWidth);
+      canvas.width = Math.round(camera.videoWidth * scale);
+      canvas.height = Math.round(camera.videoHeight * scale);
+      canvas.getContext("2d").drawImage(camera, 0, 0, canvas.width, canvas.height);
+      const image_data = canvas.toDataURL("image/jpeg", 0.78);
+      const response = await fetch("/api/dance-coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ image_data, request: "Coach my dance movement from this frame. Tell me what is visibly clear about my body position, balance, posture, arm/leg placement and what one or two changes I should try next. Be encouraging, specific, and honest about what cannot be judged from a single still image. Do not claim to see movement or timing from a still frame." })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error((data.error || "Dance analysis failed") + (data.hint ? "\\n" + data.hint : ""));
+      danceCoachResult.textContent = data.answer || "No coaching response returned.";
+    } catch (error) {
+      danceCoachResult.textContent = "Dance coach connection issue: " + error.message + "\\nCheck that the deployment has OPENAI_API_KEY or GEMINI_API_KEY configured, then redeploy.";
+    } finally {
+      analyseDanceButton.disabled = !cameraStream;
     }
   });
 
