@@ -69,6 +69,18 @@ export default async function handler(req, res) {
   try {
     const body = req.body || {};
 
+    if (body.task === "dance-coach") {
+      const match = typeof body.image_data === "string" && body.image_data.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+      if (!match) return res.status(400).json({ error: "A valid image frame is required." });
+      if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: "Vision is not configured.", hint: "Add OPENAI_API_KEY in Vercel settings." });
+      const prompt = "You are Immortal, WhityRay's supportive dance coach. Describe only visible posture, balance, and limb placement in this still frame. Do not claim to infer movement or timing from a still image. Give one encouraging observation, one or two specific corrections, and one safe drill. " + cleanText(body.request, 1500);
+      const response = await fetch("https://api.openai.com/v1/responses", { method: "POST", headers: { Authorization: "Bearer " + process.env.OPENAI_API_KEY, "Content-Type": "application/json" }, body: JSON.stringify({ model: process.env.OPENAI_VISION_MODEL || "gpt-4.1-mini", input: [{ role: "user", content: [{ type: "input_text", text: prompt }, { type: "input_image", image_url: body.image_data, detail: "low" }] }], max_output_tokens: 450 }) });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) return res.status(502).json({ error: "Vision provider could not analyse this frame.", hint: "Check API quota and model access." });
+      const answer = typeof data.output_text === "string" ? data.output_text.trim() : (data.output || []).flatMap(item => item.content || []).filter(part => part.type === "output_text").map(part => part.text || "").join("\n").trim();
+      return answer ? res.status(200).json({ ok: true, answer }) : res.status(502).json({ error: "Vision provider returned no coaching text." });
+    }
+
     // Image-to-image mode shares this existing serverless function to stay within Vercel Hobby limits.
     if (typeof body.image_data === "string") {
       const match = body.image_data.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
