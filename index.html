@@ -1964,10 +1964,10 @@
       canvas.height = Math.round(camera.videoHeight * scale);
       canvas.getContext("2d").drawImage(camera, 0, 0, canvas.width, canvas.height);
       const image_data = canvas.toDataURL("image/jpeg", 0.78);
-      const response = await fetch("/api/dance-coach", {
+      const response = await fetch("/api/magic-hour", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify({ image_data, request: "Coach my dance movement from this frame. Tell me what is visibly clear about my body position, balance, posture, arm/leg placement and what one or two changes I should try next. Be encouraging, specific, and honest about what cannot be judged from a single still image. Do not claim to see movement or timing from a still frame." })
+        body: JSON.stringify({ task: "dance-coach", image_data, request: "Coach my dance movement from this frame. Tell me what is visibly clear about my body position, balance, posture, arm/leg placement and what one or two changes I should try next. Be encouraging, specific, and honest about what cannot be judged from a single still image. Do not claim to see movement or timing from a still frame." })
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) { const detail = typeof data.error === "string" ? data.error : (data.error && data.error.message) ? data.error.message : JSON.stringify(data.error || "Dance analysis failed"); throw new Error(detail + (data.hint ? "\\n" + data.hint : "")); }
