@@ -1856,7 +1856,7 @@
         "Premium realistic photography, coherent shadows, physically believable fabric, natural hands and anatomy, polished but not plastic skin. The transformation should feel joyful, healing, empowering and still authentically the same artist. Do not add text, logos, or watermarks."
       ].filter(Boolean).join("\n");
       transformStatus.textContent = "Sending your chosen reference and transformation brief to the configured image provider…";
-      const response = await fetch("/api/identity-transform", {
+      const response = await fetch("/api/magic-hour", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ image_data: reference, prompt })
