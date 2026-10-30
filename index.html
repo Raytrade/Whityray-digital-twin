@@ -544,6 +544,10 @@
         🎧 Music
       </button>
 
+      <button class="nav-btn" data-panel="studio">
+        🎛️ Studio
+      </button>
+
       <button class="nav-btn" data-panel="voice">
         🎙️ Voice
       </button>
@@ -823,6 +827,37 @@
 
       </div>
 
+    </section>
+
+
+    <!-- DAYDREAM STUDIO -->
+
+    <section class="panel" id="panel-studio">
+      <div class="module-head">
+        <h2>Studio</h2>
+        <p>Build an instrumental with Daydream, then bring the audio back into your WhityRay workflow.</p>
+      </div>
+      <div class="workspace" style="margin-bottom:16px">
+        <div class="studio-kicker">IMMORTAL · DAYDREAM INSTRUMENTAL ENGINE</div>
+        <h3 style="font-size:22px;margin-bottom:8px">Create the sound before the song</h3>
+        <p style="color:var(--muted);line-height:1.6;margin-bottom:16px">This generates instrumental audio only — no lyrics or vocals. Use your own WhityRay voice separately. Your Daydream key stays on the server.</p>
+        <div class="field"><label for="daydreamPrompt">Describe the instrumental</label><textarea id="daydreamPrompt" maxlength="400" placeholder="Example: Ijaw-inspired Afro-fusion at 108 BPM, rolling log drums, warm bass, talking-drum fills, river-night atmosphere, hypnotic guitar and a powerful but spacious groove. Instrumental only."></textarea></div>
+        <div class="studio-grid">
+          <div class="field"><label for="daydreamBpm">Tempo (BPM)</label><input id="daydreamBpm" type="number" min="60" max="200" value="108" /></div>
+          <div class="field"><label for="daydreamDuration">Length</label><select id="daydreamDuration"><option value="120">Up to 120 seconds</option><option value="90">90 seconds</option><option value="60">60 seconds</option><option value="30">30 seconds</option></select></div>
+          <div class="field"><label for="daydreamKey">Musical key (optional)</label><select id="daydreamKey"><option value="">Let Daydream choose</option><option>C major</option><option>A minor</option><option>G major</option><option>E minor</option><option>D minor</option><option>F major</option><option>B minor</option><option>C minor</option><option>F# minor</option><option>G minor</option><option>D major</option><option>A major</option></select></div>
+        </div>
+        <div class="button-row"><button class="primary" id="createDaydream">Generate Instrumental</button><button class="secondary" id="checkDaydreamUsage">Check Free Quota</button></div>
+        <div class="result" id="daydreamStatus" aria-live="polite">Ready. Generation uses your Daydream account quota; nothing is generated until you press the button.</div>
+        <div id="daydreamAudio" style="margin-top:12px"></div>
+        <div id="daydreamStems" style="margin-top:12px"></div>
+        <div class="notice" id="daydreamUsage">Quota has not been checked yet.</div>
+      </div>
+      <div class="cards">
+        <div class="card"><div class="card-title">🎚️ Instrumental first</div><div class="card-text">Create a beat bed, then write and record vocals separately in the WhityRay workflow.</div></div>
+        <div class="card"><div class="card-title">🥁 Production direction</div><div class="card-text">Prompt for groove, percussion, bass, harmony, atmosphere and energy — not an artist imitation.</div></div>
+        <div class="card"><div class="card-title">🎼 Stems</div><div class="card-text">When Daydream makes stems available, download individual instrumental parts for further production.</div></div>
+      </div>
     </section>
 
 
@@ -1114,6 +1149,10 @@
     music: [
       "Music",
       "Production and sound direction."
+    ],
+    studio: [
+      "Studio",
+      "Daydream instrumental creation and stem downloads."
     ],
     voice: [
       "Voice",
@@ -2217,6 +2256,127 @@
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden && Date.now() - (window.__immortalWorldPulseLast || 0) > 15 * 60 * 1000) loadWorldPulse();
   });
+
+  // Daydream Studio: calls the existing /api/magic-hour function, so no
+  // additional Vercel serverless function is required.
+  const daydreamStatus = document.getElementById("daydreamStatus");
+  const daydreamAudio = document.getElementById("daydreamAudio");
+  const daydreamStems = document.getElementById("daydreamStems");
+  const daydreamUsage = document.getElementById("daydreamUsage");
+  const createDaydreamBtn = document.getElementById("createDaydream");
+
+  async function daydreamRequest(payload) {
+    const response = await fetch("/api/magic-hour", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || "Daydream request failed (" + response.status + ").");
+    return data;
+  }
+
+  function addDaydreamLink(container, label, url) {
+    if (!url || typeof url !== "string" || !/^https:\/\//i.test(url)) return;
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = label;
+    link.className = "secondary";
+    link.style.display = "inline-block";
+    link.style.margin = "5px 8px 5px 0";
+    container.appendChild(link);
+  }
+
+  async function checkDaydreamUsage() {
+    daydreamUsage.textContent = "Checking Daydream account quota…";
+    try {
+      const data = await daydreamRequest({ task: "daydream-usage" });
+      const u = data.usage || {};
+      daydreamUsage.textContent = "Daydream plan: " + (u.plan || "account") + " · Used: " + (u.used ?? "—") + " / " + (u.limit ?? "—") + " · Resets: " + (u.resets_at ? new Date(u.resets_at).toLocaleString() : "not supplied");
+    } catch (error) {
+      daydreamUsage.textContent = error.message;
+    }
+  }
+
+  async function watchDaydreamSong(songId) {
+    const started = Date.now();
+    let latest = null;
+    while (Date.now() - started < 180000) {
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      const data = await daydreamRequest({ task: "daydream-status", song_id: songId });
+      latest = data.song || {};
+      const state = String(latest.status || "processing").toLowerCase();
+      daydreamStatus.textContent = "Daydream status: " + state + (latest.position ? " · Queue position " + latest.position : "") + ".";
+      if (["completed", "complete", "done", "succeeded", "success"].includes(state)) {
+        daydreamAudio.replaceChildren();
+        (latest.takes || []).forEach((take, index) => {
+          const label = document.createElement("p");
+          label.textContent = "Take " + (index + 1) + (take.duration ? " · " + take.duration + " sec" : "");
+          label.style.margin = "10px 0 6px";
+          daydreamAudio.appendChild(label);
+          if (take.mp3_url) {
+            const player = document.createElement("audio");
+            player.controls = true;
+            player.src = take.mp3_url;
+            player.style.display = "block";
+            player.style.width = "100%";
+            player.style.marginBottom = "8px";
+            daydreamAudio.appendChild(player);
+            addDaydreamLink(daydreamAudio, "Download MP3", take.mp3_url);
+          }
+          addDaydreamLink(daydreamAudio, "Download WAV", take.wav_url);
+        });
+        daydreamStems.replaceChildren();
+        if (latest.stems && typeof latest.stems === "object") {
+          const title = document.createElement("p");
+          title.textContent = "Available stems";
+          title.style.margin = "12px 0 6px";
+          daydreamStems.appendChild(title);
+          Object.entries(latest.stems).forEach(([name, url]) => addDaydreamLink(daydreamStems, "Download " + name, url));
+        } else {
+          daydreamStems.textContent = latest.stems_ready === false ? "Stems are still processing; check the song again shortly." : "No separate stems were returned for this take.";
+        }
+        daydreamStatus.textContent = "Instrumental ready. Listen and download your take below.";
+        checkDaydreamUsage();
+        return;
+      }
+      if (["failed", "error", "cancelled"].includes(state)) {
+        daydreamStatus.textContent = "Daydream could not complete this instrumental: " + (latest.error || state);
+        checkDaydreamUsage();
+        return;
+      }
+    }
+    daydreamStatus.textContent = "The job is still processing. Your song ID is " + songId + ". Press Generate Instrumental again only for a new song; check status later to avoid duplicate generation.";
+  }
+
+  createDaydreamBtn?.addEventListener("click", async () => {
+    const prompt = document.getElementById("daydreamPrompt").value.trim();
+    const bpm = Number(document.getElementById("daydreamBpm").value);
+    const duration = Number(document.getElementById("daydreamDuration").value);
+    const key = document.getElementById("daydreamKey").value;
+    if (!prompt) { daydreamStatus.textContent = "Describe the instrumental first."; return; }
+    if (bpm < 60 || bpm > 200) { daydreamStatus.textContent = "Tempo must be between 60 and 200 BPM."; return; }
+    createDaydreamBtn.disabled = true;
+    daydreamAudio.replaceChildren();
+    daydreamStems.replaceChildren();
+    daydreamStatus.textContent = "Sending one instrumental request to Daydream…";
+    try {
+      const data = await daydreamRequest({ task: "daydream-create", prompt, bpm, duration, key, variations: 1 });
+      const song = data.song || {};
+      const songId = song.id;
+      if (!songId) throw new Error("Daydream accepted the request but did not return a song ID.");
+      daydreamStatus.textContent = "Instrumental queued. Song ID: " + songId + ". Waiting for audio…";
+      await watchDaydreamSong(songId);
+    } catch (error) {
+      daydreamStatus.textContent = error.message;
+      checkDaydreamUsage();
+    } finally {
+      createDaydreamBtn.disabled = false;
+    }
+  });
+  document.getElementById("checkDaydreamUsage")?.addEventListener("click", checkDaydreamUsage);
 
 </script>
 
