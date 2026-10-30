@@ -69,6 +69,48 @@ export default async function handler(req, res) {
   try {
     const body = req.body || {};
 
+    // Daydream instrumental generation shares this existing route to stay within
+    // the Vercel Hobby 12-function deployment limit.
+    if (typeof body.task === "string" && body.task.startsWith("daydream-")) {
+      const daydreamKey = process.env.DAYDREAM_API_KEY;
+      if (!daydreamKey) return res.status(503).json({ error: "Daydream is not configured.", hint: "Add DAYDREAM_API_KEY in Vercel Environment Variables, then redeploy." });
+      const base = "https://gen.daydream.live/v1";
+      const headers = { Authorization: "Bearer " + daydreamKey, "Content-Type": "application/json" };
+      try {
+        if (body.task === "daydream-create") {
+          const prompt = cleanText(body.prompt, 400);
+          if (!prompt || prompt.length < 1) return res.status(400).json({ error: "Describe the instrumental you want (1–400 characters)." });
+          const duration = Math.max(10, Math.min(120, Number(body.duration) || 120));
+          const bpm = body.bpm ? Math.max(60, Math.min(200, Number(body.bpm))) : undefined;
+          const payload = { prompt, duration, variations: body.variations === 2 ? 2 : 1 };
+          if (bpm) payload.bpm = bpm;
+          if (typeof body.key === "string" && body.key.trim()) payload.key = cleanText(body.key, 20);
+          const response = await fetch(base + "/songs", { method: "POST", headers, body: JSON.stringify(payload) });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) return res.status(response.status === 402 ? 402 : 502).json({ error: data.detail || data.error || "Daydream could not queue this instrumental.", provider_status: response.status });
+          return res.status(202).json({ ok: true, provider: "daydream", song: data });
+        }
+        if (body.task === "daydream-status") {
+          const songId = cleanText(body.song_id, 160);
+          if (!songId) return res.status(400).json({ error: "Song ID is required." });
+          const response = await fetch(base + "/songs/" + encodeURIComponent(songId), { headers });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) return res.status(502).json({ error: data.detail || "Could not check Daydream song status.", provider_status: response.status });
+          return res.status(200).json({ ok: true, provider: "daydream", song: data });
+        }
+        if (body.task === "daydream-usage") {
+          const response = await fetch(base + "/usage", { headers });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) return res.status(502).json({ error: data.detail || "Could not read Daydream usage.", provider_status: response.status });
+          return res.status(200).json({ ok: true, provider: "daydream", usage: data });
+        }
+        return res.status(400).json({ error: "Unknown Daydream task." });
+      } catch (error) {
+        console.error("Daydream route error:", error?.message || "Unknown error");
+        return res.status(502).json({ error: "Could not reach Daydream. Try again shortly." });
+      }
+    }
+
     if (body.task === "dance-coach") {
       const match = typeof body.image_data === "string" && body.image_data.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
       if (!match) return res.status(400).json({ error: "A valid image frame is required." });

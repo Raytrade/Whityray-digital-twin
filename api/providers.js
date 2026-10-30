@@ -24,6 +24,12 @@ const PROVIDERS = [
     note: "Songwriting and production-prompt creation runs through the Digital Brain. Suno is a handoff destination for audio generation, not a direct API provider in this app."
   },
   {
+    id: "daydream",
+    label: "Daydream instrumental studio",
+    env: ["DAYDREAM_API_KEY"],
+    note: "Secure instrumental generation, status and usage checks share /api/magic-hour to stay within the Vercel Hobby function limit. Audio generation can consume account quota."
+  },
+  {
     id: "magic-hour",
     label: "Magic Hour video / visual studio",
     env: ["MAGIC_HOUR_API_KEY"],
