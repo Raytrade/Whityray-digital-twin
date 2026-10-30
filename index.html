@@ -847,7 +847,7 @@
           <div class="field"><label for="daydreamDuration">Length</label><select id="daydreamDuration"><option value="120">Up to 120 seconds</option><option value="90">90 seconds</option><option value="60">60 seconds</option><option value="30">30 seconds</option></select></div>
           <div class="field"><label for="daydreamKey">Musical key (optional)</label><select id="daydreamKey"><option value="">Let Daydream choose</option><option>C major</option><option>A minor</option><option>G major</option><option>E minor</option><option>D minor</option><option>F major</option><option>B minor</option><option>C minor</option><option>F# minor</option><option>G minor</option><option>D major</option><option>A major</option></select></div>
         </div>
-        <div class="button-row"><button class="primary" id="createDaydream">Generate Instrumental</button><button class="secondary" id="checkDaydreamUsage">Check Free Quota</button></div>
+        <div class="button-row"><button class="primary" id="createDaydream">Generate Instrumental</button><button class="secondary" id="refreshDaydreamStatus" disabled>Refresh Song Status</button><button class="secondary" id="checkDaydreamUsage">Check Free Quota</button></div>
         <div class="result" id="daydreamStatus" aria-live="polite">Ready. Generation uses your Daydream account quota; nothing is generated until you press the button.</div>
         <div id="daydreamAudio" style="margin-top:12px"></div>
         <div id="daydreamStems" style="margin-top:12px"></div>
@@ -2348,7 +2348,9 @@
         return;
       }
     }
-    daydreamStatus.textContent = "The job is still processing. Your song ID is " + songId + ". Press Generate Instrumental again only for a new song; check status later to avoid duplicate generation.";
+    window.__immortalDaydreamSongId = songId;
+    document.getElementById("refreshDaydreamStatus").disabled = false;
+    daydreamStatus.textContent = "The job is still processing. Your song ID is " + songId + ". Use Refresh Song Status later; do not generate again unless you want a new instrumental.";
   }
 
   createDaydreamBtn?.addEventListener("click", async () => {
@@ -2367,6 +2369,8 @@
       const song = data.song || {};
       const songId = song.id;
       if (!songId) throw new Error("Daydream accepted the request but did not return a song ID.");
+      window.__immortalDaydreamSongId = songId;
+      document.getElementById("refreshDaydreamStatus").disabled = false;
       daydreamStatus.textContent = "Instrumental queued. Song ID: " + songId + ". Waiting for audio…";
       await watchDaydreamSong(songId);
     } catch (error) {
@@ -2377,6 +2381,15 @@
     }
   });
   document.getElementById("checkDaydreamUsage")?.addEventListener("click", checkDaydreamUsage);
+  document.getElementById("refreshDaydreamStatus")?.addEventListener("click", async () => {
+    const songId = window.__immortalDaydreamSongId;
+    if (!songId) { daydreamStatus.textContent = "No Daydream song is being tracked yet."; return; }
+    const button = document.getElementById("refreshDaydreamStatus");
+    button.disabled = true;
+    try { await watchDaydreamSong(songId); }
+    catch (error) { daydreamStatus.textContent = error.message; }
+    finally { button.disabled = false; }
+  });
 
 </script>
 
