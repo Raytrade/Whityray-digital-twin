@@ -905,6 +905,7 @@
             <div class="field"><label for="transformSelf">Higher-self direction</label><select id="transformSelf"><option>Calm, healed, confident higher self</option><option>Immortal Beast — cinematic and powerful</option><option>Grammy-stage WhityRay — premium artist styling</option><option>River son — elegant Ijaw Wave identity</option><option>Soft, joyful, peaceful version of me</option><option>My own direction below</option></select></div>
             <div class="field"><label for="transformEnvironment">Environment / scene</label><input id="transformEnvironment" maxlength="240" placeholder="e.g. moonlit Niger Delta river, cinematic studio" /></div>
             <div class="field"><label for="transformExtra">Extra details</label><input id="transformExtra" maxlength="300" placeholder="Jewellery, colours, lighting, pose, mood…" /></div>
+            <div class="field" style="grid-column:1/-1"><label for="transformBrief">Tell IMMORTAL exactly what to create</label><textarea id="transformBrief" maxlength="1800" placeholder="Example: Use my photo. Put me beside my digital twin at Ayema waterside at night, wearing matching black-and-gold outfits. Keep my real face and body recognizable."></textarea></div>
           </div>
           <label class="checkline"><input id="preserveIdentity" type="checkbox" checked /> Strict identity lock: keep my face and body proportions unchanged</label>
           <div class="button-row"><button class="primary" id="createIdentityLook" type="button">Create My Transformation</button><button class="secondary" id="downloadIdentityLook" type="button" disabled>Save Generated Image</button></div>
@@ -1853,6 +1854,7 @@
         "Higher-self / emotional direction: " + self + ".",
         "Environment: " + environment + ".",
         extra ? "Additional direction: " + extra + "." : "",
+        document.getElementById("transformBrief").value.trim() ? "USER\u2019S EXACT CREATIVE REQUEST: " + document.getElementById("transformBrief").value.trim() : "",
         "Premium realistic photography, coherent shadows, physically believable fabric, natural hands and anatomy, polished but not plastic skin. The transformation should feel joyful, healing, empowering and still authentically the same artist. Do not add text, logos, or watermarks."
       ].filter(Boolean).join("\n");
       transformStatus.textContent = "Sending your chosen reference and transformation brief to the configured image provider…";
