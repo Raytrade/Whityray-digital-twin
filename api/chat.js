@@ -352,33 +352,33 @@ async function generateMagicHourVisual(prompt, requestId) {
 
 function localSesenReflection(message, mode) {
   const lower = String(message || "").toLowerCase();
-  const drugEscalation = /\\b(weed|smoke|joint|high|stoned)\\b/i.test(lower) &&
-    /\\b(ice|crystal|meth|stronger|next level|something stronger)\\b/i.test(lower);
-  const possibleMeth = /\\b(ice|crystal meth|meth)\\b/i.test(lower) &&
-    /\\b(weed|smoke|high|next|instead|rather|stronger)\\b/i.test(lower);
+  const drugEscalation = /\b(weed|smoke|joint|high|stoned)\b/i.test(lower) &&
+    /\b(ice|crystal|meth|stronger|next level|something stronger)\b/i.test(lower);
+  const possibleMeth = /\b(ice|crystal meth|meth)\b/i.test(lower) &&
+    /\b(weed|smoke|high|next|instead|rather|stronger)\b/i.test(lower);
 
   if (drugEscalation || possibleMeth) {
     const safety = possibleMeth
       ? "If that code means crystal meth, this is not just a stronger version of weed; it carries serious risks, including dependence, overheating, heart problems, paranoia and psychosis. Don't experiment with it. If anyone has already taken it and has chest pain, very high body temperature, a seizure, severe confusion or hallucinations, seek urgent medical help."
       : "The thought points toward escalating a high. A stronger effect can bring much bigger risks; don't let curiosity make the decision for you.";
     const lyric = mode === "Sesen Worldwide"
-      ? "One night no be the whole road,\\nNo trade tomorrow for a moment wey go fade."
-      : "No let one restless night\\nwrite the price of many mornings.\\nI still get choices\\nbefore the choice get me.";
-    return "GBOS — The signal no be the slang. Na the shift: wetin used to feel enough now dey sound too small. That change deserves attention before e becomes action.\\n\\n" +
-      "GBAS — " + safety + "\\n\\n" +
-      "HEAL — " + lyric + "\\n\\n" +
+      ? "One night no be the whole road,\nNo trade tomorrow for a moment wey go fade."
+      : "No let one restless night\nwrite the price of many mornings.\nI still get choices\nbefore the choice get me.";
+    return "GBOS — The signal no be the slang. Na the shift: wetin used to feel enough now dey sound too small. That change deserves attention before e becomes action.\n\n" +
+      "GBAS — " + safety + "\n\n" +
+      "HEAL — " + lyric + "\n\n" +
       "ONE MOVE — Put distance between yourself and the substance for tonight. If this is a real plan, tell one trusted person plainly that you're thinking about trying something stronger.";
   }
 
-  const repeated = /\\b(always|again|every time|same thing|keep doing|can't stop|cannot stop|repeat|pattern)\\b/i.test(lower);
+  const repeated = /\b(always|again|every time|same thing|keep doing|can't stop|cannot stop|repeat|pattern)\b/i.test(lower);
   const first = repeated
     ? "GBOS — The repeated part matters more than the latest incident. Something in the pattern is asking for attention; don't confuse familiarity with proof that it is good for you."
     : "GBOS — I hear the thought you put down. The first angle may not be the whole story; separate what you know from what you are assuming.";
   const wider = mode === "Sesen Worldwide"
     ? "GBAS — Look at the longer consequence and the other people touched by the decision. Your future self also has a place in this room."
     : "GBAS — Check what belongs to you, what belongs to somebody else, and what the next choice may cost.";
-  return first + "\\n\\n" + wider + "\\n\\nHEAL — " +
-    "No rush turn one feeling to a final decision;\\nmake the next move match the person you dey build.";
+  return first + "\n\n" + wider + "\n\nHEAL — " +
+    "No rush turn one feeling to a final decision;\nmake the next move match the person you dey build.";
 }
 
 function localImmortalFallback(message, mode) {
