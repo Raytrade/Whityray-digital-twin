@@ -62,9 +62,9 @@ async function runTask(task){
   const response=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({message:buildPrompt(task),mode:"Twin Artist v5"})});
   const data=await response.json();if(!response.ok)throw new Error(data.error||"The writing signal no pass.");
   if(data.provider==="immortal-local-fallback"){
-   const clean=source.replace(/\\b(really|very|actually|just|basically|literally)\\b/gi,"").replace(/\\s{2,}/g," ").trim();
+   const clean=source.replace(/\b(really|very|actually|just|basically|literally)\b/gi,"").replace(/\s{2,}/g," ").trim();
    if(task==="SMART REPLACE"){draft.value=clean;status.className="status local";status.textContent="LOCAL ASSIST — removed common filler only. No full language model answered, so review every edit and keep your meaning.";}
-   else if(task==="TIGHTEN BARS"){draft.value=clean.split(/(?<=[,;.!?])\\s+/).map(x=>x.trim()).filter(Boolean).join("\\n");status.className="status local";status.textContent="LOCAL ASSIST — tightened line breaks and removed common filler. This is a light mechanical edit, not deep lyric rewriting.";}
+   else if(task==="TIGHTEN BARS"){draft.value=clean.split(/(?<=[,;.!?])\\s+/).map(x=>x.trim()).filter(Boolean).join("\n");status.className="status local";status.textContent="LOCAL ASSIST — tightened line breaks and removed common filler. This is a light mechanical edit, not deep lyric rewriting.";}
    else{draft.value=source;status.className="status local";status.textContent="LOCAL MODE — your original draft is preserved. ADD SENSE and COMPOSE need a full language model for meaningful creative expansion; no invented lines were added.";}
   }else{draft.value=data.answer||"No draft returned.";status.className="status live";status.textContent="TWIN ARTIST v5 — "+task+" complete. Your original idea remains the source."; }
  }catch(e){status.textContent=e.message||"Connection issue. Try again.";}
