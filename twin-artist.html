@@ -11,11 +11,11 @@ h1{font-size:clamp(34px,8vw,62px);line-height:.95;letter-spacing:-.055em;margin:
 .section{font-size:10px;letter-spacing:.16em;color:var(--gold2);font-weight:800;margin-bottom:12px}.worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.world{border:1px solid #343434;background:#191919;color:#ddd;border-radius:11px;padding:12px 8px;font-weight:800}.world small{display:block;color:#96938b;font-weight:400;font-size:10px;margin-top:4px}.world.active{border-color:var(--gold);background:#302515;color:#ffe1a0}
 label{display:block;color:#aaa;font-size:11px;margin:16px 0 7px}textarea{width:100%;min-height:120px;resize:vertical;background:#090909;border:1px solid #343434;border-radius:12px;padding:14px;color:#f4f1eb;font:15px/1.6 inherit;outline:none}textarea:focus{border-color:var(--gold)}#draft{min-height:190px}
 .range-row{display:flex;align-items:center;gap:12px;color:#aaa;font-size:11px}.range-row input{flex:1;accent-color:var(--gold)}.range-row strong{color:#f0ca70;min-width:48px;text-align:right}
-.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.tool{border:1px solid #54452a;background:#211b11;color:#f4d99b;border-radius:10px;padding:13px 8px;font-weight:800;font-size:11px}.tool.primary{background:var(--gold);color:#17120a;border-color:var(--gold)}.tool:disabled{opacity:.5}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}.engine-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.engine-card{border:1px solid #343434;background:#0b0b0b;border-radius:11px;padding:12px}.engine-card label{margin:0 0 7px}.engine-card select{width:100%;background:#090909;color:#eee;border:1px solid #343434;border-radius:8px;padding:10px}.engine-card input{width:100%;accent-color:var(--gold)}.tool.free{border-color:#42634c;background:#142219;color:#b8e2c2}.tool{border:1px solid #54452a;background:#211b11;color:#f4d99b;border-radius:10px;padding:13px 8px;font-weight:800;font-size:11px}.tool.primary{background:var(--gold);color:#17120a;border-color:var(--gold)}.tool:disabled{opacity:.5}
 .row{display:flex;gap:9px;margin-top:10px}.row button{flex:1}.ghost{border:1px solid #3b3b3b;background:#1a1a1a;color:#ddd;border-radius:10px;padding:12px;font-weight:700}
 .status{font-size:11px;color:#9eaa9f;line-height:1.6;margin-top:12px;white-space:pre-wrap}.status.local{color:#e0bd79}.status.live{color:var(--green)}
 .note{font-size:11px;color:#777;line-height:1.5;margin-top:12px}.footer{text-align:center;color:#67645d;font-size:10px;letter-spacing:.12em;margin-top:25px}
-@media(max-width:520px){.wrap{padding:20px 12px 40px}.panel{padding:14px}.controls{grid-template-columns:1fr}.worlds{gap:6px}.world{font-size:11px}}
+@media(max-width:620px){.wrap{padding:20px 12px 40px}.panel{padding:14px}.controls{grid-template-columns:repeat(2,1fr)}.engine-grid{grid-template-columns:1fr}.worlds{gap:6px}.world{font-size:11px}}
 </style></head>
 <body><main class="wrap">
 <div class="top"><div class="eyebrow">IMMORTAL BEAST / TWIN ARTIST</div><div class="badge">GHOSTWRITER v5</div></div>
@@ -32,11 +32,19 @@ label{display:block;color:#aaa;font-size:11px;margin:16px 0 7px}textarea{width:1
 <textarea id="raw" placeholder="Drop your thought, rough bars, voice note transcript or unfinished hook..."></textarea>
 <label for="freedom">WRITING FREEDOM</label>
 <div class="range-row"><span>LIGHT EDIT</span><input id="freedom" type="range" min="1" max="3" value="2"><strong id="freedomLabel">MEDIUM</strong><span>FREE FLOW</span></div>
+<div class="section" style="margin-top:20px">JOINED ENGINE · SESEN v9 + TWIN ARTIST v5</div>
+<div class="engine-grid">
+ <div class="engine-card"><label for="engineMode">WRITING ENGINE</label><select id="engineMode"><option value="GHOSTWRITER">GHOSTWRITER — sharpen my exact thought</option><option value="FREE TALK">FREE TALK — yarn freely, discover new phrasing</option><option value="BLEND">BLEND — preserve meaning, then flow freely</option></select></div>
+ <div class="engine-card"><label for="vibe">STREET VIBE</label><select id="vibe"><option>STREET BADMAN</option><option>MELODIC STREET</option><option>RAW / UNFILTERED</option><option>PLAYFUL / SWAGGER</option><option>WORLDWIDE / CLEAN</option><option>LET THE IDEA CHOOSE</option></select></div>
+ <div class="engine-card"><label for="freshness">FRESHNESS · avoid familiar wording</label><input id="freshness" type="range" min="1" max="5" value="4"><div class="range-row"><span>SAFE</span><strong id="freshnessLabel">VERY HIGH</strong><span>UNEXPECTED</span></div></div>
+</div>
+<p class="note">Ghostwriter protects your meaning. Free Talk loosens the phrasing and discovers new street language. Blend does both. Freshness asks for new angles—not random words or recycled lyric templates.</p>
 <div class="section" style="margin-top:20px">GHOSTWRITER TOOLS</div>
 <div class="controls">
 <button class="tool" data-task="SMART REPLACE">SMART REPLACE</button>
 <button class="tool" data-task="TIGHTEN BARS">TIGHTEN BARS</button>
 <button class="tool" data-task="ADD SENSE">ADD SENSE</button>
+<button class="tool free" data-task="YARN FREE">YARN FREE</button>
 </div>
 <label for="draft">WORKING DRAFT — EDIT ANY LINE YOURSELF</label>
 <textarea id="draft" placeholder="Your refined lines will appear here. You stay in control."></textarea>
@@ -47,12 +55,13 @@ label{display:block;color:#aaa;font-size:11px;margin:16px 0 7px}textarea{width:1
 <div class="footer">ONE ARTIST · MANY MUSICAL WORLDS · YOUR THOUGHT STAYS YOURS</div>
 </main>
 <script>
-let world="STREET";const raw=document.getElementById("raw"),draft=document.getElementById("draft"),status=document.getElementById("status"),freedom=document.getElementById("freedom"),freedomLabel=document.getElementById("freedomLabel");
+let world="STREET";const raw=document.getElementById("raw"),draft=document.getElementById("draft"),status=document.getElementById("status"),freedom=document.getElementById("freedom"),freedomLabel=document.getElementById("freedomLabel"),engineMode=document.getElementById("engineMode"),vibe=document.getElementById("vibe"),freshness=document.getElementById("freshness"),freshnessLabel=document.getElementById("freshnessLabel");
 document.querySelectorAll(".world").forEach(b=>b.addEventListener("click",()=>{world=b.dataset.world;document.querySelectorAll(".world").forEach(x=>x.classList.toggle("active",x===b));}));
 freedom.addEventListener("input",()=>{freedomLabel.textContent=["","LOW","MEDIUM","HIGH"][freedom.value];});
+freshness.addEventListener("input",()=>{freshnessLabel.textContent=["","LOW","MEDIUM","HIGH","VERY HIGH","MAX"][freshness.value];});
 function buildPrompt(task){
  const source=(draft.value.trim()||raw.value.trim());
- return "TWIN ARTIST TASK: "+task+"\nWORLD: "+world+"\nFREEDOM: "+freedomLabel.textContent+"\nCORE IDEA / CURRENT DRAFT:\n"+source+"\n\nKeep the user's core thought intact. Return only the improved writing, with no lecture or generic explanation. For COMPOSE SONG, create a complete concise melodic song with a memorable hook, one focused verse and a distinct bridge. Choose the genre and melody direction from the idea; do not default to one sound.";
+ return "JOINED SESEN v9 + TWIN ARTIST v5 TASK: "+task+"\\nENGINE: "+engineMode.value+"\\nWORLD: "+world+"\\nVIBE: "+vibe.value+"\\nEDIT FREEDOM: "+freedomLabel.textContent+"\\nFRESHNESS: "+freshnessLabel.textContent+"\\nCORE IDEA / CURRENT DRAFT:\\n"+source+"\\n\\nSHARED RULES: Understand the exact situation before writing. Preserve the users intent and important details. Do not copy raw input line-for-line unless a phrase is already strong. Never use fixed lyric templates, stock hooks, recycled punchlines or repeated catchphrases. Create fresh wording from this exact subject; freshness means surprising but meaningful language, not random slang. Use natural Nigerian street Pidgin and English according to the selected world. No forced river, mud, fire, soul, spiritual or Owigiri imagery. Do not invent biography. Return usable writing only.\\nGHOSTWRITER: sharpen weak wording, improve breath and cadence, protect meaning.\\nFREE TALK: think freely from the idea, vary line lengths and phrasing, allow conversational melodic flow, avoid predictable section patterns unless a full song is requested.\\nBLEND: first protect the meaning, then explore a freer and more original delivery.\\nVIBE: make the chosen vibe audible in word choice, rhythm and attitude without parody or threats.\\nFRESHNESS: higher levels demand more original angles and less familiar phrasing, while remaining coherent.\\nTASK RULES: SMART REPLACE changes weak words only. TIGHTEN BARS improves cadence and breath. ADD SENSE extends the thought with relevant new meaning. YARN FREE creates a fresh free-flow performance without forcing a song template. COMPOSE SONG creates a concise complete melodic song with a memorable hook and focused sections. Choose genre and melody from the idea; do not default to one sound.";
 }
 async function runTask(task){
  const source=(draft.value.trim()||raw.value.trim());if(!source){raw.focus();status.textContent="Drop your thought first.";return;}
@@ -65,7 +74,7 @@ async function runTask(task){
    const clean=source.replace(/\b(really|very|actually|just|basically|literally)\b/gi,"").replace(/\s{2,}/g," ").trim();
    if(task==="SMART REPLACE"){draft.value=clean;status.className="status local";status.textContent="LOCAL ASSIST — removed common filler only. No full language model answered, so review every edit and keep your meaning.";}
    else if(task==="TIGHTEN BARS"){draft.value=clean.split(/(?<=[,;.!?])\s+/).map(x=>x.trim()).filter(Boolean).join("\n");status.className="status local";status.textContent="LOCAL ASSIST — tightened line breaks and removed common filler. This is a light mechanical edit, not deep lyric rewriting.";}
-   else{draft.value=source;status.className="status local";status.textContent="LOCAL MODE — your original draft is preserved. ADD SENSE and COMPOSE need a full language model for meaningful creative expansion; no invented lines were added.";}
+   else{draft.value=source;status.className="status local";status.textContent="LOCAL MODE — your original draft is preserved. "+task+" needs a full language model for meaningful fresh writing; no random lyric pool or fake AI expansion was used.";}
   }else{draft.value=data.answer||"No draft returned.";status.className="status live";status.textContent="TWIN ARTIST v5 — "+task+" complete. Your original idea remains the source."; }
  }catch(e){status.textContent=e.message||"Connection issue. Try again.";}
  finally{buttons.forEach(b=>b.disabled=false);}
