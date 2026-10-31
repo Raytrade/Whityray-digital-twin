@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090909"><title>Twin Artist v5 — IMMORTAL BEAST</title>
+<style>
+:root{color-scheme:dark;--bg:#090909;--panel:#121212;--line:#292929;--text:#f4f1eb;--muted:#9b9992;--gold:#d7aa4a;--gold2:#f0ca70;--green:#8ac5a1}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 0%,#332615 0,transparent 34%),radial-gradient(ellipse at 100% 75%,#14251e 0,transparent 35%),var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+.wrap{max-width:980px;margin:auto;padding:25px 16px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.eyebrow{font-size:10px;letter-spacing:.2em;color:var(--gold2);font-weight:800}.badge{border:1px solid #594a2c;border-radius:30px;padding:7px 11px;color:#dfc58d;font-size:10px}
+h1{font-size:clamp(34px,8vw,62px);line-height:.95;letter-spacing:-.055em;margin:28px 0 10px;font-weight:950}.sub{color:var(--muted);line-height:1.6;max-width:700px}.panel{margin-top:20px;padding:18px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(145deg,#151515,#0e0e0e);box-shadow:0 20px 55px #0006}
+.section{font-size:10px;letter-spacing:.16em;color:var(--gold2);font-weight:800;margin-bottom:12px}.worlds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.world{border:1px solid #343434;background:#191919;color:#ddd;border-radius:11px;padding:12px 8px;font-weight:800}.world small{display:block;color:#96938b;font-weight:400;font-size:10px;margin-top:4px}.world.active{border-color:var(--gold);background:#302515;color:#ffe1a0}
+label{display:block;color:#aaa;font-size:11px;margin:16px 0 7px}textarea{width:100%;min-height:120px;resize:vertical;background:#090909;border:1px solid #343434;border-radius:12px;padding:14px;color:#f4f1eb;font:15px/1.6 inherit;outline:none}textarea:focus{border-color:var(--gold)}#draft{min-height:190px}
+.range-row{display:flex;align-items:center;gap:12px;color:#aaa;font-size:11px}.range-row input{flex:1;accent-color:var(--gold)}.range-row strong{color:#f0ca70;min-width:48px;text-align:right}
+.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}.tool{border:1px solid #54452a;background:#211b11;color:#f4d99b;border-radius:10px;padding:13px 8px;font-weight:800;font-size:11px}.tool.primary{background:var(--gold);color:#17120a;border-color:var(--gold)}.tool:disabled{opacity:.5}
+.row{display:flex;gap:9px;margin-top:10px}.row button{flex:1}.ghost{border:1px solid #3b3b3b;background:#1a1a1a;color:#ddd;border-radius:10px;padding:12px;font-weight:700}
+.status{font-size:11px;color:#9eaa9f;line-height:1.6;margin-top:12px;white-space:pre-wrap}.status.local{color:#e0bd79}.status.live{color:var(--green)}
+.note{font-size:11px;color:#777;line-height:1.5;margin-top:12px}.footer{text-align:center;color:#67645d;font-size:10px;letter-spacing:.12em;margin-top:25px}
+@media(max-width:520px){.wrap{padding:20px 12px 40px}.panel{padding:14px}.controls{grid-template-columns:1fr}.worlds{gap:6px}.world{font-size:11px}}
+</style></head>
+<body><main class="wrap">
+<div class="top"><div class="eyebrow">IMMORTAL BEAST / TWIN ARTIST</div><div class="badge">GHOSTWRITER v5</div></div>
+<h1>Your thought.<br>Sharper delivery.</h1>
+<p class="sub">You bring the meaning. Twin Artist tightens the words, strengthens the flow and adds only what the thought needs. Your idea stays in the driver's seat.</p>
+<section class="panel">
+<div class="section">CHOOSE YOUR WORLD</div>
+<div class="worlds">
+<button class="world active" data-world="STREET">STREET<small>Coded · area sense</small></button>
+<button class="world" data-world="WORLDWIDE">WORLDWIDE<small>Clear · global reach</small></button>
+<button class="world" data-world="DUAL">DUAL<small>Both · natural blend</small></button>
+</div>
+<label for="raw">RAW IDEA / YOUR LYRICS</label>
+<textarea id="raw" placeholder="Drop your thought, rough bars, voice note transcript or unfinished hook..."></textarea>
+<label for="freedom">WRITING FREEDOM</label>
+<div class="range-row"><span>LIGHT EDIT</span><input id="freedom" type="range" min="1" max="3" value="2"><strong id="freedomLabel">MEDIUM</strong><span>FREE FLOW</span></div>
+<div class="section" style="margin-top:20px">GHOSTWRITER TOOLS</div>
+<div class="controls">
+<button class="tool" data-task="SMART REPLACE">SMART REPLACE</button>
+<button class="tool" data-task="TIGHTEN BARS">TIGHTEN BARS</button>
+<button class="tool" data-task="ADD SENSE">ADD SENSE</button>
+</div>
+<label for="draft">WORKING DRAFT — EDIT ANY LINE YOURSELF</label>
+<textarea id="draft" placeholder="Your refined lines will appear here. You stay in control."></textarea>
+<div class="row"><button class="tool primary" id="compose">COMPOSE SONG →</button><button class="ghost" id="clear">CLEAR</button></div>
+<div class="status" id="status">Ready. Start with your own words. No forced genre, mood or repeated formula.</div>
+<p class="note">Smart Replace = sharpen weak wording. Tighten Bars = improve rhythm and breath. Add Sense = extend the idea without changing its meaning. Compose = shape the refined thought into a song. You can edit the draft at any time.</p>
+</section>
+<div class="footer">ONE ARTIST · MANY MUSICAL WORLDS · YOUR THOUGHT STAYS YOURS</div>
+</main>
+<script>
+let world="STREET";const raw=document.getElementById("raw"),draft=document.getElementById("draft"),status=document.getElementById("status"),freedom=document.getElementById("freedom"),freedomLabel=document.getElementById("freedomLabel");
+document.querySelectorAll(".world").forEach(b=>b.addEventListener("click",()=>{world=b.dataset.world;document.querySelectorAll(".world").forEach(x=>x.classList.toggle("active",x===b));}));
+freedom.addEventListener("input",()=>{freedomLabel.textContent=["","LOW","MEDIUM","HIGH"][freedom.value];});
+function buildPrompt(task){
+ const source=(draft.value.trim()||raw.value.trim());
+ return "TWIN ARTIST TASK: "+task+"\nWORLD: "+world+"\nFREEDOM: "+freedomLabel.textContent+"\nCORE IDEA / CURRENT DRAFT:\n"+source+"\n\nKeep the user's core thought intact. Return only the improved writing, with no lecture or generic explanation. For COMPOSE SONG, create a complete concise melodic song with a memorable hook, one focused verse and a distinct bridge. Choose the genre and melody direction from the idea; do not default to one sound.";
+}
+async function runTask(task){
+ const source=(draft.value.trim()||raw.value.trim());if(!source){raw.focus();status.textContent="Drop your thought first.";return;}
+ const buttons=[...document.querySelectorAll(".tool"),document.getElementById("compose")];buttons.forEach(b=>b.disabled=true);
+ status.className="status";status.textContent="Twin dey shape the words…";
+ try{
+  const response=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({message:buildPrompt(task),mode:"Twin Artist v5"})});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||"The writing signal no pass.");
+  draft.value=data.answer||"No draft returned.";
+  if(data.provider==="immortal-local-fallback"){status.className="status local";status.textContent="LOCAL MODE — limited rules-based draft. No paid AI provider answered, so this is not full ghostwriter intelligence. You can still edit the result."; }
+  else{status.className="status live";status.textContent="TWIN ARTIST v5 — "+task+" complete. Your original idea remains the source."; }
+ }catch(e){status.textContent=e.message||"Connection issue. Try again.";}
+ finally{buttons.forEach(b=>b.disabled=false);}
+}
+document.querySelectorAll("[data-task]").forEach(b=>b.addEventListener("click",()=>runTask(b.dataset.task)));
+document.getElementById("compose").addEventListener("click",()=>runTask("COMPOSE SONG"));
+document.getElementById("clear").addEventListener("click",()=>{raw.value="";draft.value="";status.className="status";status.textContent="Clear. Bring a new thought when ready.";});
+</script></body></html>
