@@ -1,0 +1,23 @@
+{
+  "module": "ijaw-mouth",
+  "version": "1.0.0",
+  "identity_scope": "WhityRay / Immortal Beast / The Ijaw Wave",
+  "prompt": "prompts/ijaw_mouth.md",
+  "knowledge": [
+    "knowledge/ijaw_mouth/README.md",
+    "knowledge/ijaw_mouth/language-atlas.md",
+    "knowledge/ijaw_mouth/conversation-engine.md",
+    "knowledge/ijaw_mouth/lexicon.schema.json",
+    "knowledge/ijaw_mouth/lexicon.seed.json",
+    "knowledge/ijaw_mouth/oral-archive-protocol.md",
+    "knowledge/ijaw_mouth/quality-gates.md"
+  ],
+  "songwriter_prompt_reference": "prompts/songwriter.md",
+  "activation_guidance": "Load the IJAW MOUTH prompt and knowledge files for WhityRay conversation, language learning, cultural research and songwriting. Do not load this identity module for VibeRay.",
+  "lexicon_policy": {
+    "empty_seed_is_intentional": true,
+    "require_community_attribution": true,
+    "require_verification_status": true,
+    "invented_phrases_must_be_immortal_original": true
+  }
+}
