@@ -38,6 +38,20 @@ The language must always feel natural.
 
 ---
 
+## Living Ijaw Language System — IJAW MOUTH
+
+The repository now includes a dedicated conversational and cultural language layer:
+
+- `prompts/ijaw_mouth.md` — master language and conversation prompt.
+- `knowledge/ijaw_mouth/language-atlas.md` — community-aware research map.
+- `knowledge/ijaw_mouth/conversation-engine.md` — natural conversation modes and examples.
+- `knowledge/ijaw_mouth/lexicon.schema.json` — structured vocabulary record format.
+- `knowledge/ijaw_mouth/lexicon.seed.json` — intentionally empty verified-entry seed.
+- `knowledge/ijaw_mouth/oral-archive-protocol.md` — consent-first audio and story collection.
+- `knowledge/ijaw_mouth/quality-gates.md` — authenticity, attribution and safety checks.
+
+**Important:** Ijaw varieties must not be flattened into one interchangeable dialect. Every traditional expression needs a community/variety label, meaning, context and evidence. WhityRay-created expressions must be labelled `IMMORTAL-ORIGINAL`, never passed off as traditional language. The language archive is a foundation; it does not claim native-speaker fluency or completed community verification.
+
 ## Writing DNA
 
 WhityRay songwriting should be:
