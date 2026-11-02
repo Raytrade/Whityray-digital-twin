@@ -403,6 +403,96 @@ function localSesenReflection(message, mode) {
     "No rush turn one feeling to a final decision;\nmake the next move match the person you dey build.";
 }
 
+function localSongwriterFallback(message) {
+  const raw = String(message || "").trim();
+  const pick = (label) => {
+    const m = raw.match(new RegExp("^" + label + "\\s*:\\s*([\\s\\S]*?)(?=\\n[A-Z][A-Z _/()-]{2,}\\s*:|$)", "im"));
+    return m ? m[1].trim() : "";
+  };
+  const idea = (pick("Idea") || pick("Song idea") || raw)
+    .replace(/^Write an original WhityRay singer-first song\\.?/i, "")
+    .replace(/^\\s*Direction\\s*:[^\\n]*\\n?/i, "")
+    .trim();
+  const direction = pick("Direction") || "Immortal Beast";
+  const words = idea.toLowerCase();
+  const has = (re) => re.test(words);
+  let title = "The Part They Never Saw";
+  let scene = "A person keeps showing up while the result is still invisible.";
+  let tension = "People measure the visible result; the real cost happened outside their view.";
+  let truth = "A quiet season is still a season of work.";
+  let code = "SLEEPING OAR";
+  let codeMeaning = "preparation that does not need an audience";
+  let hook = "Dem no see the hours wey the wall clock chop,\nDem only see the door when e finally unlock.\nI no dey announce wetin the silence dey do,\nThe hand wey build the bridge know the weight e pass through.";
+  let verse = "Phone light blink, but the balance no change,\nSame small room, still I rearrange.\nOne more attempt, make I check that joint,\nSomebody call am delay, I call am appointment.\nI no dey sell the seed before e touch ground,\nWhen the fruit show face, make the root talk sound.";
+  let bridge = "If nobody clap, the work still count,\nNo be every mountain need crowd to mount.";
+  if (has(/love|girl|boyfriend|girlfriend|relationship|romance|kiss|miss you|partner/)) {
+    title = "After the Last Typing";
+    scene = "Two people share a connection, but the smallest everyday actions reveal whether it is mutual.";
+    tension = "Sweet words arrive quickly; consistency is what costs time and attention.";
+    truth = "Affection is not proved by the message; it is proved by the pattern.";
+    code = "WATER RECEIPT";
+    codeMeaning = "the remembered evidence of what someone repeatedly did";
+    hook = "No be the typing bubble dey tell me your mind,\nNa who still make room when the day no kind.\nYou fit clear the chat, but the pattern remain,\nLove get quiet evidence wey no fit explain.";
+    verse = "You say 'I dey come' then the evening grow old,\nI keep one seat while the food turn cold.\nNext day you smile like say nothing was lost,\nI no need quarrel, I just count the cost.\nOne small act fit repair wetin big talk spoil,\nOne empty promise fit make warm ground soil.";
+    bridge = "I no dey beg for a place in your day,\nIf care get legs, make e show me the way.";
+  } else if (has(/money|cash|rent|debt|broke|hustle|work|salary|business|success|grammy|fame|ambition/)) {
+    title = "The Price Before the Price";
+    scene = "Someone is building with limited resources while ordinary bills keep arriving.";
+    tension = "The dream asks for patience, but daily needs demand payment now.";
+    truth = "Ambition must learn how to survive the ordinary Tuesday.";
+    code = "DEEP POCKET";
+    codeMeaning = "value, skill and experience that are not visible in the wallet";
+    hook = "I get plan for tomorrow, today still get bill,\nDream dey look far but the stomach dey real.\nNo price my worth by the cash wey I hold,\nSome things dey grow where the market no go.";
+    verse = "Transport money, data, light bill due,\nThree small demands and the pocket say 'choose'.\nI cut one corner, I protect one tool,\nNo be every sacrifice mean say person be fool.\nI learn one thing wey no fit expire,\nSkill for my hand be another kind wire.";
+    bridge = "Make the money meet the person I build,\nNo let the empty pocket make the whole heart yield.";
+  } else if (has(/betray|fake|friend|trust|silence|leave me|abandon|disrespect|envy/)) {
+    title = "The Seat You Left Empty";
+    scene = "A relationship changes when support is needed, and absence becomes clearer than arguments.";
+    tension = "The narrator must separate disappointment from the urge to retaliate.";
+    truth = "A boundary can be firm without becoming hatred.";
+    code = "RIVER GATE";
+    codeMeaning = "a boundary around access, not a weapon against somebody";
+    hook = "I no curse your road, I just close my gate,\nNo be every visitor suppose know my place.\nYou fit keep your story, I go keep wetin I learn,\nSome bridge no collapse; na who cross am no return.";
+    verse = "When the matter sweet, your number dey ring,\nWhen the load land, I no hear anything.\nI no go edit the past make you look like a saint,\nBut I no go drink that same cup of complaint.\nI carry the lesson, leave the poison behind,\nPeace no be weakness; na disciplined mind.";
+    bridge = "No revenge for my tongue, no war for my chest,\nI just change who gets access to rest.";
+  } else if (has(/faith|prayer|god|tamuno|oluwa|hope|blessing|spirit/)) {
+    title = "Small Answer, Long Road";
+    scene = "Someone keeps moving without pretending every prayer has already been answered.";
+    tension = "Faith has to live beside uncertainty, bills, waiting and honest questions.";
+    truth = "Trust can be steady without pretending the road is easy.";
+    code = "LOW LANTERN";
+    codeMeaning = "quiet guidance enough for the next honest step";
+    hook = "I no see the whole road, I still take this step,\nNo fake say I no tire, no fake say I left.\nIf the answer come softly, I go hear am clear,\nOne small light fit carry person from here.";
+    verse = "Morning meet the question wey night no solve,\nI still wash my face, make the day revolve.\nI ask for sense, no shortcut to shine,\nMake my hand stay clean while I wait for my time.\nIf I fall, make I learn, no worship the fall,\nGrace no dey make me less human at all.";
+    bridge = "Tamuno, hold my heart where my eyes no reach,\nGive me clean steps, no borrowed speech.";
+  } else if (has(/ijaw|izon|bomadi|owigiri|river|home|mother|father|family|village|community/)) {
+    title = "The Name Beneath the Noise";
+    scene = "A person carries home into unfamiliar rooms without turning identity into costume.";
+    tension = "The world may notice the sound before it understands the people and place behind it.";
+    truth = "Roots are strongest when lived naturally, not displayed for approval.";
+    code = "WATER MEMORY";
+    codeMeaning = "the lessons and identity carried from home into a new place";
+    hook = "I no need shout my root make the room believe,\nThe way I move carry wetin I receive.\nNew road fit open, old name still dey,\nI carry home with me, no need explain.";
+    verse = "Different street, different light for the face,\nBut home still dey show for the way I keep pace.\nI no go borrow tongue just to sound complete,\nI let my own rhythm find its own feet.\nIf dem ask where I come from, make the music reply,\nNot by costume or claim, but the truth in the vibe.";
+    bridge = "No fake old story, no borrowed crown,\nThe root no need permission to grow above ground.";
+  }
+  const coded = direction.toLowerCase().includes("ijaw") ? "The Ijaw Wave" : direction;
+  return "IMMORTAL LOCAL MODE — fresh songwriter fallback built from the idea and WhityRay's taught codebook. It is a rules-based draft, not a cloud-model response.\\n\\n" +
+    "TITLE: " + title + "\\n\\n" +
+    "SCENE READ: " + scene + "\\n" +
+    "HIDDEN TENSION: " + tension + "\\n" +
+    "CARRY-OUT TRUTH: " + truth + "\\n\\n" +
+    "IMMORTAL CODE: " + code + " — " + codeMeaning + ". Use it as a single earned image, not a repeated slogan.\\n\\n" +
+    "[Melodic opening]\\n" + title + "… WhityRay.\\n" +
+    "[Hook]\\n" + hook + "\\n\\n" +
+    "[Verse]\\n" + verse + "\\n\\n" +
+    "[Turn]\\n" + bridge + "\\n\\n" +
+    "[Hook variation]\\n" + hook.split("\\n").map((line, i) => i === 0 ? line.replace(/I |No be |Dem /, "Even when ") : line).join("\\n") + "\\n\\n" +
+    "DELIVERY: Singer-first talk-singing that opens close and conversational, then lifts the hook into a clear melody. No long rap verse. Let the coded line land, leave a breath after it. Direction: " + coded + ".\\n\\n" +
+    "SOUND: Choose a groove that serves this scene; do not default to the previous song's genre, mood, tempo or instrumentation. Keep the vocal identity singular and original.\\n\\n" +
+    "LOCAL LIMIT: this fallback cannot truly invent like a live language model or verify past catalogue overlap. It deliberately avoids the old fixed 'River Clock' template and does not claim audio was generated.";
+}
+
 function localImmortalFallback(message, mode) {
   const request = String(message || "").trim();
   const lower = request.toLowerCase();
@@ -720,8 +810,11 @@ export default async function handler(req, res) {
     // not a claim that a full AI model succeeded.
     const fallbackMode = req.body?.mode || "Digital Twin";
     const fallbackMessage = typeof req.body?.message === "string" ? req.body.message : "";
+    const localAnswer = fallbackMode === "Songwriter"
+      ? localSongwriterFallback(fallbackMessage)
+      : localImmortalFallback(fallbackMessage, fallbackMode);
     return res.status(200).json({
-      answer: localImmortalFallback(fallbackMessage, fallbackMode),
+      answer: localAnswer,
       identity: { artist: "WhityRay", persona: "Immortal Beast", world: "The Ijaw Wave", mode: fallbackMode },
       provider: "immortal-local-fallback",
       model: "built-in-rules",
