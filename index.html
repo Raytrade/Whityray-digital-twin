@@ -336,6 +336,29 @@
     ijawOutput.textContent = "IJAW MOUTH is ready.";
   });
 
+  document.getElementById("ijawSendToMusic")?.addEventListener("click", () => {
+    const question = ijawInput.value.trim();
+    if (!question) {
+      ijawOutput.textContent = "Write the thought or conversation first, then send it to Music Lab.";
+      return;
+    }
+    const community = document.getElementById("ijawCommunity").value;
+    const answer = ijawOutput.textContent.trim();
+    const bridge = "IJAW MOUTH CONVERSATION — SOURCE MATERIAL\\n" +
+      "Mode: " + document.getElementById("ijawMode").value + "\\n" +
+      "Community context: " + community + "\\n" +
+      "User's real words: " + question + "\\n" +
+      "Conversation response/context: " + (answer || "No response generated yet.") + "\\n\\n" +
+      "Songwriting instruction: preserve the emotional truth and natural speech. Do not treat the local conversation helper's sample lines as verified traditional Ijaw. Do not invent translations.";
+    const briefField = document.getElementById("studioBrief");
+    briefField.value = brief + (briefField.value.trim() ? "\\n\\n" + briefField.value.trim() : "");
+    document.getElementById("studioUseIjawMouth").checked = true;
+    document.getElementById("studioIjawCommunity").value = community;
+    openPanel("music");
+    document.getElementById("musicStudioResult").textContent = "IJAW MOUTH conversation received. Your original words are now in the Music Lab brief. Add a title if you want, then press Build Music Package.";
+    document.getElementById("studioBrief").focus();
+  });
+
   try {
     const savedIjaw = JSON.parse(localStorage.getItem("immortalIjawMouthHistory") || "[]");
     if (Array.isArray(savedIjaw)) savedIjaw.slice(-20).forEach(item => ijawHistory.push(item));
@@ -846,6 +869,9 @@
         <div class="field" style="margin-top:15px"><label for="studioBrief">Song idea / story / feeling</label><textarea id="studioBrief" placeholder="What happened, what should the listener feel, or what should the song say?"></textarea></div>
         <div class="field"><label for="studioLyrics">Lyrics (required for “my own lyrics”; optional otherwise)</label><textarea id="studioLyrics" placeholder="Paste your lyrics here, or leave blank for original lyrics to be written."></textarea></div>
         <label class="checkline"><input id="studioResearch" type="checkbox" checked /> Research worldwide references + Bomadi / Ijaw context before writing</label>
+        <label class="checkline"><input id="studioUseIjawMouth" type="checkbox" checked /> Connect IJAW MOUTH — use natural conversation and cultural language rules</label>
+        <div class="field"><label for="studioIjawCommunity">IJAW MOUTH community context</label><select id="studioIjawCommunity"><option value="unspecified">Unspecified — do not assume a variety</option><option>Bomadi</option><option>Tuomo</option><option>Mein</option><option>Seimbiri</option><option>Ogulagha</option><option>Kolokuma</option><option>Oporoma</option><option>Nembe</option><option>Brass</option><option>Akassa</option><option>Kalabari</option><option>Okrika</option><option>Ibani</option><option>Nkoro</option></select></div>
+        <div class="notice" style="margin-top:6px">When connected, IJAW MOUTH guides the lyrics: natural speech first, verified community-specific expressions only, no invented Izon translations, and IMMORTAL-ORIGINAL phrases kept separate from traditional language.</div>
         <div class="notice" style="margin-top:6px">Research-first mode looks for public references, local place context, meanings and fresh language ideas. It separates verified facts from creative interpretation and avoids inventing Ijaw meanings.</div>
         <label class="checkline"><input id="studioUseWhityVoice" type="checkbox" checked disabled /> WhityRay singer-first vocal identity only — no duet or substitute voice</label>
         <div class="button-row"><button class="primary" id="generateMusicPackage">Build Music Package</button><button class="secondary" id="clearMusicStudio">Clear Studio</button></div>
@@ -1194,6 +1220,7 @@
         </div>
         <div class="button-row">
           <button class="primary" id="ijawRespond">Respond</button>
+          <button class="secondary" id="ijawSendToMusic">Send conversation to Music Lab</button>
           <button class="secondary" id="ijawClear">Clear</button>
         </div>
         <div class="result studio-result" id="ijawOutput" aria-live="polite">IJAW MOUTH is ready. Start naturally — no need to force Ijaw words.</div>
@@ -1588,7 +1615,7 @@
       "\nRESEARCH SOURCES:\n" + (researchSources.length ? researchSources.map(x => x.title + " — " + x.url).join("\n") : "No verified source links available.") +
       "\n\nRECENT LOCAL CREATIVE MEMORY — AVOID REPEATING TITLES, HOOKS, METAPHORS, STORY ANGLES OR LINE SHAPES:\n" + (memoryBrief || "No saved Music Lab history on this browser yet.") +
       "\n\nCREATIVE REASONING: Interpret the title universally, then find a fresh angle tied to the user’s brief. Research worldwide references and Bomadi / Niger Delta context where relevant; translate discoveries into WhityRay language rather than copying. Do not invent Ijaw vocabulary or meanings. Make every song structurally and emotionally distinct. Avoid defaulting to the same river/mud/quiet/light hook unless the concept truly calls for it. The title must drive the story, not merely appear in the chorus. Every verse advances the story; the hook is memorable and singable." +
-      "\n\nARTIST RULES: singer-first melodic delivery, not long rap verses; English + natural Nigerian Pidgin; tasteful Ijaw/water imagery where fitting; coded Immortal Beast wisdom and memorable hook; emotionally honest, original, concise and performable. Use only WhityRay’s stored authorized voice identity in vocal direction; no duet, no substitute singer, no imitation of another artist. Never invent Ijaw words or meanings. If instrumental mode, absolutely no voice." +
+      "\n\nIJAW MOUTH CONNECTION: " + (document.getElementById("studioUseIjawMouth")?.checked ? "ACTIVE — apply the WhityRay IJAW MOUTH language and cultural rules. Community context: " + (document.getElementById("studioIjawCommunity")?.value || "unspecified") + ". Start from the real conversational meaning in the user's brief. Preserve natural English and Nigerian Pidgin code-switching. Use only Ijaw words whose exact variety, community, meaning and evidence are available in the supplied research/context; otherwise do not insert or guess Ijaw vocabulary. Label any invented WhityRay phrase IMMORTAL-ORIGINAL, never traditional. Keep lyrics singable and do not force river imagery, proverbs or slang. Treat the user's words as emotional source material, not as lines to copy mechanically." : "OFF — do not apply the separate IJAW MOUTH layer; retain the general WhityRay songwriter rules.") +"\n\nARTIST RULES: singer-first melodic delivery, not long rap verses; English + natural Nigerian Pidgin; tasteful Ijaw/water imagery where fitting; coded Immortal Beast wisdom and memorable hook; emotionally honest, original, concise and performable. Use only WhityRay’s stored authorized voice identity in vocal direction; no duet, no substitute singer, no imitation of another artist. Never invent Ijaw words or meanings. If instrumental mode, absolutely no voice." +
       "\n\nOUTPUT FORMAT: 1) TITLE 2) CREATIVE ANGLE (2-3 lines: universal meaning + fresh angle) 3) LYRICS (omit for instrumental mode) 4) SOUND / STYLE PROMPT 5) ARRANGEMENT NOTES 6) EXCLUDE. Keep practical to paste into Suno. Do not claim audio has been generated.";
     button.disabled = true;
     button.textContent = "Building package…";
@@ -1628,6 +1655,8 @@
     ["studioTitle","studioBrief","studioLyrics"].forEach(id => { document.getElementById(id).value = ""; });
     ["studioMode","studioGenre","studioMood","studioTempo","studioLength"].forEach(id => { document.getElementById(id).selectedIndex = 0; });
     if (document.getElementById("studioResearch")) document.getElementById("studioResearch").checked = true;
+    if (document.getElementById("studioUseIjawMouth")) document.getElementById("studioUseIjawMouth").checked = true;
+    if (document.getElementById("studioIjawCommunity")) document.getElementById("studioIjawCommunity").selectedIndex = 0;
     musicStudioResult.textContent = "Your title, lyrics (when requested), arrangement notes and sound prompt will appear here.";
   });
   document.getElementById("copyMusicPackage").addEventListener("click", () => {
