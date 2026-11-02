@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ijaw Mouth Lexicon Entry",
+  "type": "object",
+  "required": [
+    "id",
+    "expression",
+    "language_or_variety",
+    "community",
+    "meaning",
+    "verification_status",
+    "source_type",
+    "created_at"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "expression": { "type": "string", "minLength": 1 },
+    "normalized_expression": { "type": ["string", "null"] },
+    "language_or_variety": { "type": "string", "minLength": 1 },
+    "community": { "type": "string", "minLength": 1 },
+    "locality": { "type": ["string", "null"] },
+    "pronunciation_ipa": { "type": ["string", "null"] },
+    "pronunciation_audio_ref": { "type": ["string", "null"] },
+    "literal_meaning": { "type": ["string", "null"] },
+    "idiomatic_meaning": { "type": "string", "minLength": 1 },
+    "english_equivalent": { "type": ["string", "null"] },
+    "pidgin_equivalent": { "type": ["string", "null"] },
+    "usage_context": { "type": "array", "items": { "type": "string" } },
+    "register": {
+      "type": "string",
+      "enum": ["formal", "respectful", "casual", "youth", "ceremonial", "song", "unknown"]
+    },
+    "example_conversation": { "type": ["string", "null"] },
+    "speaker_notes": { "type": ["string", "null"] },
+    "source_type": {
+      "type": "string",
+      "enum": ["native_speaker", "published_source", "recording", "user_contribution", "researcher", "immortal_original"]
+    },
+    "source_reference": { "type": ["string", "null"] },
+    "speaker_consent": { "type": ["boolean", "null"] },
+    "verification_status": {
+      "type": "string",
+      "enum": ["verified", "community_specific", "documented_unverified", "modern_usage", "immortal_original", "unverified"]
+    },
+    "verified_by": { "type": "array", "items": { "type": "string" } },
+    "verified_at": { "type": ["string", "null"], "format": "date-time" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": false
+}
