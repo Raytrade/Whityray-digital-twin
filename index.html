@@ -344,14 +344,14 @@
     }
     const community = document.getElementById("ijawCommunity").value;
     const answer = ijawOutput.textContent.trim();
-    const bridge = "IJAW MOUTH CONVERSATION — SOURCE MATERIAL\\n" +
-      "Mode: " + document.getElementById("ijawMode").value + "\\n" +
-      "Community context: " + community + "\\n" +
-      "User's real words: " + question + "\\n" +
-      "Conversation response/context: " + (answer || "No response generated yet.") + "\\n\\n" +
+    const bridge = "IJAW MOUTH CONVERSATION — SOURCE MATERIAL\n" +
+      "Mode: " + document.getElementById("ijawMode").value + "\n" +
+      "Community context: " + community + "\n" +
+      "User's real words: " + question + "\n" +
+      "Conversation response/context: " + (answer || "No response generated yet.") + "\n\n" +
       "Songwriting instruction: preserve the emotional truth and natural speech. Do not treat the local conversation helper's sample lines as verified traditional Ijaw. Do not invent translations.";
     const briefField = document.getElementById("studioBrief");
-    briefField.value = brief + (briefField.value.trim() ? "\\n\\n" + briefField.value.trim() : "");
+    briefField.value = bridge + (briefField.value.trim() ? "\n\n" + briefField.value.trim() : "");
     document.getElementById("studioUseIjawMouth").checked = true;
     document.getElementById("studioIjawCommunity").value = community;
     openPanel("music");
