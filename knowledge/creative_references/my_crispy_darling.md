@@ -133,7 +133,7 @@ River Son dey smile.
 
 ## Music-generation brief
 
-2020s playful romantic tropical Afropop and danceable Afrobeats,  kus (not a ballad), 108–112 BPM, bright warm major-key feel, buoyant syncopated Afrobeat drums, soft log-drum accents, crisp shakers, hand percussion, round bouncy bass, plucky guitar, marimba-like tropical keys and sunny synth textures. Light, cheeky, affectionate and instantly catchy. Singer-first solo male WhityRay vocal only, relaxed melodic phrasing, intimate smile in the voice, gentle falsetto touches, playful ad-libs and tasteful self-layered harmonies. Nigerian English/Pidgin pronunciation. Short memorable chorus, chantable post-chorus, clear vocal mix, danceable groove, polished modern Afro-fusion production. Do not imitate any named artist. Do not use a substitute voice, female lead or duet.
+2020s playful romantic tropical Afropop and danceable Afrobeats, not a ballad, 108–112 BPM, bright warm major-key feel, buoyant syncopated Afrobeat drums, soft log-drum accents, crisp shakers, hand percussion, round bouncy bass, plucky guitar, marimba-like tropical keys and sunny synth textures. Light, cheeky, affectionate and instantly catchy. Singer-first solo male WhityRay vocal only, relaxed melodic phrasing, intimate smile in the voice, gentle falsetto touches, playful ad-libs and tasteful self-layered harmonies. Nigerian English/Pidgin pronunciation. Short memorable chorus, chantable post-chorus, clear vocal mix, danceable groove, polished modern Afro-fusion production. Do not imitate any named artist. Do not use a substitute voice, female lead or duet.
 
 ## Negative direction
 
