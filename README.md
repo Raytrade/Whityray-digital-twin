@@ -158,6 +158,10 @@ Secrets must be stored outside source control.
 
 ---
 
+## Creative Reference Library
+
+Approved creative references are stored under `knowledge/creative_references/` and should inform future WhityRay songwriting without overriding the core identity rules. The first playful romantic reference is `my_crispy_darling.md`, which teaches the Twin to explore humorous everyday-object personification, tropical Afropop, light romance and catchy conversational hooks while keeping WhityRay's singer-first delivery and authorized voice identity.
+
 ## Project Status
 
 **Phase 1 — Identity Foundation**
