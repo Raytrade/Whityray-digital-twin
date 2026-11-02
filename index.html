@@ -264,6 +264,84 @@
       letter-spacing: .7px;
     }
 
+    /* IJAW MOUTH — transparent local conversation fallback */
+  const ijawHistory = [];
+  const ijawInput = document.getElementById("ijawInput");
+  const ijawOutput = document.getElementById("ijawOutput");
+  const ijawHistoryBox = document.getElementById("ijawHistory");
+
+  function ijawLocalReply(message, mode, community) {
+    const q = message.toLowerCase();
+    let lines;
+    if (/sorry|apolog|peace|fight|anger|argue|quarrel/.test(q)) {
+      lines = ["Start soft. Give the other person room to speak.", "“I no come to fight you. I just want make we understand each other.”"];
+    } else if (/sad|pain|hurt|alone|cry|tired|fear|worried/.test(q)) {
+      lines = ["No need force strength every minute. Let the feeling settle before you answer.", "“Breathe first. Talk when the heart settle.”"];
+    } else if (/love|girl|boy|romance|miss you|relationship/.test(q)) {
+      lines = ["Keep it honest; no need to over-decorate the feeling.", "“I no dey ask for perfect. I just want make your heart feel safe with me.”"];
+    } else if (/song|hook|chorus|music|suno/.test(q)) {
+      lines = ["Music Bridge: keep the language natural before making it musical.", "“River know my name, but I still dey find my way home.”"];
+    } else if (/elder|father|mother|parent|uncle|aunty|respect/.test(q)) {
+      lines = ["Use a calm, respectful opening. Explain your reason without raising the temperature.", "“I come make we talk with understanding. I no want make this matter spoil respect.”"];
+    } else {
+      lines = ["Talk am as you really talk am. No need decorate every sentence.", "“I hear you. Make we take am one step at a time.”"];
+    }
+    if (mode === "Elder") lines.unshift("Elder mode: respectful, calm, no forced slang.");
+    if (mode === "Street") lines.unshift("Street mode: direct, warm, no unnecessary grammar.");
+    if (mode === "Cultural Learning") lines.unshift("Cultural Learning: ask a speaker from the exact community to verify words, pronunciation and context.");
+    lines.push(community === "unspecified"
+      ? "No variety selected, so I will not pretend a specific Ijaw dialect."
+      : "Community selected: " + community + ". No traditional word is inserted without evidence for that variety.");
+    lines.push("Status: IMMORTAL-ORIGINAL / Nigerian English-Pidgin guidance — not a claim of traditional Ijaw fluency.");
+    return lines.join("\n\n");
+  }
+
+  function renderIjawHistory() {
+    if (!ijawHistoryBox) return;
+    ijawHistoryBox.innerHTML = "";
+    if (!ijawHistory.length) {
+      ijawHistoryBox.textContent = "No conversation yet.";
+      return;
+    }
+    ijawHistory.slice().reverse().forEach(item => {
+      const row = document.createElement("div");
+      row.style.cssText = "border-top:1px solid var(--line);padding:12px 0;white-space:pre-wrap;line-height:1.55";
+      const question = document.createElement("strong");
+      question.style.color = "var(--gold2)";
+      question.textContent = "YOU · " + item.mode + "\n";
+      const answer = document.createElement("div");
+      answer.textContent = item.question + "\n\nIMMORTAL\n" + item.answer;
+      row.append(question, answer);
+      ijawHistoryBox.appendChild(row);
+    });
+  }
+
+  document.getElementById("ijawRespond")?.addEventListener("click", () => {
+    const question = ijawInput.value.trim();
+    if (!question) {
+      ijawOutput.textContent = "Talk to me first.";
+      return;
+    }
+    const mode = document.getElementById("ijawMode").value;
+    const community = document.getElementById("ijawCommunity").value;
+    const answer = ijawLocalReply(question, mode, community);
+    ijawOutput.textContent = answer;
+    ijawHistory.push({ question, answer, mode });
+    try { localStorage.setItem("immortalIjawMouthHistory", JSON.stringify(ijawHistory.slice(-20))); } catch (_) {}
+    renderIjawHistory();
+  });
+
+  document.getElementById("ijawClear")?.addEventListener("click", () => {
+    ijawInput.value = "";
+    ijawOutput.textContent = "IJAW MOUTH is ready.";
+  });
+
+  try {
+    const savedIjaw = JSON.parse(localStorage.getItem("immortalIjawMouthHistory") || "[]");
+    if (Array.isArray(savedIjaw)) savedIjaw.slice(-20).forEach(item => ijawHistory.push(item));
+  } catch (_) {}
+  renderIjawHistory();
+
     /* CHAT */
 
     .chat-box {
@@ -571,6 +649,10 @@
       <a class="nav-link" href="/finance.html">
         💳 Finance & Reflection
       </a>
+
+      <button class="nav-btn" data-panel="ijaw-mouth">
+        🗣️ IJAW MOUTH
+      </button>
 
       <button class="nav-btn" data-panel="settings">
         ⚙️ Settings
@@ -1086,6 +1168,43 @@
     </section>
 
 
+    <!-- IJAW MOUTH -->
+    <section class="panel" id="panel-ijaw-mouth">
+      <div class="module-head">
+        <h2>🗣️ IJAW MOUTH</h2>
+        <p>Living Ijaw language, conversation and cultural intelligence.</p>
+      </div>
+      <div class="workspace" style="margin-bottom:16px">
+        <div class="notice"><b>Authenticity rule:</b> traditional Ijaw words are not invented. Verified language must carry a community/variety and evidence. WhityRay-created expressions are labelled <b>IMMORTAL-ORIGINAL</b>.</div>
+        <div class="studio-grid" style="margin-top:16px">
+          <div class="field"><label for="ijawMode">Conversation mode</label>
+            <select id="ijawMode">
+              <option>Casual</option><option>Elder</option><option>Friend</option><option>Street</option><option>Family</option><option>Romance</option><option>Conflict</option><option>Comfort</option><option>Story</option><option>Cultural Learning</option><option>Music Bridge</option>
+            </select>
+          </div>
+          <div class="field"><label for="ijawCommunity">Community / variety</label>
+            <select id="ijawCommunity">
+              <option value="unspecified">Unspecified — do not assume a dialect</option>
+              <option>Bomadi</option><option>Tuomo</option><option>Mein</option><option>Seimbiri</option><option>Ogulagha</option><option>Kolokuma</option><option>Oporoma</option><option>Nembe</option><option>Brass</option><option>Akassa</option><option>Kalabari</option><option>Okrika</option><option>Ibani</option><option>Nkoro</option>
+            </select>
+          </div>
+        </div>
+        <div class="field"><label for="ijawInput">Talk to IMMORTAL</label>
+          <textarea id="ijawInput" rows="5" placeholder="Talk naturally. Example: I wan settle with my brother but I no know how to start."></textarea>
+        </div>
+        <div class="button-row">
+          <button class="primary" id="ijawRespond">Respond</button>
+          <button class="secondary" id="ijawClear">Clear</button>
+        </div>
+        <div class="result studio-result" id="ijawOutput" aria-live="polite">IJAW MOUTH is ready. Start naturally — no need to force Ijaw words.</div>
+      </div>
+      <div class="workspace">
+        <div class="studio-kicker">Language integrity</div>
+        <p style="color:var(--muted);line-height:1.6">The verified seed lexicon remains intentionally empty until real community evidence is added. Local mode therefore uses English/Pidgin guidance and clearly marks original expressions. Selecting a community does not prove dialect fluency.</p>
+        <div id="ijawHistory" style="margin-top:14px;color:#bbb"></div>
+      </div>
+    </section>
+
     <div class="footer">
       IMMORTAL · Creative Intelligence
     </div>
@@ -1130,6 +1249,10 @@
     connections: [
       "Connections",
       "Provider and API connection status."
+    ],
+    "ijaw-mouth": [
+      "IJAW MOUTH",
+      "Living Ijaw language, conversation and cultural intelligence."
     ],
     settings: [
       "Settings",
