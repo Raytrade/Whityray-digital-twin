@@ -40,9 +40,9 @@ $("generate").addEventListener("click",async()=>{
  const btn=$("generate");btn.disabled=true;$("status").textContent="Sending your song idea to Treblo…";
  try{
  const r=await fetch("/api/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:idea,lyrics,instrumental,output_format:$("format").value})});
- const data=await r.json();if(!r.ok)throw new Error(data.error||"Could not start generation.");
+ const raw=await r.text();let data={};try{data=raw?JSON.parse(raw):{}}catch{throw new Error("Studio server returned a non-JSON error: "+raw.slice(0,180))}if(!r.ok)throw new Error(data.error||"Could not start generation.");
  $("status").textContent="Generation started. Preparing your song…";const id=data.task_id;let tries=0;
- timer=setInterval(async()=>{try{tries++;const sr=await fetch("/api/status?task_id="+encodeURIComponent(id));const s=await sr.json();if(!sr.ok)throw new Error(s.error||"Status check failed.");
+ timer=setInterval(async()=>{try{tries++;const sr=await fetch("/api/status?task_id="+encodeURIComponent(id));const rawStatus=await sr.text();let s={};try{s=rawStatus?JSON.parse(rawStatus):{}}catch{throw new Error("Status service returned a non-JSON response: "+rawStatus.slice(0,180))}if(!sr.ok)throw new Error(s.error||"Status check failed.");
  $("status").textContent="Treblo status: "+(s.status||"PROCESSING");
  if(s.status==="SUCCESS"&&s.audio_url){clearInterval(timer);$("status").textContent="Your track is ready.";const audio=document.createElement("audio");audio.controls=true;audio.className="player";audio.src=s.audio_url;$("result").appendChild(audio);const a=document.createElement("a");a.className="download";a.href=s.audio_url;a.download="whityray-studio-track."+($("format").value==="ogg"?"ogg":$("format").value);a.textContent="Download your track";$("result").appendChild(a);btn.disabled=false}
  else if(s.status==="FAILURE"){clearInterval(timer);throw new Error("Treblo reports that generation failed. Its documentation says failed jobs do not deduct credits.");}
