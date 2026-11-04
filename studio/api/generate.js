@@ -4,12 +4,13 @@ module.exports = async function handler(req, res) {
   if (!key) return res.status(503).json({ error: "Treblo API key is not configured for this deployment." });
   try {
     const { prompt = "", lyrics = "", instrumental = false, output_format = "mp3" } = req.body || {};
-    if (!String(prompt).trim() && !String(lyrics).trim()) return res.status(400).json({ error: "Add a song idea or lyrics." });
+    const idea = String(prompt).trim();
+    const words = String(lyrics).trim();
+    if (!idea && !words) return res.status(400).json({ error: "Add a song idea or lyrics." });
     const safeFormat = ["mp3", "wav", "m4a", "ogg", "flac"].includes(output_format) ? output_format : "mp3";
-    const identity = "Original WhityRay sound: melody-first emotional Afro-fusion, soulful and intimate lead vocal, natural Nigerian English and Pidgin phrasing with tasteful Ijaw touches when fitting, warm Afrobeats groove, subtle highlife percussion and atmospheric soulful textures. Keep the vocal melodic and human, not rap-led. Do not imitate or name any existing artist.";
-    const parts = [identity, String(prompt).trim()];
-    if (String(lyrics).trim() && !instrumental) parts.push("Use these exact user-provided lyrics as the song lyrics:\n" + String(lyrics).slice(0, 12000));
-    const payload = { prompt: parts.filter(Boolean).join("\n\n"), output_format: safeFormat };
+    const identity = "Original WhityRay sound: melody-first emotional Afro-fusion, soulful intimate lead vocal, natural Nigerian English and Pidgin phrasing with tasteful Ijaw touches, warm Afrobeats groove, subtle highlife percussion and atmospheric soulful textures. Keep the vocal melodic and human, not rap-led.";
+    const payload = { prompt: [identity, idea].filter(Boolean).join(". "), output_format: safeFormat, instrumental: Boolean(instrumental) };
+    if (words && !instrumental) payload.lyrics = words.slice(0, 12000);
     const upstream = await fetch("https://api.treblo.com/v1/generations/v3", {
       method: "POST", headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" }, body: JSON.stringify(payload)
     });
@@ -21,6 +22,6 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ task_id: data.task_id });
   } catch (e) {
     console.error("Treblo generation request failed:", e && e.message ? e.message : "unknown error");
-    return res.status(500).json({ error: "Generation request failed. Check the Vercel runtime logs for details." });
+    return res.status(500).json({ error: "Generation request failed. Check Vercel runtime logs." });
   }
 };
